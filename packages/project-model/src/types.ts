@@ -8,7 +8,8 @@ export type CanonFactCategory =
   | "relationship"
   | "secret"
   | "timeline"
-  | "theme";
+  | "theme"
+  | "real-world-fact";
 
 export type CanonFactStatus = "proposed" | "approved" | "locked" | "superseded";
 
@@ -212,9 +213,62 @@ export interface CorkboardCard {
   synopsis: string;
   sceneNumber?: number;
   act: number; // 1, 2, 3
-  color: string; // hex or label
+  color: string;
   tags: string[];
   order: number;
+}
+
+// -------------------------------------------------------------
+// Parallel Search Partner Integration Models
+// -------------------------------------------------------------
+export interface ParallelSource {
+  title: string;
+  url: string;
+  snippet: string;
+  publishedDate?: string;
+}
+
+export interface ResearchFinding {
+  id: string;
+  sceneNumber: number;
+  query: string;
+  summary: string;
+  conclusion: string;
+  confidence: number;
+  sources: ParallelSource[];
+  status: "APPROVED" | "REJECTED" | "NEEDS REVIEW";
+  retrievedAt: string;
+  isParallelApiResult: boolean;
+}
+
+// -------------------------------------------------------------
+// 3D Scene Blocking & Previsualization Models
+// -------------------------------------------------------------
+export interface Vec3 {
+  x: number;
+  y: number;
+  z: number;
+}
+
+export interface Scene3DObject {
+  id: string;
+  sceneNumber: number;
+  label: string;
+  kind: "actor" | "camera" | "prop" | "light" | "vehicle";
+  position: Vec3;
+  color: string;
+  notes?: string;
+}
+
+// -------------------------------------------------------------
+// Project Dependency Graph Edge
+// -------------------------------------------------------------
+export interface DependencyEdge {
+  id: string;
+  source: string; // e.g. "scene-1"
+  target: string; // e.g. "actor-maya-lin"
+  type: "affects-character" | "requires-prop" | "invalidates-packet" | "grounded-by-research" | "continuity-link";
+  label: string;
 }
 
 export interface PropagationEvent {
@@ -236,20 +290,22 @@ export interface PropagationState {
   auditTrail: PropagationEvent[];
 }
 
-export type AIProviderName = "gemini" | "openai" | "anthropic" | "openrouter" | "ollama" | "offline-heuristic";
+// Google Cloud AI & Parallel Partner Provider Configuration
+export type AIProviderName = "google-gemini" | "google-adk" | "parallel-search" | "google-deterministic";
 
 export interface AIProviderConfig {
   provider: AIProviderName;
   apiKey?: string;
   model: string;
   baseUrl?: string;
-  customHeaders?: Record<string, string>;
   isDefault: boolean;
 }
 
 export interface ProjectSettings {
   defaultRevisionColor: RevisionColor;
   activeProvider: AIProviderName;
+  geminiApiKey?: string;
+  parallelApiKey?: string;
   providers: Record<AIProviderName, AIProviderConfig>;
   typography: {
     fontFamily: string;
@@ -275,6 +331,21 @@ export interface AgentProposal {
   createdAt: string;
 }
 
+export interface ConsolidatedImpactReport {
+  timestamp: string;
+  sceneNumber: number;
+  changeSummary: string;
+  affectedCanonCount: number;
+  affectedCanonTitles: string[];
+  continuityIssuesDetected: ContinuityIssue[];
+  affectedActorIds: string[];
+  staleActorPacketsCount: number;
+  affectedBreakdownCount: number;
+  affectedBreakdownCategories: string[];
+  researchFindings: ResearchFinding[];
+  diffPreview: string;
+}
+
 export interface Project {
   id: string;
   title: string;
@@ -292,6 +363,10 @@ export interface Project {
   meetingNotes: StickyNote[];
   corkboardCards: CorkboardCard[];
   proposals: AgentProposal[];
+  researchFindings: ResearchFinding[];
+  scene3DObjects: Scene3DObject[];
+  dependencyEdges: DependencyEdge[];
+  latestImpactReport: ConsolidatedImpactReport | null;
   propagationState: PropagationState;
   settings: ProjectSettings;
   createdAt: string;

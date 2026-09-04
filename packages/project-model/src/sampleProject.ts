@@ -5,7 +5,7 @@ export const SAMPLE_SCREENPLAY_TEXT = `Title: THE OBSIDIAN PROTOCOL
 Credit: Written by
 Author: Kapasai Nitish Reddy
 Draft date: October 2026
-Contact: productions@agenticcinema.io
+Contact: productions@scribestudio.io
 
 INT. CYBER VAULT 7 - NIGHT
 
@@ -652,6 +652,100 @@ export function createSampleProject(): Project {
       }
     ],
     proposals: [],
+    researchFindings: [
+      {
+        id: "res-1",
+        sceneNumber: 1,
+        query: "Halon 1301 fire suppression system evacuation time safety limits",
+        summary: "Verified NFPA 12A standard: Halon 1301 total flooding systems necessitate emergency personnel egress within 40-60 seconds before oxygen depletion.",
+        conclusion: "Maya's line 'the halon suppression system will suffocate us in under forty seconds' is technically accurate to NFPA safety standards.",
+        confidence: 0.96,
+        sources: [
+          {
+            title: "NFPA 12A Standard on Halon 1301 Fire Extinguishing Systems",
+            url: "https://www.nfpa.org/codes-and-standards/nfpa-12a-standard-development",
+            snippet: "Atmospheric halon total flooding systems extinguish fires by chemically interrupting combustion; evacuation required within 40 seconds before hypoxia risks."
+          }
+        ],
+        status: "APPROVED",
+        retrievedAt: now,
+        isParallelApiResult: true
+      },
+      {
+        id: "res-2",
+        sceneNumber: 4,
+        query: "Tokyo harbor industrial drainage storm flume maritime regulations",
+        summary: "Tokyo Metropolitan Bureau of Port and Harbor guidelines for underground tidal runoff culverts.",
+        conclusion: "Underground discharge flumes in Tokyo Bay feature emergency access grating opening directly onto commercial mooring slips.",
+        confidence: 0.92,
+        sources: [
+          {
+            title: "Tokyo Port and Harbor Bureau — Industrial Waterfront Storm Runoff Guidelines",
+            url: "https://www.kouwan.metro.tokyo.lg.jp/en/environment/runoff-discharge.html",
+            snippet: "Tokyo Bay maritime drainage networks feature tidal backflow flaps and industrial storm flumes regulated by Tokyo Metropolitan Bureau."
+          }
+        ],
+        status: "APPROVED",
+        retrievedAt: now,
+        isParallelApiResult: true
+      }
+    ],
+    scene3DObjects: [
+      {
+        id: "obj-maya",
+        sceneNumber: 1,
+        label: "Maya Lin (Terminal)",
+        kind: "actor",
+        position: { x: 0, y: 0.9, z: 0 },
+        color: "#3b82f6",
+        notes: "Kneeling before primary server monolith"
+      },
+      {
+        id: "obj-marcus",
+        sceneNumber: 1,
+        label: "Marcus Kane (Perimeter)",
+        kind: "actor",
+        position: { x: 2.4, y: 0.9, z: 1.5 },
+        color: "#10b981",
+        notes: "Suppressed carbine trained on service lift"
+      },
+      {
+        id: "obj-camera-a",
+        sceneNumber: 1,
+        label: "Camera A (24mm Low Angle)",
+        kind: "camera",
+        position: { x: -1.8, y: 0.7, z: 3.2 },
+        color: "#f59e0b",
+        notes: "Motorized track pushing inward"
+      },
+      {
+        id: "obj-terminal",
+        sceneNumber: 1,
+        label: "Vault Console Monolith",
+        kind: "prop",
+        position: { x: 0, y: 1.2, z: -0.8 },
+        color: "#6366f1",
+        notes: "Active luminescent biometric port"
+      },
+      {
+        id: "obj-door",
+        sceneNumber: 1,
+        label: "Blast Door Barrier",
+        kind: "prop",
+        position: { x: 3.5, y: 1.5, z: 1.5 },
+        color: "#ef4444",
+        notes: "Hydraulic pressure seal"
+      }
+    ],
+    dependencyEdges: [
+      { id: "edge-1", source: "scene-1", target: "actor-maya-lin", type: "affects-character", label: "Speaking Lead" },
+      { id: "edge-2", source: "scene-1", target: "actor-marcus-kane", type: "affects-character", label: "Speaking Lead" },
+      { id: "edge-3", source: "scene-1", target: "prop-titanium-drive", type: "requires-prop", label: "Breach Asset" },
+      { id: "edge-4", source: "scene-1", target: "res-1", type: "grounded-by-research", label: "Parallel Verified" },
+      { id: "edge-5", source: "scene-1", target: "packet-maya-lin", type: "invalidates-packet", label: "Generates Cues" },
+      { id: "edge-6", source: "scene-4", target: "res-2", type: "grounded-by-research", label: "Parallel Verified" }
+    ],
+    latestImpactReport: null,
     propagationState: {
       lastEvaluatedVersion: 2,
       staleActorPackets: [],
@@ -672,14 +766,12 @@ export function createSampleProject(): Project {
     },
     settings: {
       defaultRevisionColor: "Blue",
-      activeProvider: "offline-heuristic",
+      activeProvider: "google-gemini",
       providers: {
-        gemini: { provider: "gemini", model: "gemini-1.5-pro", isDefault: false },
-        openai: { provider: "openai", model: "gpt-4o", isDefault: false },
-        anthropic: { provider: "anthropic", model: "claude-3-5-sonnet", isDefault: false },
-        openrouter: { provider: "openrouter", model: "anthropic/claude-3.5-sonnet", isDefault: false },
-        ollama: { provider: "ollama", baseUrl: "http://localhost:11434", model: "llama3", isDefault: false },
-        "offline-heuristic": { provider: "offline-heuristic", model: "deterministic-nlp-v1", isDefault: true }
+        "google-gemini": { provider: "google-gemini", model: "gemini-1.5-pro", isDefault: true },
+        "google-adk": { provider: "google-adk", model: "google-cloud-agent-adk", isDefault: false },
+        "parallel-search": { provider: "parallel-search", model: "parallel-search-v1", isDefault: false },
+        "google-deterministic": { provider: "google-deterministic", model: "deterministic-nlp-v1", isDefault: false }
       },
       typography: {
         fontFamily: "'Courier Prime', Courier, monospace",

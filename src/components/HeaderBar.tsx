@@ -14,7 +14,11 @@ import {
   Clapperboard,
   LayoutGrid,
   ShieldCheck,
-  Package
+  Package,
+  Box,
+  GitFork,
+  Globe,
+  Zap
 } from "lucide-react";
 import type { Project, RevisionColor } from "../../packages/project-model/src/types";
 
@@ -27,6 +31,8 @@ interface HeaderBarProps {
   onOpenTableRead: () => void;
   onOpenScribeModal: () => void;
   onOpenExportModal: () => void;
+  onOpenHeroModal: () => void;
+  onOpenComplianceDrawer: () => void;
   onLoadSample: () => void;
 }
 
@@ -51,6 +57,8 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
   onOpenTableRead,
   onOpenScribeModal,
   onOpenExportModal,
+  onOpenHeroModal,
+  onOpenComplianceDrawer,
   onLoadSample
 }) => {
   const currentRev = project.revisions[0] || { color: "White" as RevisionColor, label: "Draft" };
@@ -58,37 +66,44 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
   const continuityIssueCount = project.continuityIssues.filter((i) => i.status === "active").length;
 
   return (
-    <header className="h-14 border-b border-[#232730] bg-[#111318] px-4 flex items-center justify-between select-none">
+    <header className="h-14 border-b border-[#232730] bg-[#111318] px-3 flex items-center justify-between select-none">
       {/* Brand & Project Info */}
-      <div className="flex items-center space-x-3">
+      <div className="flex items-center space-x-3 shrink-0">
         <div className="flex items-center space-x-2 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 px-2.5 py-1 rounded-md">
           <Film className="w-4 h-4 text-amber-400" />
-          <span className="font-semibold text-sm tracking-wide text-amber-400">AGENTIC CINEMA</span>
+          <span className="font-extrabold text-sm tracking-wide text-amber-400">SCRIBE STUDIO</span>
+        </div>
+
+        <div className="hidden 2xl:flex items-center text-[11px] text-slate-400 italic">
+          "The Screenplay That Understands What It Changes"
         </div>
 
         <div className="h-4 w-px bg-[#262a35]" />
 
         <div className="flex items-center space-x-2">
-          <span className="text-sm font-medium text-slate-200">{project.title}</span>
+          <span className="text-xs font-semibold text-slate-200 truncate max-w-[130px]">{project.title}</span>
           <span
-            className={`text-xs px-2 py-0.5 rounded font-semibold uppercase tracking-wider ${
+            className={`text-[10px] px-1.5 py-0.5 rounded font-semibold uppercase tracking-wider ${
               REVISION_COLORS[currentRev.color] || "bg-slate-700 text-white"
             }`}
           >
             {currentRev.color} Rev
           </span>
-          <span className="text-xs text-slate-400 font-mono">v{project.version}</span>
+          <span className="text-[10px] text-slate-500 font-mono">v{project.version}</span>
         </div>
       </div>
 
       {/* Navigation Tabs */}
-      <nav className="flex items-center space-x-1 bg-[#161922] p-1 rounded-lg border border-[#232730]">
+      <nav className="flex items-center space-x-1 bg-[#161922] p-1 rounded-lg border border-[#232730] overflow-x-auto mx-2">
         {[
           { id: "editor", label: "Screenplay", icon: Film },
           { id: "story-bible", label: "Story Bible", icon: BookOpen },
           { id: "actor-packets", label: "Actor Packets", icon: Package, badge: stalePacketCount },
           { id: "continuity", label: "Continuity", icon: ShieldCheck, badge: continuityIssueCount },
           { id: "breakdown", label: "Breakdown", icon: Clapperboard },
+          { id: "scene-3d", label: "3D Previs", icon: Box },
+          { id: "graph", label: "Graph", icon: GitFork },
+          { id: "research", label: "Research", icon: Globe },
           { id: "director", label: "Director", icon: Clapperboard },
           { id: "producer", label: "Producer", icon: Settings },
           { id: "corkboard", label: "Corkboard", icon: LayoutGrid },
@@ -100,7 +115,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+              className={`flex items-center space-x-1 px-2.5 py-1 rounded-md text-xs font-medium transition-colors shrink-0 ${
                 isActive
                   ? "bg-[#252a37] text-white shadow-sm border border-[#333a4d]"
                   : "text-slate-400 hover:text-slate-200 hover:bg-[#1b1f2b]"
@@ -125,50 +140,50 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
       </nav>
 
       {/* Quick Actions & Tools */}
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-1.5 shrink-0">
+        {/* HERO WORKFLOW RUNNER */}
+        <button
+          onClick={onOpenHeroModal}
+          className="flex items-center space-x-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-500 text-black font-extrabold rounded-md text-xs shadow-md shadow-amber-500/20 transition-all transform hover:scale-[1.02]"
+          title="Run Hero Workflow: Screenplay AST Diff -> Multi-Agent Blast Radius -> Parallel Research -> Selective Regeneration"
+        >
+          <Zap className="w-3.5 h-3.5 fill-current" />
+          <span>Hero Run</span>
+        </button>
+
+        {/* COMPLIANCE & BENCHMARKS BADGE */}
+        <button
+          onClick={onOpenComplianceDrawer}
+          className="flex items-center space-x-1.5 px-2.5 py-1.5 bg-emerald-950/40 hover:bg-emerald-900/50 border border-emerald-500/40 text-emerald-300 rounded-md text-xs transition-colors"
+          title="Google Cloud & Parallel Search Compliance Dashboard"
+        >
+          <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+          <span className="hidden xl:inline font-semibold">Google & Parallel</span>
+        </button>
+
         <button
           onClick={onOpenCommandPalette}
-          className="flex items-center space-x-1.5 px-2.5 py-1.5 bg-[#181b24] hover:bg-[#202532] border border-[#272b38] rounded-md text-xs text-slate-300 transition-colors"
+          className="p-1.5 bg-[#181b24] hover:bg-[#202532] border border-[#272b38] rounded-md text-slate-300 transition-colors"
           title="Command Palette & Search (Ctrl+K)"
         >
           <Search className="w-3.5 h-3.5 text-slate-400" />
-          <span className="hidden sm:inline">Search</span>
-          <kbd className="text-[10px] bg-[#111318] px-1 rounded text-slate-400 border border-[#2a2f3d]">⌘K</kbd>
         </button>
 
         <button
           onClick={onOpenWriterModal}
-          className="flex items-center space-x-1.5 px-2.5 py-1.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white rounded-md text-xs font-medium shadow-sm transition-all"
+          className="flex items-center space-x-1 px-2 py-1.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white rounded-md text-xs font-medium shadow-sm transition-all"
         >
           <Sparkles className="w-3.5 h-3.5 text-indigo-200" />
-          <span>Writer Agent</span>
-        </button>
-
-        <button
-          onClick={onOpenTableRead}
-          className="flex items-center space-x-1 px-2 py-1.5 bg-[#181b24] hover:bg-[#202532] border border-[#272b38] text-slate-300 rounded-md text-xs transition-colors"
-          title="Start Table Read Mode"
-        >
-          <Play className="w-3.5 h-3.5 text-emerald-400" />
-          <span className="hidden md:inline">Table Read</span>
-        </button>
-
-        <button
-          onClick={onOpenScribeModal}
-          className="flex items-center space-x-1 px-2 py-1.5 bg-[#181b24] hover:bg-[#202532] border border-[#272b38] text-slate-300 rounded-md text-xs transition-colors"
-          title="Scribe Meeting / Table Read Notes"
-        >
-          <Mic className="w-3.5 h-3.5 text-sky-400" />
-          <span className="hidden md:inline">Scribe</span>
+          <span className="hidden md:inline">Writer Agent</span>
         </button>
 
         <button
           onClick={onOpenExportModal}
-          className="flex items-center space-x-1 px-2.5 py-1.5 bg-[#181b24] hover:bg-[#202532] border border-[#272b38] text-slate-200 rounded-md text-xs font-medium transition-colors"
+          className="flex items-center space-x-1 px-2 py-1.5 bg-[#181b24] hover:bg-[#202532] border border-[#272b38] text-slate-200 rounded-md text-xs font-medium transition-colors"
           title="Export Formats (PDF, FDX, Sides, Fountain)"
         >
           <FileDown className="w-3.5 h-3.5 text-amber-400" />
-          <span>Export</span>
+          <span className="hidden md:inline">Export</span>
         </button>
 
         <button
@@ -176,7 +191,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
           className="text-xs text-slate-400 hover:text-slate-200 px-2 py-1 bg-[#141720] rounded border border-[#222632]"
           title="Reload Demo Project"
         >
-          Reset Demo
+          Reset
         </button>
       </div>
     </header>

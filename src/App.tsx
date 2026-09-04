@@ -11,6 +11,11 @@ import { DirectorPanel } from "./components/DirectorPanel";
 import { ProducerPanel } from "./components/ProducerPanel";
 import { CorkboardPanel } from "./components/CorkboardPanel";
 import { RevisionsPanel } from "./components/RevisionsPanel";
+import { Scene3DStudio } from "./components/Scene3DStudio";
+import { DependencyGraphPanel } from "./components/DependencyGraphPanel";
+import { ProductionResearchPanel } from "./components/ProductionResearchPanel";
+import { HeroImpactModal } from "./components/HeroImpactModal";
+import { ComplianceDrawer } from "./components/ComplianceDrawer";
 import { WriterAgentModal } from "./components/WriterAgentModal";
 import { TableReadModal } from "./components/TableReadModal";
 import { MeetingScribeModal } from "./components/MeetingScribeModal";
@@ -36,6 +41,10 @@ export const App: React.FC = () => {
     setIsScribeModalOpen,
     isExportModalOpen,
     setIsExportModalOpen,
+    isHeroModalOpen,
+    setIsHeroModalOpen,
+    isComplianceOpen,
+    setIsComplianceOpen,
     updateScreenplay,
     acceptProposal,
     regenerateActorPacket,
@@ -49,7 +58,14 @@ export const App: React.FC = () => {
     resolveContinuityIssue,
     addStickyNote,
     updateCorkboardCards,
-    loadSampleProject
+    loadSampleProject,
+    addScene3DObject,
+    updateScene3DObject,
+    deleteScene3DObject,
+    addResearchFinding,
+    runParallelResearch,
+    executeHeroWorkflow,
+    setActiveAiProvider
   } = useProject();
 
   // Keyboard shortcut Ctrl+K for command palette
@@ -76,6 +92,8 @@ export const App: React.FC = () => {
         onOpenTableRead={() => setIsTableReadOpen(true)}
         onOpenScribeModal={() => setIsScribeModalOpen(true)}
         onOpenExportModal={() => setIsExportModalOpen(true)}
+        onOpenHeroModal={() => setIsHeroModalOpen(true)}
+        onOpenComplianceDrawer={() => setIsComplianceOpen(true)}
         onLoadSample={loadSampleProject}
       />
 
@@ -134,6 +152,37 @@ export const App: React.FC = () => {
           />
         )}
 
+        {activeTab === "scene-3d" && (
+          <Scene3DStudio
+            project={project}
+            selectedSceneNumber={selectedSceneNumber}
+            onSelectScene={setSelectedSceneNumber}
+            onAddObject={addScene3DObject}
+            onUpdateObject={updateScene3DObject}
+            onDeleteObject={deleteScene3DObject}
+          />
+        )}
+
+        {activeTab === "graph" && (
+          <DependencyGraphPanel
+            project={project}
+            onSelectScene={(num) => {
+              setSelectedSceneNumber(num);
+              setActiveTab("editor");
+            }}
+            onNavigateToTab={(tab) => setActiveTab(tab as any)}
+          />
+        )}
+
+        {activeTab === "research" && (
+          <ProductionResearchPanel
+            project={project}
+            onAddFinding={addResearchFinding}
+            onRunSearch={runParallelResearch}
+            onAddCanonFact={addCanonFact}
+          />
+        )}
+
         {activeTab === "director" && (
           <DirectorPanel
             project={project}
@@ -168,6 +217,26 @@ export const App: React.FC = () => {
       </div>
 
       {/* Modals & Studios */}
+      {isHeroModalOpen && (
+        <HeroImpactModal
+          project={project}
+          isOpen={isHeroModalOpen}
+          onClose={() => setIsHeroModalOpen(false)}
+          onExecuteHeroWorkflow={executeHeroWorkflow}
+          onRegenerateStalePackets={regenerateAllStalePackets}
+          onNavigateToTab={(tab) => setActiveTab(tab as any)}
+        />
+      )}
+
+      {isComplianceOpen && (
+        <ComplianceDrawer
+          project={project}
+          isOpen={isComplianceOpen}
+          onClose={() => setIsComplianceOpen(false)}
+          onUpdateProviderSettings={setActiveAiProvider}
+        />
+      )}
+
       {isWriterModalOpen && (
         <WriterAgentModal
           project={project}
