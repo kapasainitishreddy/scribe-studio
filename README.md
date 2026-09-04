@@ -7,7 +7,7 @@
 [![Google Cloud AI](https://img.shields.io/badge/Google%20Cloud-Gemini%201.5%20Pro%20%26%202.0%20Flash-4285F4?logo=google-cloud&logoColor=white)](https://cloud.google.com/vertex-ai)
 [![Parallel Search API](https://img.shields.io/badge/Partner%20Track-Parallel%20Search%20API-0ea5e9)](https://parallel.ai)
 [![Compliance](https://img.shields.io/badge/Disallowed%20APIs-0%25%20(100%25%20Compliant)-10b981)](#-strict-hackathon-compliance)
-[![Tests](https://img.shields.io/badge/Tests-15%2F15%20Passing%20(100%25)-10b981)](docs/TEST_RESULTS.md)
+[![Tests](https://img.shields.io/badge/Tests-29%2F29%20Passing%20(100%25)-10b981)](docs/TEST_RESULTS.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---

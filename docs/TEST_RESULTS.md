@@ -12,19 +12,19 @@
 ```
  RUN  v3.2.7 D:/agentic-cinema
 
- ✓ tests/screenplayCore.test.ts (5 tests) 24ms
- ✓ tests/propagationEngine.test.ts (2 tests) 34ms
- ✓ tests/continuityAndBreakdown.test.ts (3 tests) 32ms
- ✓ tests/interchange.test.ts (4 tests) 85ms
- ✓ tests/fullProjectWorkflow.test.ts (1 test) 99ms
+ ✓ tests/screenplayCore.test.ts (5 tests) 46ms
+ ✓ tests/propagationEngine.test.ts (2 tests) 70ms
+ ✓ tests/continuityAndBreakdown.test.ts (3 tests) 68ms
+ ✓ tests/interchange.test.ts (4 tests) 152ms
+ ✓ tests/fullProjectWorkflow.test.ts (1 test) 175ms
+ ✓ tests/comprehensiveFeatureAudit.test.ts (14 tests) 103ms
 
- Test Files  5 passed (5)
-      Tests  15 passed (15)
-   Start at  19:40:11
-   Duration  6.85s (transform 809ms, setup 0ms, collect 1.67s, tests 275ms, environment 2ms, prepare 1.50s)
+ Test Files  6 passed (6)
+      Tests  29 passed (29)
+   Duration  9.69s
 ```
 
-**Overall Result: 100% Pass (15 of 15 tests passing across 5 test suites).**
+**Overall Result: 100% Pass (29 of 29 tests passing across 6 test suites).**
 
 ---
 
