@@ -118,9 +118,27 @@ export const TableReadModal: React.FC<TableReadModalProps> = ({ project, onClose
       window.speechSynthesis.cancel();
     }
   };
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
 
   return (
-    <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 p-6 select-none">
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+          onClose();
+        }
+      }}
+      className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 p-6 select-none"
+    >
       <div className="bg-[#12141c] border border-[#272d3e] rounded-2xl w-full max-w-4xl h-[85vh] flex flex-col shadow-2xl overflow-hidden">
         {/* Header */}
         <div className="h-14 border-b border-[#222736] bg-[#0f1118] px-6 flex items-center justify-between">

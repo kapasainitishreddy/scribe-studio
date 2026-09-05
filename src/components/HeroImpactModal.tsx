@@ -56,6 +56,16 @@ export const HeroImpactModal: React.FC<HeroImpactModalProps> = ({
     project.latestVerificationReport || null
   );
 
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
   if (!isOpen) return null;
 
   const handleStartHeroRun = async () => {
@@ -99,7 +109,12 @@ export const HeroImpactModal: React.FC<HeroImpactModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 select-none animate-in fade-in duration-200">
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 select-none animate-in fade-in duration-200"
+    >
       <div className="bg-[#11141d] border border-[#2a3449] rounded-2xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
         {/* Modal Header */}
         <div className="h-16 border-b border-[#232a3b] bg-[#141824] px-6 flex items-center justify-between">

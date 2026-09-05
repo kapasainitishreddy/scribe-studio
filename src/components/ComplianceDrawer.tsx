@@ -65,6 +65,16 @@ export const ComplianceDrawer: React.FC<ComplianceDrawerProps> = ({
     }
   }, []);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
   if (!isOpen) return null;
 
   const handleSaveKeys = () => {
@@ -138,7 +148,12 @@ export const ComplianceDrawer: React.FC<ComplianceDrawerProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-xs select-none">
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+      className="fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-xs select-none"
+    >
       <div className="absolute inset-y-0 right-0 max-w-full flex pl-10">
         <div className="w-screen max-w-xl bg-[#11141c] border-l border-[#242c3d] shadow-2xl flex flex-col">
           {/* Drawer Header */}

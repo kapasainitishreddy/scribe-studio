@@ -25,6 +25,16 @@ export const WriterAgentModal: React.FC<WriterAgentModalProps> = ({
   const [isGenerating, setIsGenerating] = useState(false);
   const [proposal, setProposal] = useState<AgentProposal | null>(null);
 
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
   const handleGenerate = async () => {
     setIsGenerating(true);
     try {
@@ -47,7 +57,12 @@ export const WriterAgentModal: React.FC<WriterAgentModalProps> = ({
     : null;
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-6 select-none">
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+      className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-6 select-none"
+    >
       <div className="bg-[#141620] border border-[#2d3448] rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
         {/* Modal Header */}
         <div className="h-14 border-b border-[#252b3c] bg-[#11131a] px-6 flex items-center justify-between">

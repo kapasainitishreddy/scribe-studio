@@ -13,6 +13,16 @@ interface ExportModalProps {
 export const ExportModal: React.FC<ExportModalProps> = ({ project, onClose }) => {
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
   const triggerDownload = (blob: Blob, filename: string) => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -58,7 +68,12 @@ export const ExportModal: React.FC<ExportModalProps> = ({ project, onClose }) =>
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-6 select-none">
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+      className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-6 select-none"
+    >
       <div className="bg-[#13151f] border border-[#272d3e] rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden">
         <div className="h-14 border-b border-[#232838] bg-[#10121a] px-6 flex items-center justify-between">
           <div className="flex items-center space-x-2.5">
