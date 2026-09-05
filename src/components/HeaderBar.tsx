@@ -72,7 +72,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
       {/* Brand & Project Info */}
       <div className="flex items-center space-x-3 shrink-0">
         <div className="flex items-center space-x-2 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 px-2.5 py-1 rounded-md">
-          <Film className="w-4 h-4 text-amber-400" />
+          <img src="./logo.svg" alt="Scribe Studio Logo" className="w-4 h-4 object-contain" />
           <span className="font-extrabold text-sm tracking-wide text-amber-400">SCRIBE STUDIO</span>
         </div>
 

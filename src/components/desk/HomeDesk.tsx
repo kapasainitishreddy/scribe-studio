@@ -22,9 +22,9 @@ export const HomeDesk: React.FC<HomeDeskProps> = ({
       <div className="max-w-xl w-full py-12 space-y-8">
         {/* Brand & Salutation */}
         <div className="space-y-1 text-left">
-          <div className="flex items-center space-x-2 text-[#D49B54] mb-3">
-            <Film className="w-5 h-5" />
-            <span className="font-extrabold text-xs tracking-widest uppercase">Scribe Studio</span>
+          <div className="flex items-center space-x-2.5 text-[#D49B54] mb-3">
+            <img src="./logo.svg" alt="Scribe Studio Logo" className="w-7 h-7 object-contain" />
+            <span className="font-extrabold text-sm tracking-widest uppercase">Scribe Studio</span>
           </div>
           <h1 className="text-3xl font-semibold tracking-tight text-[#F0F2F5]">
             Good evening.

@@ -42,12 +42,12 @@ export const DeskRail: React.FC<DeskRailProps> = ({
           onClick={() => onSelectMode("home")}
           className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${
             currentMode === "home"
-              ? "bg-[#D49B54] text-black font-bold shadow-md shadow-[#D49B54]/20"
+              ? "bg-[#D49B54]/20 border border-[#D49B54] shadow-md shadow-[#D49B54]/20"
               : "text-[#A0A7B2] hover:text-white hover:bg-[#171C24]"
           }`}
           title="Production Desk Home"
         >
-          <span className="font-mono font-bold text-sm">S</span>
+          <img src="./logo.svg" alt="Home" className="w-5 h-5 object-contain" />
         </button>
 
         <div className="w-6 h-px bg-[#262C36]" />

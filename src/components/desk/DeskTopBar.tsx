@@ -44,9 +44,7 @@ export const DeskTopBar: React.FC<DeskTopBarProps> = ({
           className="flex items-center space-x-2 text-[#D49B54] hover:text-[#E3AF69] transition-colors focus:outline-none"
           title="Return to Desk Home"
         >
-          <div className="w-6 h-6 rounded bg-[#D49B54]/15 border border-[#D49B54]/40 flex items-center justify-center font-bold text-xs tracking-wider">
-            S
-          </div>
+          <img src="./logo.svg" alt="Scribe Studio" className="w-6 h-6 object-contain" />
         </button>
 
         <span className="text-xs font-semibold text-[#F0F2F5] tracking-wide uppercase">

@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <linearGradient id="tungstenGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCD34D"/>
+      <stop offset="40%" stop-color="#D49B54"/>
+      <stop offset="100%" stop-color="#B45309"/>
+    </linearGradient>
+    <linearGradient id="glowGold" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FBBF24" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#D49B54" stop-opacity="0.2"/>
+    </linearGradient>
+    <filter id="subtleGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="2" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Outer 35mm Film Gate Border -->
+  <rect x="15" y="24" width="70" height="52" rx="4" stroke="url(#tungstenGold)" stroke-width="2.5" fill="#090B0E"/>
+
+  <!-- Left Sprocket Holes -->
+  <rect x="18" y="28" width="4" height="6" rx="1" fill="url(#tungstenGold)"/>
+  <rect x="18" y="38" width="4" height="6" rx="1" fill="url(#tungstenGold)"/>
+  <rect x="18" y="48" width="4" height="6" rx="1" fill="url(#tungstenGold)"/>
+  <rect x="18" y="58" width="4" height="6" rx="1" fill="url(#tungstenGold)"/>
+  <rect x="18" y="66" width="4" height="6" rx="1" fill="url(#tungstenGold)"/>
+
+  <!-- Right Sprocket Holes -->
+  <rect x="78" y="28" width="4" height="6" rx="1" fill="url(#tungstenGold)"/>
+  <rect x="78" y="38" width="4" height="6" rx="1" fill="url(#tungstenGold)"/>
+  <rect x="78" y="48" width="4" height="6" rx="1" fill="url(#tungstenGold)"/>
+  <rect x="78" y="58" width="4" height="6" rx="1" fill="url(#tungstenGold)"/>
+  <rect x="78" y="66" width="4" height="6" rx="1" fill="url(#tungstenGold)"/>
+
+  <!-- Center Pen Nib Silhouette merged with Film Aperture -->
+  <!-- Pen Nib Outline -->
+  <path d="M50 14 L62 36 C59 40 59 48 61 58 L39 58 C41 48 41 40 38 36 Z" 
+        fill="#12161E" stroke="url(#tungstenGold)" stroke-width="2.5" stroke-linejoin="round" filter="url(#subtleGlow)"/>
+
+  <!-- Center Slit & Nib Breather Hole -->
+  <line x1="50" y1="17" x2="50" y2="34" stroke="url(#tungstenGold)" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="50" cy="35" r="2.5" fill="url(#tungstenGold)"/>
+
+  <!-- Camera Lens Aperture Blades inside Nib body -->
+  <circle cx="50" cy="52" r="14" stroke="url(#tungstenGold)" stroke-width="2" fill="#0D1015"/>
+  <g stroke="url(#tungstenGold)" stroke-width="1.5">
+    <line x1="50" y1="38" x2="42" y2="48" />
+    <line x1="42" y1="48" x2="44" y2="62" />
+    <line x1="44" y1="62" x2="56" y2="65" />
+    <line x1="56" y1="65" x2="63" y2="54" />
+    <line x1="63" y1="54" x2="58" y2="41" />
+    <line x1="58" y1="41" x2="50" y2="38" />
+  </g>
+  <polygon points="48,49 53,48 54,53 50,54" fill="url(#tungstenGold)"/>
+</svg>
