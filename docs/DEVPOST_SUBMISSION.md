@@ -76,7 +76,7 @@ Scribe Studio is an AI-native filmmaking operating system built around the **Pro
 
 All performance metrics are audited and verified via automated tests:
 - **TypeScript Typecheck:** 0 errors (`npm run typecheck`).
-- **Unit & Integration Tests:** 54 / 54 passing across 13 suites (`npm test`).
+- **Unit & Integration Tests:** 56 / 56 passing across 13 suites (`npm test`).
 - **Autonomous Multi-Scenario Benchmark:** 52 / 52 scenarios passing (100.0% accuracy, 0% false positives) (`npm run eval`).
 - **Live Integration Runner:** Truthful credential checking with deterministic fallback (`npm run test:live`).
 - **Production Build:** Vite bundle built in 7.17s (`npm run build`).
