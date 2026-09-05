@@ -15,6 +15,7 @@ export interface PropagationResult {
   invalidatedActorPackets: string[];
   invalidatedShotLists: number[];
   invalidatedBreakdowns: number[];
+  invalidatedStoryboardPanels: string[];
   newContinuityIssues: ContinuityIssue[];
   propagationEvent: PropagationEvent;
 }

@@ -7,6 +7,10 @@ import { StoryBiblePanel } from "./components/StoryBiblePanel";
 import { ActorPacketsPanel } from "./components/ActorPacketsPanel";
 import { ContinuityPanel } from "./components/ContinuityPanel";
 import { ProductionBreakdownPanel } from "./components/ProductionBreakdownPanel";
+import { SceneComicPanel } from "./components/SceneComicPanel";
+import { DirectorModePanel } from "./components/DirectorModePanel";
+import { CinematographerModePanel } from "./components/CinematographerModePanel";
+import { ScriptSupervisorModePanel } from "./components/ScriptSupervisorModePanel";
 import { DirectorPanel } from "./components/DirectorPanel";
 import { ProducerPanel } from "./components/ProducerPanel";
 import { CorkboardPanel } from "./components/CorkboardPanel";
@@ -65,7 +69,13 @@ export const App: React.FC = () => {
     addResearchFinding,
     runParallelResearch,
     executeHeroWorkflow,
-    setActiveAiProvider
+    setActiveAiProvider,
+    updateStoryboardPanel,
+    approveStoryboardPanel,
+    lockStoryboardPanel,
+    regenerateStoryboardPanel,
+    regenerateOutdatedPanels,
+    generateStoryboardForScene
   } = useProject();
 
   // Keyboard shortcut Ctrl+K for command palette
@@ -183,14 +193,48 @@ export const App: React.FC = () => {
           />
         )}
 
-        {activeTab === "director" && (
-          <DirectorPanel
+        {activeTab === "comic" && (
+          <SceneComicPanel
             project={project}
             selectedSceneNumber={selectedSceneNumber}
             onSelectScene={setSelectedSceneNumber}
-            onUpdateShotList={(sNum, shots) => {
-              // shot update
-            }}
+            onUpdatePanel={updateStoryboardPanel}
+            onApprovePanel={approveStoryboardPanel}
+            onLockPanel={lockStoryboardPanel}
+            onRegeneratePanel={regenerateStoryboardPanel}
+            onRegenerateOutdated={regenerateOutdatedPanels}
+            onGenerateSceneComic={generateStoryboardForScene}
+            onNavigateToTab={(tab) => setActiveTab(tab as any)}
+          />
+        )}
+
+        {activeTab === "director" && (
+          <DirectorModePanel
+            project={project}
+            selectedSceneNumber={selectedSceneNumber}
+            onSelectScene={setSelectedSceneNumber}
+            onNavigateToTab={(tab) => setActiveTab(tab as any)}
+            onUpdatePanel={updateStoryboardPanel}
+          />
+        )}
+
+        {activeTab === "cinematographer" && (
+          <CinematographerModePanel
+            project={project}
+            selectedSceneNumber={selectedSceneNumber}
+            onSelectScene={setSelectedSceneNumber}
+            onNavigateToTab={(tab) => setActiveTab(tab as any)}
+            onUpdatePanel={updateStoryboardPanel}
+          />
+        )}
+
+        {activeTab === "script-supervisor" && (
+          <ScriptSupervisorModePanel
+            project={project}
+            selectedSceneNumber={selectedSceneNumber}
+            onSelectScene={setSelectedSceneNumber}
+            onResolveIssue={resolveContinuityIssue}
+            onNavigateToTab={(tab) => setActiveTab(tab as any)}
           />
         )}
 

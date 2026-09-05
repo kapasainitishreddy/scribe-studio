@@ -1,5 +1,7 @@
-import type { Project } from "./types";
+import type { Project, StoryThread } from "./types";
 import { screenplayStats } from "../../screenplay-core/src/fountain";
+import { extractScene } from "../../production-engine/src/sceneExtraction";
+import { generateStoryboardSequence } from "../../production-engine/src/storyboardGenerator";
 
 export const SAMPLE_SCREENPLAY_TEXT = `Title: THE OBSIDIAN PROTOCOL
 Credit: Written by
@@ -745,6 +747,73 @@ export function createSampleProject(): Project {
       { id: "edge-5", source: "scene-1", target: "packet-maya-lin", type: "invalidates-packet", label: "Generates Cues" },
       { id: "edge-6", source: "scene-4", target: "res-2", type: "grounded-by-research", label: "Parallel Verified" }
     ],
+    extractions: {
+      1: extractScene(SAMPLE_SCREENPLAY_TEXT, 1),
+      2: extractScene(SAMPLE_SCREENPLAY_TEXT, 2),
+      3: extractScene(SAMPLE_SCREENPLAY_TEXT, 3),
+      4: extractScene(SAMPLE_SCREENPLAY_TEXT, 4)
+    },
+    storyboardSequences: {
+      1: generateStoryboardSequence(extractScene(SAMPLE_SCREENPLAY_TEXT, 1)),
+      2: generateStoryboardSequence(extractScene(SAMPLE_SCREENPLAY_TEXT, 2)),
+      3: generateStoryboardSequence(extractScene(SAMPLE_SCREENPLAY_TEXT, 3)),
+      4: generateStoryboardSequence(extractScene(SAMPLE_SCREENPLAY_TEXT, 4))
+    },
+    storyThreads: [
+      {
+        id: "thread-obsidian-drive",
+        title: "The Obsidian Quantum Cyber-Weapon",
+        category: "prop",
+        description: "A quantum-encrypted prototype drive with a self-purging biocentric fail-safe.",
+        firstSeenSceneNumber: 1,
+        scenesInvolved: [1, 2, 3, 4],
+        charactersInvolved: ["maya-lin", "marcus-kane", "dr-aris-thorne"],
+        setups: [
+          { sceneNumber: 1, description: "Drive extracted from Vault 7 before automated purge trips." },
+          { sceneNumber: 2, description: "Dr. Thorne orders sub-level lockdown to prevent exfiltration." }
+        ],
+        payoffs: [
+          { sceneNumber: 3, description: "Marcus shatters lock relays to escape with drive.", resolved: true },
+          { sceneNumber: 4, description: "Drive decoded, revealing Elena's cryptographic master manifest.", resolved: true }
+        ],
+        unresolvedPoints: ["What payload is inside the Obsidian core?"],
+        status: "active"
+      },
+      {
+        id: "thread-elena-investigation",
+        title: "Maya's Investigation into Elena's Disappearance",
+        category: "mystery",
+        description: "Maya's secret motivation: proving her sister was framed and disappeared by Thorne's syndicate.",
+        firstSeenSceneNumber: 1,
+        scenesInvolved: [1, 4],
+        charactersInvolved: ["maya-lin", "marcus-kane"],
+        setups: [
+          { sceneNumber: 1, description: "Maya refuses to reveal personal motivation to Marcus." }
+        ],
+        payoffs: [
+          { sceneNumber: 4, description: "Timestamp confirms Elena designed prototype 3 years prior.", resolved: true }
+        ],
+        unresolvedPoints: ["Where is Elena Lin currently held?"],
+        status: "active"
+      },
+      {
+        id: "thread-marcus-escape",
+        title: "Marcus Kane's Escape Route & Physical Toll",
+        category: "character-arc",
+        description: "Mercenary survival instincts tested by high-voltage drops and shrapnel wounds.",
+        firstSeenSceneNumber: 1,
+        scenesInvolved: [1, 3, 4],
+        charactersInvolved: ["marcus-kane"],
+        setups: [
+          { sceneNumber: 1, description: "Scar across cheek and suppressed carbine trained on lift." }
+        ],
+        payoffs: [
+          { sceneNumber: 4, description: "Drags himself onto pier wincing from bruised ribs.", resolved: true }
+        ],
+        unresolvedPoints: [],
+        status: "resolved"
+      }
+    ],
     latestImpactReport: null,
     propagationState: {
       lastEvaluatedVersion: 2,
@@ -752,6 +821,7 @@ export function createSampleProject(): Project {
       staleShotLists: [],
       staleBreakdownScenes: [],
       flaggedContinuityScenes: [],
+      staleStoryboardPanels: [],
       auditTrail: [
         {
           id: "prop-init",

@@ -14,7 +14,10 @@ import type {
   RevisionColor,
   Scene3DObject,
   ResearchFinding,
-  ConsolidatedImpactReport
+  ConsolidatedImpactReport,
+  StoryboardPanel,
+  StoryboardSequence,
+  StoryThread
 } from "../../packages/project-model/src/types";
 import { createSampleProject } from "../../packages/project-model/src/sampleProject";
 import { propagateScreenplayChange } from "../../packages/continuity-engine/src/propagationEngine";
@@ -23,6 +26,8 @@ import { conciseDiff } from "../../packages/screenplay-core/src/diff";
 import { classifySceneElements, generateFullBreakdown } from "../../packages/production-engine/src/breakdownClassifier";
 import { analyzeContinuity } from "../../packages/continuity-engine/src/continuityRules";
 import { runProductionResearchAgent } from "../../packages/agent-runtime/src/productionResearchAgent";
+import { extractScene } from "../../packages/production-engine/src/sceneExtraction";
+import { generateStoryboardSequence, generatePanelSvgSchematic } from "../../packages/production-engine/src/storyboardGenerator";
 
 const LOCAL_STORAGE_KEY = "agentic_cinema_active_project_v1";
 const BACKUP_STORAGE_KEY = "agentic_cinema_backups_v1";
@@ -42,11 +47,14 @@ export function useProject() {
 
   const [activeTab, setActiveTab] = useState<
     | "editor"
+    | "comic"
     | "story-bible"
     | "breakdown"
     | "continuity"
     | "actor-packets"
     | "director"
+    | "cinematographer"
+    | "script-supervisor"
     | "corkboard"
     | "revisions"
     | "producer"
@@ -459,6 +467,8 @@ export function useProject() {
         continuityIssuesDetected: updatedProj.continuityIssues.filter((i) => i.affectedScenes.includes(targetSceneNum)),
         affectedActorIds: ["maya-lin", "marcus-kane"],
         staleActorPacketsCount: 2,
+        staleStoryboardCount: updatedProj.propagationState?.staleStoryboardPanels?.length || 2,
+        staleStoryboardPanels: updatedProj.propagationState?.staleStoryboardPanels || ["scene1-panel4", "scene1-panel6"],
         affectedBreakdownCount: 3,
         affectedBreakdownCategories: ["PROPS", "SPECIAL EFFECTS", "SOUND EFFECTS"],
         researchFindings,
@@ -495,6 +505,218 @@ export function useProject() {
         }
       };
     });
+  }, []);
+
+  // Storyboard and Visual Comic Sequence Management
+  const updateStoryboardPanel = useCallback(
+    (sequenceId: string, panelId: string, updates: Partial<StoryboardPanel>) => {
+      setProject((prev) => {
+        const sequences: Record<string | number, StoryboardSequence> = { ...(prev.storyboardSequences || {}) };
+        const seq = sequences[sequenceId] || Object.values(sequences).find((s) => s.id === sequenceId);
+        if (!seq) return prev;
+
+        const updatedPanels = seq.panels.map((p: StoryboardPanel) => {
+          if (p.id !== panelId) return p;
+          const merged: StoryboardPanel = { ...p, ...updates };
+          if (updates.shotType || updates.cameraAngle || updates.action || updates.dialogue) {
+            merged.svgSchematic = generatePanelSvgSchematic(merged);
+          }
+          return merged;
+        });
+
+        sequences[seq.id] = {
+          ...seq,
+          panels: updatedPanels,
+          updatedAt: new Date().toISOString()
+        };
+
+        // If panel was outdated and now updated/approved, remove from stale list
+        const stalePanels = (prev.propagationState?.staleStoryboardPanels || []).filter(
+          (id) => id !== panelId
+        );
+
+        return {
+          ...prev,
+          storyboardSequences: sequences,
+          propagationState: {
+            ...prev.propagationState,
+            staleStoryboardPanels: stalePanels
+          }
+        };
+      });
+    },
+    []
+  );
+
+  const approveStoryboardPanel = useCallback(
+    (sequenceId: string, panelId: string) => {
+      updateStoryboardPanel(sequenceId, panelId, {
+        status: "APPROVED",
+        invalidationReason: undefined,
+        outdatedReason: undefined
+      });
+    },
+    [updateStoryboardPanel]
+  );
+
+  const lockStoryboardPanel = useCallback(
+    (sequenceId: string, panelId: string) => {
+      updateStoryboardPanel(sequenceId, panelId, {
+        status: "LOCKED",
+        invalidationReason: undefined,
+        outdatedReason: undefined
+      });
+    },
+    [updateStoryboardPanel]
+  );
+
+  const regenerateStoryboardPanel = useCallback(
+    (sequenceId: string, panelId: string) => {
+      setProject((prev) => {
+        const sequences: Record<string | number, StoryboardSequence> = { ...(prev.storyboardSequences || {}) };
+        const seq = sequences[sequenceId] || Object.values(sequences).find((s) => s.id === sequenceId);
+        if (!seq) return prev;
+        const panel = seq.panels.find((p: StoryboardPanel) => p.id === panelId);
+        if (!panel) return prev;
+
+        const extraction = extractScene(prev.screenplayText, panel.sceneNumber, {
+          characters: prev.characters
+        });
+        const beat = extraction.storyBeats.find((b) => b.id === panel.beatId) || extraction.storyBeats[panel.panelNumber - 1];
+
+        const regenerated: StoryboardPanel = {
+          ...panel,
+          action: beat?.action || panel.action,
+          dialogue: beat?.dialogue,
+          dialogueSpeaker: beat?.speaker,
+          charactersVisible: beat?.characters?.length ? beat.characters : panel.charactersVisible,
+          propsVisible: beat?.props?.length ? beat.props : panel.propsVisible,
+          mood: beat?.emotion || panel.mood,
+          status: "APPROVED",
+          invalidationReason: undefined,
+          outdatedReason: undefined,
+          version: panel.version + 1
+        };
+        regenerated.svgSchematic = generatePanelSvgSchematic(regenerated);
+
+        const updatedPanels = seq.panels.map((p: StoryboardPanel) => (p.id === panelId ? regenerated : p));
+        const updatedSequences: Record<string | number, StoryboardSequence> = {
+          ...sequences,
+          [seq.id]: { ...seq, panels: updatedPanels, updatedAt: new Date().toISOString() }
+        };
+
+        const stalePanels = (prev.propagationState?.staleStoryboardPanels || []).filter(
+          (id) => id !== panelId
+        );
+
+        return {
+          ...prev,
+          storyboardSequences: updatedSequences,
+          propagationState: {
+            ...prev.propagationState,
+            staleStoryboardPanels: stalePanels
+          }
+        };
+      });
+    },
+    []
+  );
+
+  const regenerateOutdatedPanels = useCallback(
+    (sequenceId: string) => {
+      setProject((prev) => {
+        const sequences: Record<string | number, StoryboardSequence> = { ...(prev.storyboardSequences || {}) };
+        const seq = sequences[sequenceId] || Object.values(sequences).find((s) => s.id === sequenceId);
+        if (!seq) return prev;
+
+        const extraction = extractScene(prev.screenplayText, seq.sceneNumber, {
+          characters: prev.characters
+        });
+
+        const updatedPanels = seq.panels.map((p: StoryboardPanel) => {
+          if (p.status !== "OUTDATED") return p;
+          const beat = extraction.storyBeats.find((b) => b.id === p.beatId) || extraction.storyBeats[p.panelNumber - 1];
+          const fresh: StoryboardPanel = {
+            ...p,
+            action: beat?.action || p.action,
+            dialogue: beat?.dialogue,
+            dialogueSpeaker: beat?.speaker,
+            charactersVisible: beat?.characters?.length ? beat.characters : p.charactersVisible,
+            propsVisible: beat?.props?.length ? beat.props : p.propsVisible,
+            mood: beat?.emotion || p.mood,
+            status: "APPROVED",
+            invalidationReason: undefined,
+            outdatedReason: undefined,
+            version: p.version + 1
+          };
+          fresh.svgSchematic = generatePanelSvgSchematic(fresh);
+          return fresh;
+        });
+
+        const updatedSequences: Record<string | number, StoryboardSequence> = {
+          ...sequences,
+          [seq.id]: { ...seq, panels: updatedPanels, updatedAt: new Date().toISOString() }
+        };
+
+        const resolvedIds = seq.panels.filter((p: StoryboardPanel) => p.status === "OUTDATED").map((p: StoryboardPanel) => p.id);
+        const stalePanels = (prev.propagationState?.staleStoryboardPanels || []).filter(
+          (id) => !resolvedIds.includes(id)
+        );
+
+        return {
+          ...prev,
+          storyboardSequences: updatedSequences,
+          propagationState: {
+            ...prev.propagationState,
+            staleStoryboardPanels: stalePanels
+          }
+        };
+      });
+    },
+    []
+  );
+
+  const generateStoryboardForScene = useCallback(
+    (sceneNumber: number) => {
+      setProject((prev) => {
+        const extraction = extractScene(prev.screenplayText, sceneNumber, {
+          characters: prev.characters
+        });
+        const seq = generateStoryboardSequence(extraction);
+        return {
+          ...prev,
+          extractions: {
+            ...(prev.extractions || {}),
+            [sceneNumber]: extraction
+          },
+          storyboardSequences: {
+            ...(prev.storyboardSequences || {}),
+            [seq.id]: seq
+          }
+        };
+      });
+    },
+    []
+  );
+
+  // Story Threads Management
+  const updateStoryThread = useCallback(
+    (threadId: string, updates: Partial<StoryThread>) => {
+      setProject((prev) => ({
+        ...prev,
+        storyThreads: (prev.storyThreads || []).map((t) =>
+          t.id === threadId ? { ...t, ...updates } : t
+        )
+      }));
+    },
+    []
+  );
+
+  const addStoryThread = useCallback((thread: StoryThread) => {
+    setProject((prev) => ({
+      ...prev,
+      storyThreads: [...(prev.storyThreads || []), thread]
+    }));
   }, []);
 
   return {
@@ -547,6 +769,14 @@ export function useProject() {
     deleteScene3DObject,
     addResearchFinding,
     runParallelResearch,
-    executeHeroWorkflow
+    executeHeroWorkflow,
+    updateStoryboardPanel,
+    approveStoryboardPanel,
+    lockStoryboardPanel,
+    regenerateStoryboardPanel,
+    regenerateOutdatedPanels,
+    generateStoryboardForScene,
+    updateStoryThread,
+    addStoryThread
   };
 }

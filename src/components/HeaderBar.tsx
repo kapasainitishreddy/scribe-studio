@@ -18,7 +18,8 @@ import {
   Box,
   GitFork,
   Globe,
-  Zap
+  Zap,
+  Camera
 } from "lucide-react";
 import type { Project, RevisionColor } from "../../packages/project-model/src/types";
 
@@ -63,6 +64,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
 }) => {
   const currentRev = project.revisions[0] || { color: "White" as RevisionColor, label: "Draft" };
   const stalePacketCount = project.propagationState.staleActorPackets.length;
+  const staleStoryboardCount = project.propagationState.staleStoryboardPanels?.length || 0;
   const continuityIssueCount = project.continuityIssues.filter((i) => i.status === "active").length;
 
   return (
@@ -97,14 +99,17 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
       <nav className="flex items-center space-x-1 bg-[#161922] p-1 rounded-lg border border-[#232730] overflow-x-auto mx-2">
         {[
           { id: "editor", label: "Screenplay", icon: Film },
-          { id: "story-bible", label: "Story Bible", icon: BookOpen },
-          { id: "actor-packets", label: "Actor Packets", icon: Package, badge: stalePacketCount },
-          { id: "continuity", label: "Continuity", icon: ShieldCheck, badge: continuityIssueCount },
-          { id: "breakdown", label: "Breakdown", icon: Clapperboard },
+          { id: "comic", label: "Scene Comic", icon: Sparkles, badge: staleStoryboardCount },
+          { id: "director", label: "Director", icon: Clapperboard },
+          { id: "cinematographer", label: "Cinematographer", icon: Camera },
+          { id: "script-supervisor", label: "Script Supervisor", icon: ShieldCheck, badge: continuityIssueCount },
+          { id: "actor-packets", label: "Actor Mode", icon: Package, badge: stalePacketCount },
           { id: "scene-3d", label: "3D Previs", icon: Box },
+          { id: "story-bible", label: "Story Bible", icon: BookOpen },
+          { id: "continuity", label: "Continuity", icon: ShieldCheck },
+          { id: "breakdown", label: "Breakdown", icon: Clapperboard },
           { id: "graph", label: "Graph", icon: GitFork },
           { id: "research", label: "Research", icon: Globe },
-          { id: "director", label: "Director", icon: Clapperboard },
           { id: "producer", label: "Producer", icon: Settings },
           { id: "corkboard", label: "Corkboard", icon: LayoutGrid },
           { id: "revisions", label: "Revisions", icon: History }
@@ -126,7 +131,9 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
               {tab.badge !== undefined && tab.badge > 0 && (
                 <span
                   className={`ml-1 text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-                    tab.id === "actor-packets"
+                    tab.id === "comic"
+                      ? "bg-rose-500/20 text-rose-300 border border-rose-500/40 animate-pulse"
+                      : tab.id === "actor-packets"
                       ? "bg-amber-500/20 text-amber-400 border border-amber-500/40"
                       : "bg-rose-500/20 text-rose-400 border border-rose-500/40"
                   }`}

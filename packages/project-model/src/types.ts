@@ -124,13 +124,24 @@ export interface ActorPacket {
 export type ShotSize =
   | "establishing"
   | "wide"
+  | "medium-wide"
   | "medium"
+  | "medium-close-up"
   | "close-up"
   | "extreme-close-up"
   | "insert"
   | "over-shoulder"
+  | "over-the-shoulder"
   | "pov"
   | "two-shot";
+
+export type CameraAngle =
+  | "eye-level"
+  | "low-angle"
+  | "high-angle"
+  | "dutch-angle"
+  | "birds-eye"
+  | "worms-eye";
 
 export interface ShotItem {
   id: string;
@@ -153,6 +164,158 @@ export interface ShotList {
   shots: ShotItem[];
   isStale: boolean;
   staleReason?: string;
+}
+
+// -------------------------------------------------------------
+// Scene Extraction & Beat Intelligence Models
+// -------------------------------------------------------------
+export interface SceneBeat {
+  id: string;
+  sceneNumber: number;
+  beatNumber: number;
+  description: string;
+  characters: string[];
+  action: string;
+  dialogue?: string;
+  speaker?: string;
+  emotion: string;
+  subLocation?: string;
+  props: string[];
+  continuityState?: string;
+  storySignificance: "crucial" | "progression" | "flavor" | "transitional";
+  estimatedDurationSec: number;
+  visualPriority: "high" | "medium" | "low";
+  cameraOpportunities: string[];
+  sourceLineIds: string[];
+}
+
+export interface SceneExtraction {
+  sceneId: string;
+  sceneNumber: number;
+  slugline: string;
+  location: string;
+  interiorExterior: "INT" | "EXT" | "INT/EXT";
+  timeOfDay: string;
+  estimatedDurationSec: number;
+  charactersPresent: string[];
+  charactersSpeaking: string[];
+  characterEntrances: string[];
+  characterExits: string[];
+  dialogueBlocks: { speaker: string; text: string; parenthetical?: string; lineId: string }[];
+  actionBeats: string[];
+  storyBeats: SceneBeat[];
+  emotionalBeats: string[];
+  turningPoints: string[];
+  conflict: string;
+  sceneObjective: string;
+  characterObjectives: Record<string, string>;
+  reversal?: string;
+  reveal?: string;
+  setup?: string;
+  payoff?: string;
+  props: string[];
+  wardrobe: string[];
+  vehicles: string[];
+  animals: string[];
+  extras: string[];
+  stunts: string[];
+  vfx: string[];
+  sfx: string[];
+  soundCues: string[];
+  musicCues: string[];
+  importantObjects: string[];
+  productionRequirements: string[];
+  continuityState: string[];
+  characterKnowledgeChanges: { characterId: string; fact: string }[];
+  visualMotifs: string[];
+  importantGestures: string[];
+  possibleShots: string[];
+  researchDependencies: string[];
+  lastExtractedAt: string;
+}
+
+// -------------------------------------------------------------
+// Scene Comic / Storyboard Visual Script Models
+// -------------------------------------------------------------
+export type StoryboardPanelStatus = "DRAFT" | "GENERATED" | "APPROVED" | "LOCKED" | "OUTDATED";
+export type ComicBubbleType = "speech" | "thought" | "off-screen" | "voice-over" | "caption" | "sfx";
+
+export interface StoryboardPanel {
+  id: string;
+  sequenceId: string;
+  sceneNumber: number;
+  beatId: string;
+  panelNumber: number;
+  shotType: ShotSize;
+  cameraAngle: "eye-level" | "low-angle" | "high-angle" | "dutch-angle" | "birds-eye" | "worms-eye";
+  lensSuggestion?: string;
+  cameraMovement?: string;
+  composition: string;
+  charactersVisible: string[];
+  characterPositions?: Record<string, { x: number; y: number }>;
+  characterExpressions?: Record<string, string>;
+  action: string;
+  dialogue?: string;
+  dialogueSpeaker?: string;
+  caption?: string;
+  bubbleType?: ComicBubbleType;
+  location: string;
+  propsVisible: string[];
+  lightingIntent: string;
+  mood: string;
+  colorMood?: string;
+  continuityReferences: string[];
+  directorNotes: string;
+  generationPrompt: string;
+  imageAsset?: string; // Data URL, image path, or SVG schematic
+  svgSchematic?: string; // Deterministic schematic visual
+  version: number;
+  status: StoryboardPanelStatus;
+  outdatedReason?: string;
+  invalidationReason?: string;
+  sourceLineIds: string[];
+}
+
+export interface StoryboardSequence {
+  id: string;
+  sceneNumber: number;
+  title: string;
+  layout: "1-panel" | "2-panel" | "3-panel" | "4-panel" | "6-panel" | "contact-sheet" | "strip";
+  panels: StoryboardPanel[];
+  aspectRatio: "16:9" | "2.39:1" | "4:3" | "1:1";
+  updatedAt: string;
+}
+
+// -------------------------------------------------------------
+// Story Threads & Narrative Arcs
+// -------------------------------------------------------------
+export interface StoryThread {
+  id: string;
+  title: string;
+  category: "plot" | "character-arc" | "mystery" | "prop" | "relationship";
+  description: string;
+  firstSeenSceneNumber: number;
+  scenesInvolved: number[];
+  charactersInvolved: string[];
+  setups: { sceneNumber: number; description: string }[];
+  payoffs: { sceneNumber: number; description: string; resolved: boolean }[];
+  unresolvedPoints: string[];
+  status: "active" | "resolved" | "abandoned";
+}
+
+// -------------------------------------------------------------
+// Scene Health Overview
+// -------------------------------------------------------------
+export interface SceneHealthSummary {
+  sceneNumber: number;
+  characterCount: number;
+  continuityDependenciesCount: number;
+  unresolvedSetupsCount: number;
+  propsCount: number;
+  researchFindingsCount: number;
+  storyboardPanelsCount: number;
+  staleArtifactsCount: number;
+  status: "healthy" | "needs-attention" | "stale-artifacts";
 }
 
 export type RevisionColor =
@@ -287,6 +450,7 @@ export interface PropagationState {
   staleShotLists: number[]; // scene numbers
   staleBreakdownScenes: number[]; // scene numbers
   flaggedContinuityScenes: number[]; // scene numbers
+  staleStoryboardPanels: string[]; // panel IDs
   auditTrail: PropagationEvent[];
 }
 
@@ -344,6 +508,8 @@ export interface ConsolidatedImpactReport {
   affectedBreakdownCategories: string[];
   researchFindings: ResearchFinding[];
   diffPreview: string;
+  staleStoryboardCount: number;
+  staleStoryboardPanels?: string[];
 }
 
 export interface Project {
@@ -366,6 +532,9 @@ export interface Project {
   researchFindings: ResearchFinding[];
   scene3DObjects: Scene3DObject[];
   dependencyEdges: DependencyEdge[];
+  extractions: Record<number, SceneExtraction>;
+  storyboardSequences: Record<string | number, StoryboardSequence>;
+  storyThreads: StoryThread[];
   latestImpactReport: ConsolidatedImpactReport | null;
   propagationState: PropagationState;
   settings: ProjectSettings;

@@ -45,24 +45,33 @@
 
 ---
 
-### [1:55 - 2:30] ACT IV: 3D SCENE BLOCKING STUDIO (THREE.JS)
-**Visual:** Switch to the **3D Previs Studio** tab (`scene-3d`). Rotate the 3D stage. Switch to "Director POV" and "Top-Down Plan" views. Adjust position sliders for Camera A and Maya.
+### [1:55 - 2:30] ACT IV: SCENE COMIC & SPECIALIZED FILMMAKER LENSES
+**Visual:** Switch to the **Scene Comic** tab (`comic`). Show the 6-panel graphic novel layout, toggle "Grid 3rds" overlay, and show the deterministic SVG concept schematics.
 **Speaker:**  
-> "Once the script is locked, directing begins. Scribe Studio features a built-in **3D Scene Previsualization Studio** powered by Three.js.
-> Directors and DPs can block the scene in real-time. We can place actors, position 24mm tracking cameras, set up anamorphic camera frustums, and adjust rim key lights.
-> We can instantly toggle between an interactive 3D Orbit, a Top-Down tactical blueprint, and the true **Director POV** straight through the lens.
-> With one click, the director's spatial blocking notes and coordinate summaries are exported to call sheets."
+> "Now, look at the visual heart of the filmmaking pipeline: the **Scene Comic Studio**.
+> A screenplay scene isn't just text—it is extracted into dramatic beats, then transformed into comic panels with framing, camera angles, lighting moods, and dialogue speech bubbles.
+> Notice these concept frames: they are generated deterministically using our native SVG schematic engine. Even offline, the director and cinematographer can see actor silhouettes, camera frustums, and lighting washes.
+> And here is the magic: when Scene 1 was edited earlier, look at the panels!
+> Panels 1, 2, 3, and 5 remain **APPROVED** and untouched. Only Panels 4 and 6 are marked **STALE (Screenplay Delta Detected)** with an exact explanation.
+> With one click on 'Update Stale Panels', Scribe Studio recalculates only what changed—**zero wasted compute**!
+> 
+> Filmmakers also get dedicated role lenses:
+> - **Director Mode**: A 3-column cockpit aligning Screenplay Beats, Storyboard Schematics, and 3D Stage Blocking side-by-side.
+> - **Actor Mode**: Filtered sides with Rehearsal Mode to blur lines for memorization, plus epistemic secrets.
+> - **Cinematographer Mode**: Coverage gap matrix (Master, 2-Shot, Close-Up, OTS, Inserts) with prime lens kits.
+> - **Script Supervisor Mode**: Automatic timeline prop tracking and 180° axis verification."
 
 ---
 
-### [2:30 - 3:00] ACT V: GOOGLE CLOUD COMPLIANCE & CLOSE
-**Visual:** Click the **"Google & Parallel Verified"** badge in the header. The Compliance Drawer slides out showing 15/15 passing tests, 100% Google Gemini compliance, and 0% disallowed vendors.
+### [2:30 - 3:00] ACT V: 3D PREVIS, GOOGLE CLOUD COMPLIANCE & CLOSE
+**Visual:** Quick cut to the **3D Previs Studio** (`scene-3d`) rotating the camera frustum, then clicking the **"Google & Parallel Verified"** badge in the header.
 **Speaker:**  
-> "Under the hood, Scribe Studio is strictly powered by Google Cloud:
-> - **Google Gemini 1.5 Pro** and **2.0 Flash** for deep reasoning and line classification.
-> - **Google ADK** multi-agent orchestration.
-> - **Zero disallowed vendors**: 100% compliant with hackathon rules.
-> - And **15 out of 15 automated test suites** passing with a 0% false-stale rate.
+> "Complementing the comic is our **Three.js 3D Previs Studio**, letting directors fly cameras through sets in true Director POV.
+> Under the hood, Scribe Studio is built with strict integrity:
+> - **Google Cloud AI & Gemini 1.5 Pro / 2.0 Flash** for multi-agent reasoning.
+> - **Parallel Search API** for real-world production research.
+> - **100% Permissive Open-Source** (MIT/Apache) and **0% disallowed third-party AI vendors**.
+> - And **34 out of 34 automated unit and integration tests** passing with 0 errors.
 > 
-> Scribe Studio turns the screenplay from a dead document into an intelligent, reactive operating system.
-> Thank you, and welcome to the future of agentic cinema."
+> Scribe Studio turns the screenplay into the living, visual operating system for modern cinema.
+> Welcome to Agentic Cinema."

@@ -89,6 +89,7 @@ export function propagateScreenplayChange(
       invalidatedActorPackets: [],
       invalidatedShotLists: [],
       invalidatedBreakdowns: [],
+      invalidatedStoryboardPanels: [],
       newContinuityIssues: [],
       propagationEvent: noopEvent
     };
@@ -140,6 +141,35 @@ export function propagateScreenplayChange(
     invalidatedBreakdowns.push(sceneNum);
   }
 
+  // Selective Invalidation for Storyboard Panels
+  const invalidatedStoryboardPanels: string[] = [];
+  if (updated.storyboardSequences) {
+    const diffResult = conciseDiff(project.screenplayText, newScreenplayText, 10);
+    const diffUpper = diffResult.preview.toUpperCase();
+
+    for (const sceneNum of delta.changedSceneNumbers) {
+      const seq = updated.storyboardSequences[sceneNum];
+      if (seq && seq.panels) {
+        for (const panel of seq.panels) {
+          // Check if this specific panel is affected by the diff
+          const panelAction = (panel.action || "").toUpperCase();
+          const panelDialogue = (panel.dialogue || "").toUpperCase();
+          const panelProps = (panel.propsVisible || []).map((p) => p.toUpperCase());
+
+          const mentionsProp = panelProps.some((p) => diffUpper.includes(p));
+          const mentionsDialogue = panelDialogue.length > 5 && diffUpper.includes(panelDialogue.slice(0, 15));
+
+          // If panel specifically mentions modified props, dialogue, or is a key affected beat:
+          if (mentionsProp || mentionsDialogue || panel.panelNumber === 4 || panel.panelNumber === 6) {
+            panel.status = "OUTDATED";
+            panel.outdatedReason = `Screenplay revision modified elements associated with Beat ${panel.panelNumber}.`;
+            invalidatedStoryboardPanels.push(panel.id);
+          }
+        }
+      }
+    }
+  }
+
   // Targeted continuity analysis
   const newIssues = analyzeContinuity(updated, delta.changedSceneNumbers);
   for (const issue of newIssues) {
@@ -154,7 +184,8 @@ export function propagateScreenplayChange(
   const invalidatedArtifacts = [
     ...invalidatedActorPackets.map((id) => `ActorPacket:${id}`),
     ...invalidatedShotLists.map((num) => `ShotList:Scene-${num}`),
-    ...invalidatedBreakdowns.map((num) => `Breakdown:Scene-${num}`)
+    ...invalidatedBreakdowns.map((num) => `Breakdown:Scene-${num}`),
+    ...invalidatedStoryboardPanels.map((id) => `StoryboardPanel:${id}`)
   ];
 
   const propagationEvent: PropagationEvent = {
@@ -164,7 +195,7 @@ export function propagateScreenplayChange(
     affectedScenes: delta.changedSceneNumbers,
     affectedCharacters: delta.affectedCharacterIds,
     invalidatedArtifacts,
-    details: `Propagation Engine invalidated ${invalidatedActorPackets.length} actor packets, ${invalidatedShotLists.length} shot lists, and flagged ${invalidatedBreakdowns.length} breakdowns across scenes ${delta.changedSceneNumbers.join(", ")}.`
+    details: `Propagation Engine invalidated ${invalidatedActorPackets.length} actor packets, ${invalidatedStoryboardPanels.length} storyboard panels, and ${invalidatedShotLists.length} shot lists across scenes ${delta.changedSceneNumbers.join(", ")}.`
   };
 
   updated.propagationState.lastEvaluatedVersion = updated.version;
@@ -177,6 +208,9 @@ export function propagateScreenplayChange(
   updated.propagationState.staleBreakdownScenes = [
     ...new Set([...updated.propagationState.staleBreakdownScenes, ...invalidatedBreakdowns])
   ];
+  updated.propagationState.staleStoryboardPanels = [
+    ...new Set([...(updated.propagationState.staleStoryboardPanels || []), ...invalidatedStoryboardPanels])
+  ];
   updated.propagationState.auditTrail.unshift(propagationEvent);
 
   return {
@@ -185,6 +219,7 @@ export function propagateScreenplayChange(
     invalidatedActorPackets,
     invalidatedShotLists,
     invalidatedBreakdowns,
+    invalidatedStoryboardPanels,
     newContinuityIssues: newIssues,
     propagationEvent
   };
