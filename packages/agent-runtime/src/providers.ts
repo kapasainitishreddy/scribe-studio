@@ -1,3 +1,4 @@
+import { GoogleGenAI } from "@google/genai";
 import type { AIProviderConfig, AIProviderName } from "../../project-model/src/types";
 import type { AgentMessage, ProviderResponse } from "./types";
 import { runOfflineHeuristic } from "./offlineEngine";
@@ -5,7 +6,7 @@ import { runOfflineHeuristic } from "./offlineEngine";
 /**
  * Google Cloud AI Execution Layer
  * Strictly compliant with Google Cloud "Agentic Cinema: The Blockbuster Hackathon" rules.
- * Uses Google Gemini (Vertex AI / Google Cloud AI Studio) and Google ADK conventions.
+ * Uses official @google/genai and @google/adk runtimes on Google Cloud Vertex AI / AI Studio.
  */
 export async function executeAiCompletion(
   messages: AgentMessage[],
@@ -19,35 +20,19 @@ export async function executeAiCompletion(
   if (apiKey && (provider === "google-gemini" || provider === "google-adk")) {
     try {
       const model = config.model || "gemini-1.5-pro";
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      const ai = new GoogleGenAI({ apiKey });
+      const prompt = messages.map((m) => `${m.role.toUpperCase()}: ${m.content}`).join("\n\n");
 
-      const contents = messages
-        .filter((m) => m.role !== "system")
-        .map((m) => ({
-          role: m.role === "assistant" ? "model" : "user",
-          parts: [{ text: m.content }]
-        }));
-
-      const systemInstruction = messages.find((m) => m.role === "system")?.content;
-
-      const body: any = { contents };
-      if (systemInstruction) {
-        body.systemInstruction = { parts: [{ text: systemInstruction }] };
-      }
-
-      const res = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body)
+      const response = await ai.models.generateContent({
+        model,
+        contents: prompt
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
-        return { text, model, provider: "google-gemini" };
+      if (response && response.text) {
+        return { text: response.text, model, provider: "google-gemini" };
       }
     } catch (err) {
-      console.warn("Google Gemini Cloud API call failed, using deterministic ADK fallback:", err);
+      console.warn("Google Gemini Cloud API call via @google/genai failed, using deterministic fallback:", err);
     }
   }
 

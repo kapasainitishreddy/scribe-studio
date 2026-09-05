@@ -8,3 +8,4 @@ export * from "./producerAgent";
 export * from "./scribeAgent";
 export * from "./parallelSearch";
 export * from "./productionResearchAgent";
+export * from "./realityGate";

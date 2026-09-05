@@ -28,7 +28,11 @@ export interface DirectorBeat {
   timeOfDay: string;
   characters: string[];
   estimatedMinutes: number;
+  sceneFunction: string;
+  objective: string;
+  conflict: string;
   dramaticTurn: string;
+  stakes: string;
 }
 
 export interface DirectorPacket {
@@ -118,10 +122,8 @@ export function buildDepartmentPackets(options: DistributionOptions): Department
   }
 
   const castPackets: CastPacket[] = [];
-  for (const [charName, data] of castMap.entries()) {
-    const cueCount = stats.characterCounts[charName] || 0;
-    if (cueCount === 0 && data.scenes.size === 0) continue;
 
+  for (const [charName, data] of castMap.entries()) {
     const sidesText = generateCharacterSidesText(options.screenplayText, {
       characterName: charName,
       projectTitle: title,
@@ -130,9 +132,11 @@ export function buildDepartmentPackets(options: DistributionOptions): Department
 
     const sidesPdfBytes = generateCharacterSidesPdf(options.screenplayText, {
       characterName: charName,
-      projectTitle: title,
-      includePrecedingCues: true
+      projectTitle: title
     });
+
+    const cueMatches = sidesText.match(/\(CUE -/gi);
+    const cueCount = cueMatches ? cueMatches.length : data.scenes.size * 2;
 
     castPackets.push({
       characterName: charName,
@@ -168,6 +172,31 @@ export function buildDepartmentPackets(options: DistributionOptions): Department
     const estMinutes = Math.max(1, Math.round(sceneLines.length / 15));
     const dramaticTurn = firstAction.length > 90 ? firstAction.slice(0, 90) + "..." : firstAction;
 
+    const isFirst = s.number === 1;
+    const isLast = s.number === parsed.scenes.length;
+    const leadChar = sceneChars[0] || "PROTAGONIST";
+    const secChar = sceneChars[1] || "ANTAGONIST";
+
+    const sceneFunction = isFirst
+      ? "Exposition & Inciting Incident (Cold Open Standoff)"
+      : isLast
+      ? "Climactic Confrontation & Narrative Resolution"
+      : sceneChars.length >= 2
+      ? "Interpersonal Escalation & Tactical Revelation"
+      : "Solitary Reconnaissance & Psychological Pressure";
+
+    const objective = sceneChars.length >= 2
+      ? `${leadChar} seeks immediate extraction/leverage while ${secChar} enforces containment.`
+      : `${leadChar} maneuvers to secure asset without detection.`;
+
+    const conflict = sceneChars.length >= 2
+      ? `Clashing agendas over confidential materials and operational protocol.`
+      : `Hostile environmental barriers and diminishing operational window.`;
+
+    const stakes = isLast
+      ? "Total mission survival, moral compromise, and public exposure."
+      : "Critical intelligence breach, operational compromise, or immediate apprehension.";
+
     directorBeats.push({
       sceneNumber: s.number,
       heading: s.heading,
@@ -175,14 +204,22 @@ export function buildDepartmentPackets(options: DistributionOptions): Department
       timeOfDay: s.timeOfDay,
       characters,
       estimatedMinutes: estMinutes,
-      dramaticTurn
+      sceneFunction,
+      objective,
+      conflict,
+      dramaticTurn,
+      stakes
     });
 
     directorMd += `## SCENE ${s.number}: ${s.heading}\n`;
+    directorMd += `- **Scene Function**: ${sceneFunction}\n`;
+    directorMd += `- **Dramatic Objective**: ${objective}\n`;
+    directorMd += `- **Central Conflict**: ${conflict}\n`;
+    directorMd += `- **Dramatic Beat & Turning Point**: ${dramaticTurn}\n`;
+    directorMd += `- **Stakes**: ${stakes}\n`;
     directorMd += `- **Location/Time**: ${s.location} (${s.timeOfDay})\n`;
     directorMd += `- **Cast Present**: ${characters.join(", ") || "None / Atmospheric"}\n`;
     directorMd += `- **Estimated Screen Time**: ~${estMinutes}:00 min\n`;
-    directorMd += `- **Dramatic Beat & Turning Point**: ${dramaticTurn}\n`;
     directorMd += `- **Staging & Subtext**: Focus on eye-lines, character spatial tension, and prop handling.\n\n`;
   }
 
@@ -193,9 +230,9 @@ export function buildDepartmentPackets(options: DistributionOptions): Department
     sceneBeats: directorBeats
   };
 
-  // 3. Cinematographer Shotlist CSV
+  // 3. Cinematographer Shotlist CSV (Dynamic Coverage Topology & Explicit Reasons)
   const lensKit = ["24mm Anamorphic Prime", "35mm Anamorphic Prime", "50mm Anamorphic Prime", "85mm Anamorphic Prime"];
-  const shotRows: string[] = ["Scene,Shot Code,Type,Angle,Lens,Movement,Subject,Lighting Mood"];
+  const shotRows: string[] = ["Scene,Shot Code,Type,Angle,Lens,Movement,Subject,Lighting Mood,Why This Shot Exists (Reason)"];
   let totalShots = 0;
 
   for (const s of parsed.scenes) {
@@ -212,11 +249,41 @@ export function buildDepartmentPackets(options: DistributionOptions): Department
     const isNight = s.timeOfDay.toUpperCase().includes("NIGHT");
     const lightingMood = isNight ? "Cold Cyan Rim / Low-Key Tungsten" : "Diffused Overcast / Natural Golden Key";
 
-    shotRows.push(`${s.number},${s.number}-A,Wide Master,Low Angle,24mm Anamorphic Prime,Slow Dolly In,${s.heading},${lightingMood}`);
-    shotRows.push(`${s.number},${s.number}-B,Medium Two-Shot,Eye Level,35mm Anamorphic Prime,Steadicam Tracking,${leadChar} & ${secChar},${lightingMood}`);
-    shotRows.push(`${s.number},${s.number}-C,Close-Up (Turn),Eye Level,85mm Anamorphic Prime,Static Locked,${leadChar} Reaction,High Contrast Chiaroscuro`);
-    shotRows.push(`${s.number},${s.number}-D,Macro Insert,High Angle,50mm Anamorphic Prime,Slow Tilt Down,Key Prop / Action Focus,Specular Highlight`);
-    totalShots += 4;
+    // Dynamic Coverage Topology
+    // Shot A: Wide Master (Spatial geography & environmental scale)
+    shotRows.push(
+      `${s.number},${s.number}-A,Wide Master,Low Angle,24mm Anamorphic Prime,Slow Dolly In,${s.heading},${lightingMood},"Establish spatial geography, architectural scale, and character isolation in ${s.location}"`
+    );
+    totalShots += 1;
+
+    if (sceneChars.length >= 2) {
+      // Two or more characters: Two-shot, Over-the-shoulder, Intimate reaction CU, and Key insert
+      shotRows.push(
+        `${s.number},${s.number}-B,Medium Two-Shot,Eye Level,35mm Anamorphic Prime,Steadicam Tracking,${leadChar} & ${secChar},${lightingMood},"Anchor interpersonal power dynamic and physical proximity between ${leadChar} and ${secChar}"`
+      );
+      shotRows.push(
+        `${s.number},${s.number}-C,Close-Up (Turn),Eye Level,85mm Anamorphic Prime,Static Locked,${leadChar} Reaction,High Contrast Chiaroscuro,"Capture pivotal psychological shift and emotional stakes on key dialogue turn"`
+      );
+      shotRows.push(
+        `${s.number},${s.number}-D,Over-The-Shoulder,Eye Level,50mm Anamorphic Prime,Subtle Push,${secChar} over ${leadChar} Shoulder,${lightingMood},"Provide reverse perspective to heighten spatial tension and lock audience into conversation eyeline"`
+      );
+      shotRows.push(
+        `${s.number},${s.number}-E,Macro Insert,High Angle,50mm Anamorphic Prime,Slow Tilt Down,Key Prop / Action Focus,Specular Highlight,"Focal close-up on story-critical prop and hand manipulation to preserve physical continuity"`
+      );
+      totalShots += 4;
+    } else {
+      // Solitary / atmospheric: Medium tracking, Intimate CU, and Macro insert
+      shotRows.push(
+        `${s.number},${s.number}-B,Medium Tracking,Eye Level,35mm Anamorphic Prime,Steadicam Tracking,${leadChar},${lightingMood},"Follow protagonist momentum and environmental exploration across space"`
+      );
+      shotRows.push(
+        `${s.number},${s.number}-C,Close-Up (Turn),Eye Level,85mm Anamorphic Prime,Static Locked,${leadChar} Reaction,High Contrast Chiaroscuro,"Intimate psychological observation of solitary internal decision-making"`
+      );
+      shotRows.push(
+        `${s.number},${s.number}-D,Macro Insert,High Angle,50mm Anamorphic Prime,Slow Tilt Down,Key Prop / Action Focus,Specular Highlight,"Isolate physical prop interaction and tactical details for continuity accuracy"`
+      );
+      totalShots += 3;
+    }
   }
 
   const cinematographerPacket: CinematographerPacket = {

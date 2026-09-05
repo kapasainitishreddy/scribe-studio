@@ -342,6 +342,7 @@ export interface RevisionRecord {
 }
 
 export type ContinuitySeverity = "critical" | "warning" | "info";
+export type EvidenceState = "VERIFIED" | "POTENTIAL_CONFLICT" | "UNRESOLVED" | "INTENTIONAL_CHANGE" | "NOT_CHECKED";
 
 export interface ContinuityIssue {
   id: string;
@@ -352,9 +353,63 @@ export interface ContinuityIssue {
   headline: string;
   reason: string;
   supportingEvidence: string;
+  evidenceState?: EvidenceState;
+  screenplayLineId?: string;
+  textExcerpt?: string;
   suggestedResolution: string;
   status: "active" | "dismissed" | "intentional" | "resolved";
   createdAt: string;
+}
+
+export interface PassportCitation {
+  title: string;
+  url: string;
+  snippet: string;
+  publishedDate?: string;
+}
+
+export interface ProductionChangePassport {
+  id: string;
+  timestamp: string;
+  sceneNumber: number;
+  beforeHash: string;
+  afterHash: string;
+  humanDiffSummary: string;
+  changedAstNodes: string[];
+  changedEntities: string[];
+  affectedArtifactIds: string[];
+  protectedArtifactIds: string[];
+  continuityFindings: Array<{
+    category: string;
+    issue: string;
+    evidenceState: EvidenceState;
+    screenplayCitation: string;
+    actionNeeded: string;
+  }>;
+  realityGate: {
+    requiresExternalResearch: boolean;
+    reason: string;
+    topic?: string;
+  };
+  parallelCitations: PassportCitation[];
+  aiProposals: Array<{
+    target: string;
+    proposal: string;
+    isScribeProposal: true;
+  }>;
+  humanDecision: "pending" | "approved" | "rejected";
+  decisionTimestamp?: string;
+  regeneratedArtifactIds: string[];
+  preservedArtifactIds: string[];
+  beforeConsistencyStatus: string;
+  afterConsistencyStatus: string;
+  provenance: {
+    adkVersion: string;
+    model: string;
+    toolCalls: string[];
+    latencyMs: number;
+    isLiveParallel: boolean;
+  };
 }
 
 export interface StickyNote {
@@ -395,6 +450,7 @@ export interface ResearchFinding {
   id: string;
   sceneNumber: number;
   query: string;
+  topic?: string;
   summary: string;
   conclusion: string;
   confidence: number;
@@ -407,6 +463,7 @@ export interface ResearchFinding {
   whyThisMatters?: string;
   proposedResponse?: string;
 }
+
 
 // -------------------------------------------------------------
 // 3D Scene Blocking & Previsualization Models
@@ -563,6 +620,8 @@ export interface Project {
   latestImpactReport: ConsolidatedImpactReport | null;
   latestVerificationReport?: VerificationReport | null;
   propagationState: PropagationState;
+  changePassports?: ProductionChangePassport[];
+  activeChangePassport?: ProductionChangePassport | null;
   settings: ProjectSettings;
   createdAt: string;
   updatedAt: string;

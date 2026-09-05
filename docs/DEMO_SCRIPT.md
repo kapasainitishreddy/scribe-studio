@@ -1,91 +1,82 @@
 # Scribe Studio — Official 3-Minute Video Demo Script
 
-**Project Title:** Scribe Studio — The Screenplay That Understands What It Changes  
-**Hackathon Target:** Google Cloud Agentic Cinema Hackathon (Google Cloud AI & Parallel Search API Track)  
+**Project Title:** Scribe Studio — Change the Script. Know the Production Consequences.  
+**Tracks:** Google Cloud AI Track (@google/adk, @google/genai) • Parallel Search API Track (parallel-web)  
 **Total Target Runtime:** Exactly 3:00 (180 seconds)  
-**Tone:** Confident, professional, clear, evidence-focused  
+**Tone:** Confident, filmmaker-focused, technically rigorous, evidence-driven  
 
 ---
 
-### [0:00 – 0:15] The Hook
-**Visual:** Screen opens on Scribe Studio’s cinematic darkroom IDE. The screenplay editor is open to Scene 18.
+### [0:00 – 0:20] The Hook & Filmmaking Dilemma
+**Visual:** Screen opens on Scribe Studio's Production Desk in **Write Mode**. Beautiful Courier Prime typography, dual-pane Fountain editor, Scene 1 selected.  
 **Narration:**  
-> "A screenplay revision isn't one text change. In modern film production, a single line edit silently breaks actor sides, creates plot contradictions, corrupts storyboards, and wastes thousands of dollars downstream."
+> "A screenplay revision is never just words on a page. In modern film production, changing a single prop or beat in Scene 1 silently breaks actor sides, corrupts storyboard panels, and triggers catastrophic budget loss on set.  
+> Scribe Studio solves this: Change the script, and know the production consequences before the set pays for them."
 
 ---
 
-### [0:15 – 0:30] The Core Idea & Scene 18
-**Visual:** Quick pan over the screenplay text of Scene 18 (Maya enters garage, searches cabinet, discovers Glock 19). Cursor hovers over the entity link.
+### [0:20 – 0:50] The Core Architecture & Counterfactual Preview
+**Visual:** The user types a change in Scene 1: changing "pulls an ENCRYPTED TITANIUM DRIVE" to "triggers the halon fire suppression override and enters with a NEURAL QUANTUM SPLICE".  
+Look at the bottom **Change Intelligence Bar**:  
+Immediately displays:
+*"Scene 1 AST Modified • Counterfactual Preview: 3 downstream assets require update • 14 protected • 1 fact requires live research"*  
 **Narration:**  
-> "Scribe Studio treats the screenplay as the root node of the production graph. Every character, prop, storyboard panel, and schedule item is an active node connected to the screenplay AST."
+> "Scribe Studio treats the screenplay AST as the root node of an active entity dependency graph.  
+> The moment I change Scene 1, our engine computes the blast radius in under 1.4 milliseconds.  
+> Notice the Counterfactual Preview in the bottom intelligence bar: it tells the filmmaker exactly how many downstream assets require updates, and proves that unaffected scenes are 100% protected."
 
 ---
 
-### [0:30 – 1:15] The Hero Workflow & Blast Radius
-**Visual:** Click the golden **"⚡ Hero Run: Scene 18 Gun"** button in the header. The Hero Impact Modal animates onto the screen.
+### [0:50 – 1:35] Production Change Passport & Parallel Reality Gate
+**Visual:** Click **"Review Change Passport"**. The high-tech **Production Change Passport Modal** opens.  
+Point cursor to:
+1. Changed AST nodes and SHA-256 hashes.
+2. Affected Artifacts vs Protected Artifacts (Scene 2, 3, and unaffected cast sides).
+3. **Parallel Search Reality Gate**: Highlights "halon fire suppression" safety claim, showing live Parallel citations, EPA Clean Air Act references, and Evidence State.
+4. Model Provenance: `@google/adk@2.0.0` & `gemini-1.5-pro`.  
 **Narration:**  
-> "Watch what happens when Maya fails to find the gun. In under 1.4 milliseconds, our multi-agent pipeline analyzes the cascade:
-> First, an AST line diff identifies the exact change.
-> Second, our epistemic knowledge engine notes Maya no longer knows about the weapon.
-> Third, the blast radius marks Panels 4 and 6 as OUTDATED, while Panels 1, 2, 3, and 5 stay APPROVED.
-> Fourth, Maya's Actor Packet is flagged as STALE, while Marcus Kane and Scene 2 remain completely untouched.
-> And fifth, our autonomous research agent uses the Parallel Search API to verify port security and safety protocols with live citations."
+> "Here is the Production Change Passport.  
+> First, our Reality Gate strictly distinguishes dramatic dialogue from factual claims. Because this edit introduces halon fire suppression, it triggers the Parallel Search API to verify ventilation regulations and evacuation limits with live, verifiable citations.  
+> Second, look at the accounting: it lists the exact affected items, while guaranteeing protected artifacts consume strictly zero tokens.  
+> And third, everything is logged with complete Google ADK and Gemini provenance."
 
 ---
 
-### [1:15 – 1:30] Human Veto: The Reject Decision
-**Visual:** Click the red **"Reject Proposal"** button in the modal.
+### [1:35 – 2:00] Director Veto vs Selective Reconciliation
+**Visual:** Hover over **"Reject (Zero Mutation)"** and click. Project state rolls back with zero changes.  
+Re-open and click **"Approve Selective Invalidation"**. Progress bar animates selectively regenerating dirty panels and packets.  
 **Narration:**  
-> "The director remains the ultimate auteur. Watch: clicking Reject cleanly cancels the proposal. Exactly zero mutations are committed to the screenplay or project graph. Baseline versions remain pristine."
+> "The director retains absolute creative authority.  
+> Clicking Reject causes zero mutations to the project.  
+> Clicking Approve selectively reconciles only the dirty nodes: unaffected scenes are untouched, saving over 85% of compute tokens."
 
 ---
 
-### [1:30 – 1:45] The Approve Decision & Targeted Regeneration
-**Visual:** Re-click "⚡ Hero Run: Scene 18 Gun" and click the green **"Approve & Reconcile"** button.
+### [2:00 – 2:30] Visualize, Perform, and Produce Workspaces
+**Visual:**  
+1. Switch to **Visualize Mode**: Show Scene $\to$ Beats $\to$ Shots $\to$ Storyboard/Comic pipeline with dynamic layouts and deterministic SVG schematics.  
+2. Switch to **Perform Mode**: Show Actor Rehearsal HUD with line blurring.  
+3. Switch to **Produce Mode**: Show 16-category breakdown and continuity timeline.  
 **Narration:**  
-> "Now, we approve. Scribe Studio applies the changes atomically, regenerating only the dirty nodes. Unaffected artifacts consume zero compute tokens, protecting over 85% of downstream rendering costs."
+> "The Production Desk gives every department head their specialized lens:  
+> In Visualize mode, scenes become graphic novel storyboards with dynamic framing and deterministic SVG schematics that render 100% offline.  
+> In Perform mode, actors get personalized audition sides with memorization HUDs.  
+> In Produce mode, producers see full 16-category Hollywood breakdowns."
 
 ---
 
-### [1:45 – 2:05] Mathematical Verification (VERIFY)
-**Visual:** The Verified State card appears with the live Before vs After telemetry table.
+### [2:30 – 2:50] 1-Click ZIP Production Package
+**Visual:** Click **Export** in the top bar. Select **"Package All (1-Click ZIP)"**.  
+Show the downloaded `CYPHER_OF_CARCASSONNE_PRODUCTION_PACKAGE.zip` with its folders: `/MANIFEST.json`, `/SCRIPT/`, `/CAST/`, `/DIRECTOR/`, `/CAMERA/`, `/CONTINUITY/`, `/PRODUCTION/`, `/RESEARCH/`, and `/CHANGE_PASSPORTS/`.  
+Open the Cinematographer shotlist CSV showing the **Why This Shot Exists (Reason)** column.  
 **Narration:**  
-> "Look at the live verification audit:
-> Continuity errors: 0.
-> Stale Actor Packets: 0.
-> Outdated storyboard panels: 0.
-> Unaffected artifacts regenerated: exactly zero.
-> Every single metric is computed live from project state."
+> "With one click, Scribe Studio packages the entire production into a single downloadable ZIP archive with manifest, cast packets, director beat sheets, and camera shotlists explaining why every single shot exists."
 
 ---
 
-### [2:05 – 2:25] Scene Comic Visual Pipeline
-**Visual:** Switch to the **Scene Comic** tab (`comic`). Show the graphic novel grid with framing tags, camera angles, speech bubbles, and deterministic SVG schematics.
+### [2:50 – 3:00] Rigorous Verification & Close
+**Visual:** Quick flash of terminal running `npm test` (54/54 tests passing, 52/52 benchmark scenarios, 0 TypeScript errors).  
 **Narration:**  
-> "Here is the visual comic pipeline. Scribe Studio automatically extracts screenplay scenes into dramatic beats, shot framings, and comic panels. Even offline, our deterministic SVG engine renders actor silhouettes, camera frustums, and lighting tints with zero missing assets."
-
----
-
-### [2:25 – 2:40] Actor Rehearsal & Filmmaker Lenses
-**Visual:** Switch to **Actor Mode**. Toggle **Rehearsal Mode** (showing dialogue lines blurring for memorization, clicking to reveal).
-**Narration:**  
-> "Department heads get dedicated lenses: Cinematographer mode provides prime lens kits and coverage matrices. Actor mode provides personalized sides and a one-click rehearsal tool that blurs lines for memorization."
-
----
-
-### [2:40 – 2:52] Compliance & Runtime Diagnostics Drawer
-**Visual:** Click the **"100% Compliant"** badge in the header. Show the Subsystems Matrix, live Gemini ping, live Parallel ping, and 52-scenario benchmark score.
-**Narration:**  
-> "Under the hood, Scribe Studio strictly satisfies hackathon rules:
-> Google Cloud Gemini 1.5 Pro and 2.0 Flash with Google ADK.
-> Parallel Search API for factual grounding.
-> Zero percent prohibited AI vendors.
-> And a 52-scenario automated evaluation harness passing with 100% accuracy."
-
----
-
-### [2:52 – 3:00] Close
-**Visual:** Pan out to the dual-pane Hollywood screenplay layout with pure vector PDF export button.
-**Narration:**  
-> "Scribe Studio. Change the script. Know everything it changes.
+> "54 passing test suites. 52 evaluation scenarios at 100% accuracy. Zero disallowed AI tooling.  
+> Scribe Studio: The screenplay that understands what it changes.  
 > Thank you."

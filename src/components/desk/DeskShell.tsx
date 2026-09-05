@@ -16,6 +16,8 @@ import { ExportModal } from "../ExportModal";
 import { WriterAgentModal } from "../WriterAgentModal";
 import { TableReadModal } from "../TableReadModal";
 import { MeetingScribeModal } from "../MeetingScribeModal";
+import { ChangePassportModal } from "./ChangePassportModal";
+import { createProductionChangePassport } from "../../../packages/project-model/src/passportBuilder";
 
 interface DeskShellProps {
   project: Project;
@@ -106,9 +108,15 @@ export const DeskShell: React.FC<DeskShellProps> = ({
 
   // Change Intelligence state
   const [isApplyingChanges, setIsApplyingChanges] = useState(false);
+  const [isPassportModalOpen, setIsPassportModalOpen] = useState(false);
   const [changeProgress, setChangeProgress] = useState<{ current: number; total: number; label: string } | null>(null);
 
   const parsed = useMemo(() => parseScreenplay(project.screenplayText), [project.screenplayText]);
+
+  // Dynamically constructed production change passport for active scene
+  const activePassport = useMemo(() => {
+    return createProductionChangePassport(project, selectedSceneNumber);
+  }, [project, selectedSceneNumber]);
 
   // Check if stale downstream production changes exist
   const hasStaleChanges =
@@ -147,29 +155,52 @@ export const DeskShell: React.FC<DeskShellProps> = ({
 
   // When user clicks Review Changes in the footer bar
   const handleReviewChanges = () => {
+    setIsPassportModalOpen(true);
     setInspectorMode("change_impact");
     setIsInspectorOpen(true);
   };
 
-  // 1-Click Change Intelligence Application
+  // 1-Click Change Intelligence Application: Deterministic selective invalidation
   const handleApplyChanges = async () => {
     setIsApplyingChanges(true);
-    setChangeProgress({ current: 1, total: 3, label: "Updating Storyboard Panel 18-B..." });
-    await new Promise((r) => setTimeout(r, 600));
-
-    setChangeProgress({ current: 2, total: 3, label: "Updating Storyboard Panel 18-C..." });
-    await new Promise((r) => setTimeout(r, 700));
-
-    setChangeProgress({ current: 3, total: 3, label: "Resolving weapon continuity chain..." });
-    await new Promise((r) => setTimeout(r, 500));
-
-    // Regenerate stale storyboard panels and actor packets
     const seqId = `seq-${selectedSceneNumber}`;
-    regenerateOutdatedPanels(seqId);
-    regenerateAllStalePackets();
+    const stalePanels = project.propagationState.staleStoryboardPanels || [];
+    const stalePackets = project.propagationState.staleActorPackets || [];
+    const totalSteps = (stalePanels.length > 0 ? 1 : 0) + (stalePackets.length > 0 ? 1 : 0) + 1;
+    let currentStep = 0;
+
+    if (stalePanels.length > 0) {
+      currentStep += 1;
+      setChangeProgress({
+        current: currentStep,
+        total: totalSteps,
+        label: `Regenerating ${stalePanels.length} outdated storyboard ${stalePanels.length === 1 ? "panel" : "panels"}...`
+      });
+      regenerateOutdatedPanels(seqId);
+    }
+
+    if (stalePackets.length > 0) {
+      currentStep += 1;
+      setChangeProgress({
+        current: currentStep,
+        total: totalSteps,
+        label: `Updating ${stalePackets.length} stale actor ${stalePackets.length === 1 ? "packet" : "packets"}...`
+      });
+      regenerateAllStalePackets();
+    }
+
+    currentStep += 1;
+    setChangeProgress({
+      current: currentStep,
+      total: totalSteps,
+      label: "Synchronizing continuity AST and generating verification report..."
+    });
+
+    approveHeroWorkflow();
 
     setIsApplyingChanges(false);
     setChangeProgress(null);
+    setIsPassportModalOpen(false);
     setInspectorMode("overview");
   };
 
@@ -290,6 +321,7 @@ export const DeskShell: React.FC<DeskShellProps> = ({
               const seqId = `seq-${selectedSceneNumber}`;
               regenerateStoryboardPanel(seqId, shotId);
             }}
+            onOpenPassport={() => setIsPassportModalOpen(true)}
           />
         )}
       </div>
@@ -369,6 +401,22 @@ export const DeskShell: React.FC<DeskShellProps> = ({
           onAddStickyNotes={() => {}}
         />
       )}
+
+      {/* Production Change Passport Modal */}
+      {isPassportModalOpen && activePassport && (
+        <ChangePassportModal
+          passport={activePassport}
+          onApprove={async () => {
+            await handleApplyChanges();
+          }}
+          onReject={() => {
+            rejectHeroWorkflow();
+            setIsPassportModalOpen(false);
+          }}
+          onClose={() => setIsPassportModalOpen(false)}
+        />
+      )}
     </div>
   );
 };
+

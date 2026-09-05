@@ -1,0 +1,71 @@
+{
+  "submission": {
+    "project": "Scribe Studio",
+    "tagline": "Change the script. Know the production consequences before the set pays for them.",
+    "tracks": [
+      "Google Cloud Agentic Cinema: The Blockbuster Hackathon",
+      "Parallel Partner Track: Web Search for Agentic Systems"
+    ],
+    "timestamp": "2026-09-05T15:08:34.632Z",
+    "liveDeploymentUrl": "https://kapasainitishreddy.github.io/scribe-studio/",
+    "publicRepository": "https://github.com/kapasainitishreddy/scribe-studio"
+  },
+  "verificationGates": {
+    "typecheck": {
+      "command": "npm run typecheck",
+      "status": "PASS",
+      "errorCount": 0
+    },
+    "testSuite": {
+      "command": "npm test",
+      "status": "PASS",
+      "suitesTotal": 13,
+      "suitesPassed": 13,
+      "testsTotal": 54,
+      "testsPassed": 54,
+      "testsFailed": 0,
+      "durationSec": 6.53
+    },
+    "evaluationHarness": {
+      "command": "npm run eval",
+      "status": "PASS",
+      "scenariosTotal": 52,
+      "scenariosPassed": 52,
+      "accuracy": 1,
+      "continuityPrecision": 1,
+      "continuityRecall": 1,
+      "continuityF1": 1,
+      "falsePositiveRate": 0,
+      "zeroComputeProtectionRate": 1,
+      "researchTriggerPrecision": 1,
+      "researchAbstentionAccuracy": 1
+    },
+    "productionBuild": {
+      "command": "npm run build",
+      "status": "PASS",
+      "htmlBundleKb": 1.24,
+      "cssBundleKb": 95.65,
+      "jsBundleKb": 1494.19
+    },
+    "serverBuild": {
+      "command": "cd server && npm run build",
+      "status": "PASS",
+      "runtime": "@google/adk@2.0.0 & @google/genai@2.21.0 & parallel-web@1.3.3",
+      "cloudRunReady": true
+    }
+  },
+  "runtimeProof": {
+    "googleCloudADK": "@google/adk@2.0.0",
+    "googleGenAI": "@google/genai@2.21.0",
+    "parallelSearch": "parallel-web@1.3.3",
+    "realityGate": "Strict semantic distinction between dramatic dialogue and factual/regulatory claims",
+    "evidenceStates": [
+      "VERIFIED",
+      "POTENTIAL_CONFLICT",
+      "UNRESOLVED",
+      "INTENTIONAL_CHANGE",
+      "NOT_CHECKED"
+    ],
+    "productionPackaging": "1-Click Downloadable ZIP (MANIFEST.json + SCRIPT + CAST + DIRECTOR + CAMERA + CONTINUITY + PRODUCTION + RESEARCH + CHANGE_PASSPORTS)"
+  }
+}

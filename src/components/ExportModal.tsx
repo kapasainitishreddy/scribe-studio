@@ -21,6 +21,7 @@ import { exportFdx } from "../../packages/export-engine/src/interchangeFdx";
 import { buildSubtitleCues, exportSrt } from "../../packages/export-engine/src/subtitles";
 import { generateCharacterSidesPdf, generateCharacterSidesText } from "../../packages/export-engine/src/exportSides";
 import { buildDepartmentPackets } from "../../packages/export-engine/src/distributionHub";
+import { buildProductionPackageZip } from "../../packages/export-engine/src/packageZip";
 import { parseScreenplay, screenplayStats } from "../../packages/screenplay-core/src/fountain";
 
 interface ExportModalProps {
@@ -143,13 +144,24 @@ export const ExportModal: React.FC<ExportModalProps> = ({ project, onClose }) =>
     triggerDownload(blob, packets.producerPacket.filename);
   };
 
-  // Batch Export All Department Packets
-  const handleExportAllDepartments = () => {
-    handleExportPdf();
-    setTimeout(() => handleExportDirectorSheet(), 400);
-    setTimeout(() => handleExportCinematographerKit(), 800);
-    setTimeout(() => handleExportContinuityReport(), 1200);
-    setTimeout(() => handleExportBreakdownCsv(), 1600);
+  const [isPackagingZip, setIsPackagingZip] = useState(false);
+
+  // Batch Export All Department Packets as ONE Unified Production Call ZIP
+  const handleExportAllDepartments = async () => {
+    try {
+      setIsPackagingZip(true);
+      const zipBlob = await buildProductionPackageZip(project);
+      triggerDownload(zipBlob, `${project.title.replace(/\s+/g, "_")}_PRODUCTION_PACKAGE.zip`);
+    } catch (err: any) {
+      console.error("ZIP Generation error, falling back to individual downloads:", err);
+      handleExportPdf();
+      setTimeout(() => handleExportDirectorSheet(), 400);
+      setTimeout(() => handleExportCinematographerKit(), 800);
+      setTimeout(() => handleExportContinuityReport(), 1200);
+      setTimeout(() => handleExportBreakdownCsv(), 1600);
+    } finally {
+      setIsPackagingZip(false);
+    }
   };
 
   return (
@@ -223,10 +235,11 @@ export const ExportModal: React.FC<ExportModalProps> = ({ project, onClose }) =>
                 </div>
                 <button
                   onClick={handleExportAllDepartments}
-                  className="px-3.5 py-1.5 rounded-lg bg-[#D49B54] hover:bg-[#E3AF69] text-black font-bold flex items-center space-x-1.5 transition-all shadow-md shrink-0"
+                  disabled={isPackagingZip}
+                  className="px-3.5 py-1.5 rounded-lg bg-[#D49B54] hover:bg-[#E3AF69] text-black font-bold flex items-center space-x-1.5 transition-all shadow-md shrink-0 disabled:opacity-50 cursor-pointer"
                 >
                   <FolderArchive className="w-4 h-4" />
-                  <span>Package All (1-Click)</span>
+                  <span>{isPackagingZip ? "Packaging ZIP..." : "Package All (1-Click ZIP)"}</span>
                 </button>
               </div>
 

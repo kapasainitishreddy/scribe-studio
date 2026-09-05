@@ -4,14 +4,25 @@ export interface ParallelSearchRequest {
   query: string;
   maxResults?: number;
   apiKey?: string;
+  sceneNumber?: number;
 }
+
 
 export interface ParallelSearchResponse {
   query: string;
   sources: ParallelSource[];
+  results: ParallelSource[];
   isLiveApi: boolean;
   latencyMs: number;
+  status?: "live_success" | "live_error" | "offline_grounded";
+  errorMessage?: string;
+  searchId?: string;
+  telemetry: {
+    engine: string;
+    model: string;
+  };
 }
+
 
 // Deterministic curated grounding repository for Tokyo harbor, quantum cryptography, halon systems, and film production
 const CURATED_PARALLEL_RESEARCH: Record<string, ParallelSource[]> = {
@@ -96,11 +107,19 @@ export async function executeParallelSearch(request: ParallelSearchRequest): Pro
         }));
 
         const latencyMs = Math.round(performance.now() - startTime);
+        const resolvedSources = sources.length > 0 ? sources : CURATED_PARALLEL_RESEARCH.default;
         return {
           query: request.query,
-          sources: sources.length > 0 ? sources : CURATED_PARALLEL_RESEARCH.default,
+          sources: resolvedSources,
+          results: resolvedSources,
           isLiveApi: true,
-          latencyMs
+          status: "live_success",
+          searchId: data.search_id,
+          latencyMs,
+          telemetry: {
+            engine: "Parallel Web Search API v1",
+            model: "parallel-sonar-2026"
+          }
         };
       }
     } catch (e) {
@@ -121,7 +140,17 @@ export async function executeParallelSearch(request: ParallelSearchRequest): Pro
   return {
     query: request.query,
     sources: matchedSources,
-    isLiveApi: Boolean(apiKey),
-    latencyMs: Math.max(12, latencyMs)
+    results: matchedSources,
+    isLiveApi: false,
+    status: apiKey ? "live_error" : "offline_grounded",
+    errorMessage: apiKey ? "Live Parallel request failed or timed out. Deterministic benchmark fixture used." : undefined,
+    latencyMs: Math.max(12, latencyMs),
+    telemetry: {
+      engine: "Deterministic Grounded Production Knowledge Graph",
+      model: "offline-film-safety-corpus"
+    }
   };
 }
+
+export const runParallelSearch = executeParallelSearch;
+

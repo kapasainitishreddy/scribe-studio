@@ -155,7 +155,7 @@ describe("Novel Adaptation & Automated Department Distribution Test Suite", () =
     expect(packets.projectTitle).toBe("The Cypher of Carcassonne");
     expect(packets.summary.totalScenes).toBe(4);
     expect(packets.summary.totalCast).toBeGreaterThanOrEqual(4);
-    expect(packets.summary.totalShots).toBe(16); // 4 shots per scene * 4 scenes
+    expect(packets.summary.totalShots).toBe(19); // Dynamic coverage topology based on character presence and beats
     expect(packets.summary.totalBreakdownElements).toBeGreaterThan(10);
 
     // 1. Cast Sides Distribution: Verify each actor gets only their relevant scenes
@@ -184,20 +184,27 @@ describe("Novel Adaptation & Automated Department Distribution Test Suite", () =
     expect(archivistPacket).toBeDefined();
     expect(archivistPacket!.sceneNumbers).toEqual([2]); // Only in the crypt scene
 
-    // 2. Director's Packet: Scene-by-scene beat sheet
+    // 2. Director's Packet: Scene-by-scene beat sheet with function, objective, conflict & stakes
     expect(packets.directorPacket.filename).toBe("The_Cypher_of_Carcassonne_DIRECTOR_BEATS.md");
     expect(packets.directorPacket.sceneBeats.length).toBe(4);
     expect(packets.directorPacket.contentMarkdown).toContain("DIRECTOR'S BEAT SHEET & COVERAGE");
     expect(packets.directorPacket.contentMarkdown).toContain("SCENE 1: EXT. CARCASSONNE CITADEL - NIGHT");
     expect(packets.directorPacket.contentMarkdown).toContain("SCENE 2: INT. SUBTERRANEAN CATHEDRAL CRYPT - CONTINUOUS");
     expect(packets.directorPacket.contentMarkdown).toContain("Dramatic Beat & Turning Point");
+    expect(packets.directorPacket.contentMarkdown).toContain("Scene Function");
+    expect(packets.directorPacket.sceneBeats[0].sceneFunction).toBeDefined();
+    expect(packets.directorPacket.sceneBeats[0].objective).toBeDefined();
+    expect(packets.directorPacket.sceneBeats[0].conflict).toBeDefined();
+    expect(packets.directorPacket.sceneBeats[0].stakes).toBeDefined();
 
-    // 3. Cinematographer's Packet: 2.39:1 Anamorphic shotlist
+    // 3. Cinematographer's Packet: 2.39:1 Anamorphic shotlist with explicit Why This Shot Exists reason column
     expect(packets.cinematographerPacket.filename).toBe("The_Cypher_of_Carcassonne_CINEMATOGRAPHER_SHOTLIST.csv");
     expect(packets.cinematographerPacket.aspectRatio).toBe("2.39:1 Anamorphic Scope");
     expect(packets.cinematographerPacket.shotlistCsv).toContain("Scene,Shot Code,Type,Angle,Lens,Movement,Subject,Lighting Mood");
+    expect(packets.cinematographerPacket.shotlistCsv).toContain("Why This Shot Exists (Reason)");
     expect(packets.cinematographerPacket.shotlistCsv).toContain("1,1-A,Wide Master,Low Angle,24mm Anamorphic Prime");
     expect(packets.cinematographerPacket.shotlistCsv).toContain("2,2-C,Close-Up (Turn),Eye Level,85mm Anamorphic Prime");
+
 
     // 4. Script Supervisor's Packet: Prop & wardrobe continuity tracking
     expect(packets.scriptSupervisorPacket.filename).toBe("The_Cypher_of_Carcassonne_CONTINUITY_LOG.txt");

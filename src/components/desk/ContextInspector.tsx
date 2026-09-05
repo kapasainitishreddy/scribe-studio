@@ -38,6 +38,7 @@ interface ContextInspectorProps {
   changeProgress?: { current: number; total: number; label: string } | null;
   onRegenerateShot?: (panelId: string) => void;
   onUpdateShotLens?: (lens: string) => void;
+  onOpenPassport?: () => void;
 }
 
 export const ContextInspector: React.FC<ContextInspectorProps> = ({
@@ -55,7 +56,8 @@ export const ContextInspector: React.FC<ContextInspectorProps> = ({
   isApplyingChanges,
   changeProgress,
   onRegenerateShot,
-  onUpdateShotLens
+  onUpdateShotLens,
+  onOpenPassport
 }) => {
   const activeChar = project.characters[selectedCharacterId] || Object.values(project.characters)[0];
   const parsed = React.useMemo(() => parseScreenplay(project.screenplayText), [project.screenplayText]);
@@ -417,7 +419,7 @@ export const ContextInspector: React.FC<ContextInspectorProps> = ({
         )}
 
         {/* ============================================================ */}
-        {/* 5. CHANGE IMPACT (HERO WORKFLOW REDESIGNED)                  */}
+        {/* 5. CHANGE IMPACT (HERO WORKFLOW & CHANGE PASSPORT)           */}
         {/* ============================================================ */}
         {mode === "change_impact" && (
           <div className="space-y-4">
@@ -430,45 +432,87 @@ export const ContextInspector: React.FC<ContextInspectorProps> = ({
                   Scene {selectedSceneNumber} Blast Radius
                 </h3>
               </div>
+              {onOpenPassport && (
+                <button
+                  onClick={onOpenPassport}
+                  className="px-2 py-1 rounded bg-[#171C24] hover:bg-[#202736] border border-[#D49B54]/40 text-[#D49B54] text-[10px] font-mono flex items-center space-x-1"
+                >
+                  <ShieldAlert className="w-3 h-3" />
+                  <span>Passport</span>
+                </button>
+              )}
             </div>
 
             <div className="h-px bg-[#262C36]" />
 
             <div className="space-y-2">
               <div className="p-2.5 rounded bg-[#12161D] border border-[#262C36] space-y-1">
-                <div className="text-[10px] font-mono text-[#69717E] uppercase">Script AST</div>
+                <div className="text-[10px] font-mono text-[#69717E] uppercase">Script AST State</div>
                 <div className="text-xs text-[#10B981] flex items-center space-x-1 font-medium">
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>Scene {selectedSceneNumber} updated</span>
+                  <span>Scene {selectedSceneNumber} AST node registered</span>
                 </div>
               </div>
 
+              {/* Storyboard Pipeline Status */}
               <div className="p-2.5 rounded bg-[#12161D] border border-[#262C36] space-y-1">
                 <div className="text-[10px] font-mono text-[#69717E] uppercase">Storyboard Pipeline</div>
-                <div className="text-xs text-[#F59E0B] flex items-center space-x-1 font-medium">
-                  <AlertTriangle className="w-3.5 h-3.5" />
-                  <span>Panel 18-B contains modified prop</span>
-                </div>
-                <div className="text-xs text-[#F59E0B] flex items-center space-x-1 font-medium">
-                  <AlertTriangle className="w-3.5 h-3.5" />
-                  <span>Panel 18-C contains modified prop</span>
-                </div>
+                {(project.propagationState.staleStoryboardPanels || []).length > 0 ? (
+                  (project.propagationState.staleStoryboardPanels || []).map((pId) => (
+                    <div key={pId} className="text-xs text-[#F59E0B] flex items-center space-x-1 font-medium">
+                      <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                      <span className="truncate">Panel {pId} invalidated by AST diff</span>
+                    </div>
+                  ))
+                ) : sceneStalePanels.length > 0 ? (
+                  sceneStalePanels.map((p) => (
+                    <div key={p.id} className="text-xs text-[#F59E0B] flex items-center space-x-1 font-medium">
+                      <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                      <span>Panel {p.panelNumber} marked OUTDATED</span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-xs text-emerald-400 flex items-center space-x-1 font-medium">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>All storyboard panels synchronized</span>
+                  </div>
+                )}
               </div>
 
+              {/* Actor Packets Pipeline Status */}
+              <div className="p-2.5 rounded bg-[#12161D] border border-[#262C36] space-y-1">
+                <div className="text-[10px] font-mono text-[#69717E] uppercase">Actor Packets</div>
+                {(project.propagationState.staleActorPackets || []).length > 0 ? (
+                  (project.propagationState.staleActorPackets || []).map((charId) => (
+                    <div key={charId} className="text-xs text-[#F59E0B] flex items-center space-x-1 font-medium">
+                      <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                      <span className="truncate">Sides dirty for {project.characters[charId]?.name || charId}</span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-xs text-emerald-400 flex items-center space-x-1 font-medium">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>Cast rehearsal packets up to date</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Continuity Tracking */}
               <div className="p-2.5 rounded bg-[#12161D] border border-[#262C36] space-y-1">
                 <div className="text-[10px] font-mono text-[#69717E] uppercase">Continuity Tracking</div>
-                <div className="text-xs text-[#F59E0B] flex items-center space-x-1 font-medium">
-                  <AlertTriangle className="w-3.5 h-3.5" />
-                  <span>Weapon first appearance moved</span>
-                </div>
-              </div>
-
-              <div className="p-2.5 rounded bg-[#12161D] border border-[#262C36] space-y-1">
-                <div className="text-[10px] font-mono text-[#69717E] uppercase">Camera Plan</div>
-                <div className="text-xs text-[#F59E0B] flex items-center space-x-1 font-medium">
-                  <AlertTriangle className="w-3.5 h-3.5" />
-                  <span>Insert shot references weapon</span>
-                </div>
+                {sceneContinuityAlerts.length > 0 ? (
+                  sceneContinuityAlerts.map((issue) => (
+                    <div key={issue.id} className="text-xs text-[#F59E0B] flex items-center space-x-1 font-medium">
+                      <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                      <span className="truncate">{issue.reason}</span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-xs text-emerald-400 flex items-center space-x-1 font-medium">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>0 continuity violations in Scene {selectedSceneNumber}</span>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -489,31 +533,45 @@ export const ContextInspector: React.FC<ContextInspectorProps> = ({
               </div>
             ) : (
               <div className="pt-2 space-y-2">
-                <div className="text-[11px] text-[#69717E] font-mono">
-                  Estimated selective update: 3 assets • ~2.4 sec
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    onClick={onClose}
-                    className="py-1.5 px-3 rounded bg-[#12161D] hover:bg-[#171C24] border border-[#262C36] text-xs font-medium text-[#A0A7B2]"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={onApplyChanges}
-                    disabled={isApplyingChanges}
-                    className="py-1.5 px-3 rounded bg-[#D49B54] hover:bg-[#E3AF69] text-black text-xs font-bold transition-all shadow-md flex items-center justify-center space-x-1"
-                  >
-                    {isApplyingChanges ? (
-                      <>
-                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                        <span>Updating...</span>
-                      </>
-                    ) : (
-                      <span>Apply 3 Updates</span>
-                    )}
-                  </button>
-                </div>
+                {(() => {
+                  const stalePanelsCount = project.propagationState.staleStoryboardPanels?.length || 0;
+                  const stalePacketsCount = project.propagationState.staleActorPackets?.length || 0;
+                  const totalDirty = stalePanelsCount + stalePacketsCount + sceneContinuityAlerts.length;
+
+                  return (
+                    <>
+                      <div className="text-[11px] text-[#69717E] font-mono">
+                        {totalDirty > 0
+                          ? `Selective invalidation: ${totalDirty} affected item${totalDirty === 1 ? "" : "s"}`
+                          : "AST dependency graph fully consistent"}
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          onClick={onClose}
+                          className="py-1.5 px-3 rounded bg-[#12161D] hover:bg-[#171C24] border border-[#262C36] text-xs font-medium text-[#A0A7B2]"
+                        >
+                          Dismiss
+                        </button>
+                        <button
+                          onClick={onApplyChanges}
+                          disabled={isApplyingChanges || totalDirty === 0}
+                          className="py-1.5 px-3 rounded bg-[#D49B54] hover:bg-[#E3AF69] disabled:opacity-50 disabled:cursor-not-allowed text-black text-xs font-bold transition-all shadow-md flex items-center justify-center space-x-1"
+                        >
+                          {isApplyingChanges ? (
+                            <>
+                              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                              <span>Applying...</span>
+                            </>
+                          ) : totalDirty > 0 ? (
+                            <span>Apply {totalDirty} {totalDirty === 1 ? "Update" : "Updates"}</span>
+                          ) : (
+                            <span>In Sync</span>
+                          )}
+                        </button>
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
             )}
           </div>
@@ -546,15 +604,28 @@ export const ContextInspector: React.FC<ContextInspectorProps> = ({
               </div>
               <div className="flex justify-between py-1 border-b border-[#1A202C]">
                 <span className="text-[#69717E]">Continuity Status</span>
-                <span className="font-mono text-[#10B981]">100% Consistent</span>
+                {project.continuityIssues.filter((i) => i.status === "active").length === 0 ? (
+                  <span className="font-mono text-emerald-400">CONSISTENT</span>
+                ) : (
+                  <span className="font-mono text-amber-400">
+                    {project.continuityIssues.filter((i) => i.status === "active").length} ACTIVE ALERTS
+                  </span>
+                )}
               </div>
               <div className="flex justify-between py-1 border-b border-[#1A202C]">
                 <span className="text-[#69717E]">Parallel Ground Truth</span>
-                <span className="font-mono text-[#0EA5E9]">Verified</span>
+                <span className="font-mono text-[#0EA5E9]">
+                  {(project.researchFindings || []).some((r) => r.isParallelApiResult)
+                    ? "Parallel Live API"
+                    : (project.researchFindings || []).length > 0
+                    ? "Grounded Offline"
+                    : "Ready"}
+                </span>
               </div>
             </div>
           </div>
         )}
+
       </div>
     </aside>
   );
