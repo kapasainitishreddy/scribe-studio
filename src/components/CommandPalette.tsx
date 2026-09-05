@@ -25,6 +25,7 @@ interface CommandPaletteProps {
   onOpenTableRead: () => void;
   onOpenExportModal: () => void;
   onOpenDiagnostics?: () => void;
+  onOpenJudgeTour?: () => void;
 }
 
 export const CommandPalette: React.FC<CommandPaletteProps> = ({
@@ -36,7 +37,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   onOpenWriterModal,
   onOpenTableRead,
   onOpenExportModal,
-  onOpenDiagnostics
+  onOpenDiagnostics,
+  onOpenJudgeTour
 }) => {
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -60,6 +62,16 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   const defaultCommands = useMemo(
     () => [
       {
+        id: "cmd-judge-tour",
+        title: "⚡ Hackathon Judge Walkthrough (Interactive 1-Click Tour)",
+        category: "Hackathon Evaluation",
+        icon: Sparkles,
+        action: () => {
+          onClose();
+          onOpenJudgeTour?.();
+        }
+      },
+      {
         id: "cmd-writer",
         title: "Run Writer Agent on Current Scene",
         category: "AI Actions",
@@ -69,6 +81,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
           onOpenWriterModal();
         }
       },
+
       {
         id: "cmd-table-read",
         title: "Start Table Read Mode",

@@ -1,5 +1,5 @@
 import React from "react";
-import { Film, ArrowRight, Plus, FolderOpen, Clock, FileText } from "lucide-react";
+import { Film, ArrowRight, Plus, FolderOpen, Clock, FileText, Sparkles, ShieldCheck } from "lucide-react";
 import type { Project } from "../../../packages/project-model/src/types";
 
 interface HomeDeskProps {
@@ -7,15 +7,19 @@ interface HomeDeskProps {
   onContinue: () => void;
   onNewProject: () => void;
   onLoadSample: () => void;
+  onOpenJudgeTour?: () => void;
 }
 
 export const HomeDesk: React.FC<HomeDeskProps> = ({
   project,
   onContinue,
   onNewProject,
-  onLoadSample
+  onLoadSample,
+  onOpenJudgeTour
 }) => {
   const currentRev = project.revisions[0] || { color: "White", label: "Draft" };
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Good morning." : hour < 18 ? "Good afternoon." : "Good evening.";
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center bg-[#090B0E] text-[#F0F2F5] px-6 select-none overflow-y-auto">
@@ -27,12 +31,41 @@ export const HomeDesk: React.FC<HomeDeskProps> = ({
             <span className="font-extrabold text-sm tracking-widest uppercase">Scribe Studio</span>
           </div>
           <h1 className="text-3xl font-semibold tracking-tight text-[#F0F2F5]">
-            Good evening.
+            {greeting}
           </h1>
           <p className="text-sm text-[#A0A7B2]">
             Select a screenplay or resume your active production desk.
           </p>
         </div>
+
+        {/* Hackathon Judge Interactive Walkthrough Card */}
+        {onOpenJudgeTour && (
+          <div
+            onClick={onOpenJudgeTour}
+            className="group relative bg-gradient-to-r from-[#D49B54]/15 via-[#12161D] to-[#12161D] hover:from-[#D49B54]/25 border border-[#D49B54]/50 rounded-xl p-5 transition-all duration-200 cursor-pointer shadow-xl flex items-center justify-between"
+          >
+            <div className="space-y-1">
+              <div className="flex items-center space-x-2">
+                <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-[#D49B54] text-black font-extrabold">
+                  Hackathon Evaluation
+                </span>
+                <span className="text-[10px] font-mono text-[#D49B54]">
+                  Google Cloud AI & Parallel Track
+                </span>
+              </div>
+              <h3 className="text-base font-bold text-white group-hover:text-[#D49B54] transition-colors">
+                ⚡ 1-Click Interactive Judge Walkthrough
+              </h3>
+              <p className="text-xs text-[#A0A7B2]">
+                Explore live AST diffing, Reality Gate citations, Director Veto, and 1-click ZIP export.
+              </p>
+            </div>
+            <div className="w-9 h-9 rounded-full bg-[#D49B54]/20 group-hover:bg-[#D49B54] flex items-center justify-center transition-colors shrink-0">
+              <ArrowRight className="w-4 h-4 text-[#D49B54] group-hover:text-black transition-colors" />
+            </div>
+          </div>
+        )}
+
 
         {/* Primary Continue Project Card */}
         <div

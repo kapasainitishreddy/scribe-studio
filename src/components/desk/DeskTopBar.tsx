@@ -10,7 +10,9 @@ interface DeskTopBarProps {
   onOpenCommandPalette: () => void;
   onOpenExportModal: () => void;
   onToggleHome: () => void;
+  onOpenJudgeTour?: () => void;
 }
+
 
 const REVISION_COLORS: Record<RevisionColor, string> = {
   White: "bg-slate-200 text-black",
@@ -31,7 +33,8 @@ export const DeskTopBar: React.FC<DeskTopBarProps> = ({
   totalScenes,
   onOpenCommandPalette,
   onOpenExportModal,
-  onToggleHome
+  onToggleHome,
+  onOpenJudgeTour
 }) => {
   const currentRev = project.revisions[0] || { color: "White" as RevisionColor, label: "Draft" };
 
@@ -80,12 +83,24 @@ export const DeskTopBar: React.FC<DeskTopBarProps> = ({
         </span>
       </div>
 
-      {/* Right Group: Command Palette & Export */}
+      {/* Right Group: Judge Walkthrough, Command Palette & Export */}
       <div className="flex items-center space-x-2">
+        {/* Judge Walkthrough Trigger */}
+        {onOpenJudgeTour && (
+          <button
+            onClick={onOpenJudgeTour}
+            className="flex items-center space-x-1.5 px-2.5 py-1 rounded bg-[#D49B54]/15 hover:bg-[#D49B54]/25 border border-[#D49B54]/40 text-xs font-semibold text-[#D49B54] transition-all cursor-pointer shadow-sm animate-pulse hover:animate-none"
+            title="Start 1-Click Interactive Hackathon Walkthrough"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-[#D49B54]" />
+            <span>Judge Walkthrough</span>
+          </button>
+        )}
+
         {/* Command Palette trigger */}
         <button
           onClick={onOpenCommandPalette}
-          className="flex items-center space-x-1.5 px-2.5 py-1 rounded bg-[#12161D] hover:bg-[#171C24] border border-[#262C36] text-xs text-[#A0A7B2] hover:text-[#F0F2F5] transition-colors"
+          className="flex items-center space-x-1.5 px-2.5 py-1 rounded bg-[#12161D] hover:bg-[#171C24] border border-[#262C36] text-xs text-[#A0A7B2] hover:text-[#F0F2F5] transition-colors cursor-pointer"
           title="Open Command Palette (⌘K or Ctrl+K)"
         >
           <Command className="w-3 h-3 text-[#69717E]" />
@@ -95,7 +110,7 @@ export const DeskTopBar: React.FC<DeskTopBarProps> = ({
         {/* Export Modal Trigger */}
         <button
           onClick={onOpenExportModal}
-          className="flex items-center space-x-1.5 px-2.5 py-1 rounded bg-[#171C24] hover:bg-[#1F2532] border border-[#262C36] text-xs font-medium text-[#F0F2F5] hover:border-[#D49B54]/40 transition-colors"
+          className="flex items-center space-x-1.5 px-2.5 py-1 rounded bg-[#171C24] hover:bg-[#1F2532] border border-[#262C36] text-xs font-medium text-[#F0F2F5] hover:border-[#D49B54]/40 transition-colors cursor-pointer"
           title="Export Screenplay, Sides, or Production Sheets"
         >
           <FileDown className="w-3.5 h-3.5 text-[#D49B54]" />
@@ -105,3 +120,4 @@ export const DeskTopBar: React.FC<DeskTopBarProps> = ({
     </header>
   );
 };
+

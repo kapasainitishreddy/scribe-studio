@@ -17,7 +17,9 @@ import { WriterAgentModal } from "../WriterAgentModal";
 import { TableReadModal } from "../TableReadModal";
 import { MeetingScribeModal } from "../MeetingScribeModal";
 import { ChangePassportModal } from "./ChangePassportModal";
+import { JudgeTourModal } from "./JudgeTourModal";
 import { createProductionChangePassport } from "../../../packages/project-model/src/passportBuilder";
+
 
 interface DeskShellProps {
   project: Project;
@@ -109,6 +111,7 @@ export const DeskShell: React.FC<DeskShellProps> = ({
   // Change Intelligence state
   const [isApplyingChanges, setIsApplyingChanges] = useState(false);
   const [isPassportModalOpen, setIsPassportModalOpen] = useState(false);
+  const [isJudgeTourOpen, setIsJudgeTourOpen] = useState(false);
   const [changeProgress, setChangeProgress] = useState<{ current: number; total: number; label: string } | null>(null);
 
   const parsed = useMemo(() => parseScreenplay(project.screenplayText), [project.screenplayText]);
@@ -117,6 +120,26 @@ export const DeskShell: React.FC<DeskShellProps> = ({
   const activePassport = useMemo(() => {
     return createProductionChangePassport(project, selectedSceneNumber);
   }, [project, selectedSceneNumber]);
+
+  // 1-Click Simulated Scene 1 Edit for Judge Walkthrough
+  const handleTriggerScene1Edit = () => {
+    const sampleEditTarget = "She pulls an ENCRYPTED TITANIUM DRIVE from her combat belt and clicks it into the console port.";
+    const sampleEditReplacement = "She bypasses the biometric lock with a NEURAL QUANTUM SPLICE and triggers the halon fire suppression override.";
+    const current = project.screenplayText;
+    if (current.includes(sampleEditTarget)) {
+      updateScreenplay(current.replace(sampleEditTarget, sampleEditReplacement));
+    } else if (current.includes(sampleEditReplacement)) {
+      updateScreenplay(current.replace(sampleEditReplacement, sampleEditTarget));
+    } else {
+      updateScreenplay(current.replace(/clicks it into/gi, "triggers the halon fire suppression override and clicks it into"));
+    }
+    setSelectedSceneNumber(1);
+    setCurrentMode("write");
+    setInspectorMode("change_impact");
+    setIsInspectorOpen(true);
+    setIsJudgeTourOpen(false);
+  };
+
 
   // Check if stale downstream production changes exist
   const hasStaleChanges =
@@ -227,6 +250,7 @@ export const DeskShell: React.FC<DeskShellProps> = ({
         onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
         onOpenExportModal={() => setIsExportModalOpen(true)}
         onToggleHome={() => setCurrentMode(currentMode === "home" ? "write" : "home")}
+        onOpenJudgeTour={() => setIsJudgeTourOpen(true)}
       />
 
       {/* 2. MAIN WORKSPACE WITH STABLE GEOGRAPHY */}
@@ -248,8 +272,10 @@ export const DeskShell: React.FC<DeskShellProps> = ({
               onContinue={() => setCurrentMode("write")}
               onNewProject={createNewProject}
               onLoadSample={loadSampleProject}
+              onOpenJudgeTour={() => setIsJudgeTourOpen(true)}
             />
           )}
+
 
           {currentMode === "write" && (
             <WriteWorkspace
@@ -352,7 +378,9 @@ export const DeskShell: React.FC<DeskShellProps> = ({
         onOpenWriterModal={() => setIsWriterModalOpen(true)}
         onOpenTableRead={() => setIsTableReadOpen(true)}
         onOpenExportModal={() => setIsExportModalOpen(true)}
+        onOpenJudgeTour={() => setIsJudgeTourOpen(true)}
       />
+
 
       {/* Developer Diagnostics & Telemetry Drawer (Behind ⌘K / Settings) */}
       {isComplianceOpen && (
@@ -416,7 +444,24 @@ export const DeskShell: React.FC<DeskShellProps> = ({
           onClose={() => setIsPassportModalOpen(false)}
         />
       )}
+
+      {/* Hackathon Judge Interactive Walkthrough Modal */}
+      <JudgeTourModal
+        project={project}
+        isOpen={isJudgeTourOpen}
+        onClose={() => setIsJudgeTourOpen(false)}
+        onTriggerScene1Edit={handleTriggerScene1Edit}
+        onOpenPassport={() => {
+          setIsJudgeTourOpen(false);
+          setIsPassportModalOpen(true);
+        }}
+        onOpenExport={() => {
+          setIsJudgeTourOpen(false);
+          setIsExportModalOpen(true);
+        }}
+      />
     </div>
   );
 };
+
 
