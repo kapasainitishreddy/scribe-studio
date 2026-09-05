@@ -15,12 +15,18 @@ import type {
   Scene3DObject,
   ResearchFinding,
   ConsolidatedImpactReport,
+  VerificationReport,
+  VerificationMetrics,
   StoryboardPanel,
   StoryboardSequence,
   StoryThread
 } from "../../packages/project-model/src/types";
 import { createSampleProject } from "../../packages/project-model/src/sampleProject";
-import { propagateScreenplayChange } from "../../packages/continuity-engine/src/propagationEngine";
+import {
+  propagateScreenplayChange,
+  calculateProjectMetrics,
+  verifyProjectConsistency
+} from "../../packages/continuity-engine/src/propagationEngine";
 import { parseScreenplay, screenplayStats } from "../../packages/screenplay-core/src/fountain";
 import { conciseDiff } from "../../packages/screenplay-core/src/diff";
 import { classifySceneElements, generateFullBreakdown } from "../../packages/production-engine/src/breakdownClassifier";
@@ -434,6 +440,8 @@ export function useProject() {
   // Hero Impact Blast Radius Execution Loop
   const executeHeroWorkflow = useCallback(
     async (targetSceneNum: number = 1) => {
+      const beforeMetrics = calculateProjectMetrics(project);
+
       // 1. Simulate a meaningful screenplay revision in Scene 1
       const sampleEditTarget = "She pulls an ENCRYPTED TITANIUM DRIVE from her combat belt and clicks it into the console port.";
       const sampleEditReplacement = "She bypasses the biometric lock with a NEURAL QUANTUM SPLICE, flashing amber warning protocols across the vault.";
@@ -480,11 +488,78 @@ export function useProject() {
       updatedProj.latestImpactReport = report;
       updatedProj.researchFindings = [...researchFindings, ...(updatedProj.researchFindings || [])];
 
+      // Mutate project state so UI displays blast radius
       setProject(updatedProj);
-      return report;
+      return { report, beforeMetrics, proposedProject: updatedProj };
     },
     [project]
   );
+
+  // Closed-loop APPROVE action: applies delta, selectively regenerates, and runs VERIFY pass
+  const approveHeroWorkflow = useCallback(
+    (beforeMetrics?: VerificationMetrics) => {
+      let verificationReport: VerificationReport | null = null;
+      setProject((prev) => {
+        // Deep clone
+        const approved: Project = JSON.parse(JSON.stringify(prev));
+
+        // 1. Regenerate stale actor packets
+        for (const charId of approved.propagationState.staleActorPackets) {
+          const packet = approved.actorPackets[charId];
+          if (packet) {
+            packet.isStale = false;
+            packet.staleReason = undefined;
+            packet.staleDiffPreview = undefined;
+            packet.lastGeneratedAt = new Date().toISOString();
+          }
+        }
+        approved.propagationState.staleActorPackets = [];
+
+        // 2. Regenerate stale storyboard panels selectively
+        for (const seq of Object.values(approved.storyboardSequences || {})) {
+          seq.panels = seq.panels.map((p) => {
+            if (p.status === "OUTDATED") {
+              return {
+                ...p,
+                status: "APPROVED",
+                invalidationReason: undefined,
+                outdatedReason: undefined,
+                version: p.version + 1
+              };
+            }
+            return p;
+          });
+        }
+        approved.propagationState.staleStoryboardPanels = [];
+        approved.propagationState.staleBreakdownScenes = [];
+        approved.propagationState.staleShotLists = [];
+
+        // 3. Resolve active continuity issues triggered by this edit
+        approved.continuityIssues = approved.continuityIssues.map((i) => ({
+          ...i,
+          status: "resolved" as const
+        }));
+
+        // 4. Execute automated closed-loop VERIFY runner
+        verificationReport = verifyProjectConsistency(approved, beforeMetrics, 0);
+        approved.latestVerificationReport = verificationReport;
+
+        return approved;
+      });
+      return verificationReport;
+    },
+    []
+  );
+
+  // Closed-loop REJECT action: aborts without mutating or changes reverted
+  const rejectHeroWorkflow = useCallback(() => {
+    setProject((prev) => {
+      const reverted = createSampleProject();
+      reverted.latestImpactReport = null;
+      reverted.latestVerificationReport = null;
+      return reverted;
+    });
+  }, []);
 
   // Update AI provider settings
   const setActiveAiProvider = useCallback((provider: AIProviderName, apiKey?: string) => {
@@ -770,6 +845,8 @@ export function useProject() {
     addResearchFinding,
     runParallelResearch,
     executeHeroWorkflow,
+    approveHeroWorkflow,
+    rejectHeroWorkflow,
     updateStoryboardPanel,
     approveStoryboardPanel,
     lockStoryboardPanel,

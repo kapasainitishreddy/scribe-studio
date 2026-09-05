@@ -264,6 +264,19 @@ export function createSampleProject(): Project {
         locked: false,
         createdAt: now,
         updatedAt: now
+      },
+      {
+        id: "canon-elena-presumed-alive",
+        category: "secret",
+        title: "Elena Lin Presumed Alive",
+        statement:
+          "Elena Lin was not eliminated in the Singapore raid; encrypted chatter in Scene 3 confirms she is detained in an off-grid research compound.",
+        status: "approved",
+        firstSeenSceneNumber: 3,
+        sourceLineIds: ["line-sample-5"],
+        locked: false,
+        createdAt: now,
+        updatedAt: now
       }
     ],
     breakdown: {
@@ -485,6 +498,37 @@ export function createSampleProject(): Project {
                 cueSpeaker: "MAYA",
                 cueLine: "Hold the door. If this feedback loop trips, the halon suppression system will suffocate us in under forty seconds.",
                 dialogueLines: ["Comforting as always.", "We've got company on the service lift. Heavy armor."]
+              }
+            ]
+          }
+        ]
+      },
+      "dr-aris-thorne": {
+        id: "ap-dr-aris-thorne",
+        characterId: "dr-aris-thorne",
+        characterName: "Dr. Aris Thorne",
+        lastGeneratedAt: now,
+        screenplayVersion: 2,
+        isStale: false,
+        scenes: [
+          {
+            sceneId: "scene-2",
+            sceneNumber: 2,
+            sceneHeading: "EXT. ROOFTOP HELIPAD - NIGHT",
+            dramaticObjective: "Lock down all bulkheads and intercept the extraction team.",
+            emotionalState: "Cold, calculating authority.",
+            wardrobeCheck: "Tailored trench coat, soaked by squall.",
+            propsRequired: ["Satellite Communicator"],
+            secretsKnown: ["Vault 7 payload true nature"],
+            cues: [
+              {
+                lineId: "cue-t-1",
+                cueSpeaker: "MERCENARY LEADER",
+                cueLine: "Sir, Lin has initiated the core extraction sequence.",
+                dialogueLines: [
+                  "Lock down all pneumatic bulkheads on sub-level four. No one leaves Vault 7 with the Obsidian Drive alive.",
+                  "Then trigger the quarantine override. Even if she cracks the encryption, she has no idea what the payload actually contains."
+                ]
               }
             ]
           }

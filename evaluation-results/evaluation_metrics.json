@@ -1,0 +1,27 @@
+{
+  "totalScenarios": 52,
+  "hardNegativesCount": 27,
+  "positiveScenariosCount": 25,
+  "passedScenarios": 52,
+  "overallAccuracy": 1,
+  "continuityDetection": {
+    "truePositives": 3,
+    "falsePositives": 0,
+    "trueNegatives": 49,
+    "falseNegatives": 0,
+    "precision": 1,
+    "recall": 1,
+    "f1Score": 1,
+    "falsePositiveRate": 0
+  },
+  "selectiveInvalidation": {
+    "falseStaleRate": 0,
+    "zeroComputeProtectionRate": 1
+  },
+  "researchGating": {
+    "triggerPrecision": 1,
+    "abstentionAccuracy": 1
+  },
+  "timestamp": "2026-09-05T01:11:14.001Z",
+  "runtimeEnvironment": "Google Cloud AI & Parallel Partner Production Harness"
+}

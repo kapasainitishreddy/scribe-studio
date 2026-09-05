@@ -402,6 +402,10 @@ export interface ResearchFinding {
   status: "APPROVED" | "REJECTED" | "NEEDS REVIEW";
   retrievedAt: string;
   isParallelApiResult: boolean;
+  claim?: string;
+  evidence?: string;
+  whyThisMatters?: string;
+  proposedResponse?: string;
 }
 
 // -------------------------------------------------------------
@@ -512,6 +516,27 @@ export interface ConsolidatedImpactReport {
   staleStoryboardPanels?: string[];
 }
 
+export interface VerificationMetrics {
+  continuityIssues: number;
+  staleActorPackets: number;
+  staleStoryboardPanels: number;
+  productionMismatches: number;
+  unresolvedDependencies: number;
+}
+
+export interface VerificationReport {
+  id: string;
+  timestamp: string;
+  sourceEvent: string;
+  beforeMetrics: VerificationMetrics;
+  afterMetrics: VerificationMetrics;
+  unaffectedArtifactsRegenerated: number; // Strictly 0 in selective invalidation
+  verifiedCanonCount: number;
+  status: "PASS" | "FAIL";
+  checkedEngines: string[];
+  auditNotes: string[];
+}
+
 export interface Project {
   id: string;
   title: string;
@@ -536,6 +561,7 @@ export interface Project {
   storyboardSequences: Record<string | number, StoryboardSequence>;
   storyThreads: StoryThread[];
   latestImpactReport: ConsolidatedImpactReport | null;
+  latestVerificationReport?: VerificationReport | null;
   propagationState: PropagationState;
   settings: ProjectSettings;
   createdAt: string;

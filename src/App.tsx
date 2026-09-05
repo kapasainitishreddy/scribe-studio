@@ -69,6 +69,8 @@ export const App: React.FC = () => {
     addResearchFinding,
     runParallelResearch,
     executeHeroWorkflow,
+    approveHeroWorkflow,
+    rejectHeroWorkflow,
     setActiveAiProvider,
     updateStoryboardPanel,
     approveStoryboardPanel,
@@ -267,7 +269,8 @@ export const App: React.FC = () => {
           isOpen={isHeroModalOpen}
           onClose={() => setIsHeroModalOpen(false)}
           onExecuteHeroWorkflow={executeHeroWorkflow}
-          onRegenerateStalePackets={regenerateAllStalePackets}
+          onApproveHeroWorkflow={approveHeroWorkflow}
+          onRejectHeroWorkflow={rejectHeroWorkflow}
           onNavigateToTab={(tab) => setActiveTab(tab as any)}
         />
       )}

@@ -23,7 +23,7 @@ const propStopWords = new Set([
 ]);
 
 export function cleanSceneHeading(text: string): string {
-  return text.replace(/^\./, "").trim();
+  return text.replace(/^\./, "").replace(/#\d+#\s*$/, "").trim();
 }
 
 export function parseSceneHeadingParts(heading: string): SceneHeadingParts {
@@ -83,11 +83,14 @@ export function parseScreenplay(document: string): ParsedScreenplay {
     } else if (scenePattern.test(value)) {
       kind = "scene-heading";
       speaker = null;
+      const numMatch = value.match(/#(\d+)#\s*$/);
+      const explicitNum = numMatch ? parseInt(numMatch[1], 10) : undefined;
       const heading = cleanSceneHeading(value);
       const parts = parseSceneHeadingParts(heading);
+      const sceneNum = explicitNum ?? (scenes.length + 1);
       currentScene = {
-        id: `scene-${scenes.length + 1}-${hashText(heading)}`,
-        number: scenes.length + 1,
+        id: `scene-${sceneNum}-${hashText(heading)}`,
+        number: sceneNum,
         heading,
         intExt: parts.intExt,
         location: parts.location,

@@ -21,11 +21,21 @@ export function analyzeContinuity(project: Project, targetSceneNumbers?: number[
       continue;
     }
 
+    const s1Heading = current.heading.toUpperCase();
+    const s2Heading = next.heading.toUpperCase();
     const currTime = current.timeOfDay.toUpperCase();
     const nextTime = next.timeOfDay.toUpperCase();
 
-    if (nextTime === "CONTINUOUS" || nextTime === "MOMENTS LATER") {
-      if (currTime.includes("NIGHT") && nextTime.includes("DAY")) {
+    const isSequentialImmediate =
+      s2Heading.includes("CONTINUOUS") ||
+      s2Heading.includes("MOMENTS LATER") ||
+      nextTime === "CONTINUOUS" ||
+      nextTime === "MOMENTS LATER";
+
+    if (isSequentialImmediate) {
+      const s1Night = currTime.includes("NIGHT") || s1Heading.includes("NIGHT");
+      const s2Day = nextTime.includes("DAY") || s2Heading.includes("DAY");
+      if (s1Night && s2Day && !s2Heading.includes("NIGHT")) {
         issues.push({
           id: `cont-time-${current.number}-${next.number}`,
           category: "time",
@@ -33,7 +43,7 @@ export function analyzeContinuity(project: Project, targetSceneNumbers?: number[
           affectedScenes: [current.number, next.number],
           affectedCharacters: [],
           headline: `Time Discontinuity between Scene ${current.number} and Scene ${next.number}`,
-          reason: `Scene ${current.number} takes place at ${currTime}, but sequential Scene ${next.number} is marked ${nextTime} yet shifts to daytime abruptly.`,
+          reason: `Scene ${current.number} takes place at night, but sequential Scene ${next.number} is marked as immediate transition yet shifts to daytime abruptly.`,
           supportingEvidence: `Scene ${current.number} Heading: "${current.heading}" vs Scene ${next.number} Heading: "${next.heading}"`,
           suggestedResolution: `Change Scene ${next.number} time of day or add an establishing shot / temporal transition.`,
           status: "active",
@@ -72,13 +82,19 @@ export function analyzeContinuity(project: Project, targetSceneNumbers?: number[
     const s1Chars = sceneCharacters.get(s1.number) ?? new Set<string>();
     const s2Chars = sceneCharacters.get(s2.number) ?? new Set<string>();
 
-    if (s2.timeOfDay.toUpperCase() === "CONTINUOUS" || s2.timeOfDay.toUpperCase() === "MOMENTS LATER") {
+    const isSequentialImmediate =
+      s2.heading.toUpperCase().includes("CONTINUOUS") ||
+      s2.heading.toUpperCase().includes("MOMENTS LATER") ||
+      s2.timeOfDay.toUpperCase() === "CONTINUOUS" ||
+      s2.timeOfDay.toUpperCase() === "MOMENTS LATER";
+
+    if (isSequentialImmediate) {
       // If locations are distinct and non-adjacent
       if (
         s1.location.toLowerCase() !== s2.location.toLowerCase() &&
-        s1.intExt !== s2.intExt &&
-        !s1.location.toLowerCase().includes(s2.location.toLowerCase()) &&
-        !s2.location.toLowerCase().includes(s1.location.toLowerCase())
+        (s1.intExt !== s2.intExt ||
+          (!s1.location.toLowerCase().includes(s2.location.toLowerCase()) &&
+            !s2.location.toLowerCase().includes(s1.location.toLowerCase())))
       ) {
         for (const char of s1Chars) {
           if (s2Chars.has(char)) {
@@ -90,9 +106,9 @@ export function analyzeContinuity(project: Project, targetSceneNumbers?: number[
               affectedScenes: [s1.number, s2.number],
               affectedCharacters: [char],
               headline: `Potential Impossible Travel for ${char.toUpperCase()} between Scene ${s1.number} and ${s2.number}`,
-              reason: `${char.toUpperCase()} appears in Scene ${s1.number} (${s1.location}) and immediately appears in Scene ${s2.number} (${s2.location}) marked as ${s2.timeOfDay} with no travel time.`,
+              reason: `${char.toUpperCase()} appears in Scene ${s1.number} (${s1.location}) and immediately appears in Scene ${s2.number} (${s2.location}) marked as immediate continuous transit with no travel time.`,
               supportingEvidence: `Scene ${s1.number}: ${s1.heading} -> Scene ${s2.number}: ${s2.heading}`,
-              suggestedResolution: `Add travel action line, insert an exfiltration shot, or adjust ${s2.timeOfDay} to LATER / HOURS LATER.`,
+              suggestedResolution: `Add travel action line, insert an exfiltration shot, or adjust slugline to LATER / HOURS LATER.`,
               status: "active",
               createdAt: now
             });
@@ -111,17 +127,21 @@ export function analyzeContinuity(project: Project, targetSceneNumbers?: number[
         const priorScenes = parsed.scenes.filter((s) => s.number < (fact.firstSeenSceneNumber ?? 0));
         for (const s of priorScenes) {
           if (targetSceneNumbers && !targetSceneNumbers.includes(s.number)) continue;
-          const sceneLines = parsed.lines.filter(
-            (l) => s.lineIds.includes(l.id) && l.speaker?.toLowerCase().includes(char.normalizedName)
-          );
-          const keywords = fact.title
+          const sceneLines = parsed.lines.filter((l) => {
+            if (!s.lineIds.includes(l.id) || !l.speaker) return false;
+            const spk = l.speaker.toLowerCase().trim().replace(/[\.\^]/g, "");
+            const charName = char.name.toLowerCase().replace(/[\.\^]/g, "");
+            const norm = char.normalizedName.toLowerCase().replace(/[\.\^]/g, "");
+            return charName.includes(spk) || norm.includes(spk) || spk.includes(char.id.split("-")[0]);
+          });
+          const keywords = (fact.title + " " + fact.statement)
             .toLowerCase()
             .split(/\s+/)
-            .filter((k) => k.length > 4);
+            .filter((k) => k.length > 4 && !["project", "presumed", "about", "scene"].includes(k));
           for (const line of sceneLines) {
             const lower = line.text.toLowerCase();
             const matchCount = keywords.filter((k) => lower.includes(k)).length;
-            if (matchCount >= 2 && keywords.length >= 2) {
+            if (matchCount >= 2) {
               issues.push({
                 id: `cont-knowledge-${char.id}-${s.number}-${fact.id}`,
                 category: "knowledge",
