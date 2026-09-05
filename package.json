@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "eval": "vitest run tests/agentEvaluationHarness.test.ts",
     "preview": "vite preview"
   },
   "dependencies": {

@@ -10,7 +10,8 @@ import {
   ShieldCheck,
   Package,
   Clapperboard,
-  ArrowRight
+  ArrowRight,
+  Settings
 } from "lucide-react";
 import type { Project } from "../../packages/project-model/src/types";
 
@@ -23,6 +24,7 @@ interface CommandPaletteProps {
   onOpenWriterModal: () => void;
   onOpenTableRead: () => void;
   onOpenExportModal: () => void;
+  onOpenDiagnostics?: () => void;
 }
 
 export const CommandPalette: React.FC<CommandPaletteProps> = ({
@@ -33,7 +35,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   onSelectScene,
   onOpenWriterModal,
   onOpenTableRead,
-  onOpenExportModal
+  onOpenExportModal,
+  onOpenDiagnostics
 }) => {
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -135,9 +138,19 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
           onClose();
           onNavigateToTab("revisions");
         }
+      },
+      {
+        id: "cmd-diagnostics",
+        title: "Developer Diagnostics & Model Routing",
+        category: "Developer",
+        icon: Settings,
+        action: () => {
+          onClose();
+          onOpenDiagnostics?.();
+        }
       }
     ],
-    [onClose, onOpenWriterModal, onOpenTableRead, onOpenExportModal, onNavigateToTab]
+    [onClose, onOpenWriterModal, onOpenTableRead, onOpenExportModal, onNavigateToTab, onOpenDiagnostics]
   );
 
   // Search results across project objects
