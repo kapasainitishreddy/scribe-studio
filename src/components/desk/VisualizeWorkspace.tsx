@@ -473,6 +473,7 @@ export const VisualizeWorkspace: React.FC<VisualizeWorkspaceProps> = ({
         sceneNumber={selectedSceneNumber}
         sceneSlugline={activeScene?.location || `Scene ${selectedSceneNumber}`}
         panels={shots}
+        project={project}
       />
     </div>
   );

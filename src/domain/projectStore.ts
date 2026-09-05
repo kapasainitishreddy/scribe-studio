@@ -35,16 +35,25 @@ import { runProductionResearchAgent } from "../../packages/agent-runtime/src/pro
 import { callChangeImpactWorkflow, callServerResearch } from "../services/agentService";
 import { extractScene } from "../../packages/production-engine/src/sceneExtraction";
 import { generateStoryboardSequence, generatePanelSvgSchematic } from "../../packages/production-engine/src/storyboardGenerator";
+import {
+  debouncedSaveProject,
+  loadProject,
+  listProjects,
+  createBackup,
+  restoreBackup,
+  migrateLegacyLocalStorage
+} from "../storage/projectStorage";
 
 const LOCAL_STORAGE_KEY = "agentic_cinema_active_project_v1";
-const BACKUP_STORAGE_KEY = "agentic_cinema_backups_v1";
 
 export function useProject() {
   const [project, setProject] = useState<Project>(() => {
     try {
-      const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
-      if (saved) {
-        return JSON.parse(saved);
+      if (typeof window !== "undefined" && window.localStorage) {
+        const saved = window.localStorage.getItem(LOCAL_STORAGE_KEY);
+        if (saved) {
+          return JSON.parse(saved);
+        }
       }
     } catch (e) {
       console.warn("Could not load from localStorage:", e);
@@ -81,14 +90,49 @@ export function useProject() {
   const [isComplianceOpen, setIsComplianceOpen] = useState(false);
   const [activeProposal, setActiveProposal] = useState<AgentProposal | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isStorageReady, setIsStorageReady] = useState(false);
 
-  // Autosave to localStorage
+  // Initialize Dexie IndexedDB storage, run legacy migration, and load persisted project
+  useEffect(() => {
+    let isMounted = true;
+    async function initIndexedDb() {
+      try {
+        await migrateLegacyLocalStorage();
+        const storedProjects = await listProjects();
+        if (storedProjects.length > 0 && isMounted) {
+          const latest = await loadProject(storedProjects[0].id);
+          if (latest && isMounted) {
+            setProject(latest);
+          }
+        }
+      } catch (err) {
+        console.warn("IndexedDB storage initialization note:", err);
+      } finally {
+        if (isMounted) {
+          setIsStorageReady(true);
+        }
+      }
+    }
+    initIndexedDb();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Autosave to IndexedDB with debouncing and localStorage fallback
   useEffect(() => {
     try {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(project));
+      if (typeof window !== "undefined" && window.localStorage) {
+        window.localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(project));
+      }
     } catch (e) {
-      console.warn("Autosave to localStorage failed:", e);
+      console.warn("Autosave to localStorage failed (may exceed quota):", e);
     }
+
+    // High-capacity production IndexedDB autosave
+    debouncedSaveProject(project, 400).catch((err) => {
+      console.warn("IndexedDB autosave note:", err);
+    });
   }, [project]);
 
   // Derived stats & parsed screenplay
@@ -866,8 +910,24 @@ export function useProject() {
     }));
   }, []);
 
+  const createProjectBackup = useCallback(async (description?: string) => {
+    return createBackup(project, description);
+  }, [project]);
+
+  const restoreProjectBackup = useCallback(async (backupId: string) => {
+    const restored = await restoreBackup(backupId);
+    if (restored) {
+      setProject(restored);
+      return true;
+    }
+    return false;
+  }, []);
+
   return {
     project,
+    isStorageReady,
+    createProjectBackup,
+    restoreProjectBackup,
     parsedScreenplay,
     stats,
     activeTab,

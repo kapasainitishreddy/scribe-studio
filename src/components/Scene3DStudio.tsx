@@ -12,10 +12,13 @@ import {
   CheckCircle,
   Clapperboard,
   Sliders,
-  Move
+  Move,
+  Download
 } from "lucide-react";
 import type { Project, Scene3DObject } from "../../packages/project-model/src/types";
 import { parseScreenplay } from "../../packages/screenplay-core/src/fountain";
+import { exportScenePrevisGLB, buildThreeSceneFromBlocking } from "../../packages/production-engine/src/previsExporter";
+import { cinemaAudio } from "../utils/cinemaAudio";
 
 interface Scene3DStudioProps {
   project: Project;
@@ -414,6 +417,45 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
     setTimeout(() => setCopiedStatus(false), 2000);
   };
 
+  const [isExportingGLB, setIsExportingGLB] = useState(false);
+
+  const handleExportGLB = async () => {
+    setIsExportingGLB(true);
+    cinemaAudio.playCameraShutter();
+    try {
+      const sceneToExport = sceneRef.current || buildThreeSceneFromBlocking(selectedSceneNumber, sceneObjects, {
+        projectId: project.id,
+        projectTitle: project.title,
+        sceneNumber: selectedSceneNumber,
+        sceneSlugline: currentScene?.heading || `Scene ${selectedSceneNumber}`,
+        scribeVersion: "1.0.0"
+      });
+
+      const buffer = await exportScenePrevisGLB(sceneToExport, {
+        binary: true,
+        includeCameras: true,
+        includeLights: true
+      });
+
+      const blob = new Blob([buffer], { type: "model/gltf-binary" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `SCRIBE_SCENE_${selectedSceneNumber}_PREVIS.glb`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      cinemaAudio.playDirectorChime(true);
+    } catch (err) {
+      console.error("GLB export failed:", err);
+      cinemaAudio.playDirectorChime(false);
+    } finally {
+      setIsExportingGLB(false);
+    }
+  };
+
   return (
     <div className="flex-1 flex overflow-hidden bg-[#0c0e14] select-none">
       {/* 3D Viewport Area */}
@@ -491,9 +533,18 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
               ) : (
                 <>
                   <Clapperboard className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Copy Previs Plan</span>
+                  <span>Copy Notes</span>
                 </>
               )}
+            </button>
+            <button
+              onClick={handleExportGLB}
+              disabled={isExportingGLB}
+              className="flex items-center space-x-1.5 px-3 py-1 bg-[#D49B54] hover:bg-[#E3AF69] text-black font-extrabold rounded text-xs transition-all shadow cursor-pointer active:scale-95"
+              title="Export industry-standard glTF/GLB with cameras, lights, and production metadata"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>{isExportingGLB ? "Exporting GLB..." : "Export 3D Previs (.GLB)"}</span>
             </button>
           </div>
         </div>

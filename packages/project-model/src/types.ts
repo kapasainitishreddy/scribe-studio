@@ -642,3 +642,56 @@ export interface Project {
   createdAt: string;
   updatedAt: string;
 }
+
+// -------------------------------------------------------------
+// Editorial Timeline Foundation & NLE Interoperability Models
+// Compatible conceptually with OpenTimelineIO, EDL, and NLE pipelines
+// -------------------------------------------------------------
+export type EditorialTrackType = "video" | "audio" | "dialogue" | "subtitles" | "effects";
+
+export interface EditorialClip {
+  id: string;
+  name: string;
+  sceneNumber: number;
+  beatId?: string;
+  shotId?: string;
+  storyboardPanelId?: string;
+  startFrame: number;
+  durationFrames: number;
+  durationSeconds: number;
+  mediaType: "canvas-schematic" | "video-render" | "audio-dialogue" | "text-subtitle";
+  sourceReference?: string;
+  status: "APPROVED" | "OUTDATED" | "LOCKED" | "DRAFT";
+  metadata: {
+    lens?: string;
+    shotType?: string;
+    cameraMovement?: string;
+    dialogueText?: string;
+    speaker?: string;
+    charactersVisible?: string[];
+    isStale?: boolean;
+    hash?: string;
+  };
+}
+
+export interface EditorialTrack {
+  id: string;
+  name: string;
+  kind: EditorialTrackType;
+  clips: EditorialClip[];
+}
+
+export interface EditorialTimeline {
+  id: string;
+  projectId: string;
+  sceneNumber: number;
+  revisionId: string;
+  fps: number;
+  timecodeStart: string;
+  totalDurationFrames: number;
+  totalDurationSeconds: number;
+  tracks: EditorialTrack[];
+  createdAt: string;
+  updatedAt: string;
+}
+
