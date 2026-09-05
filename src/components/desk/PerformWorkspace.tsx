@@ -234,7 +234,7 @@ export const PerformWorkspace: React.FC<PerformWorkspaceProps> = ({
                 <span>{isPlayingAudio ? "Speaking..." : "Hear Cue"}</span>
               </button>
             </div>
-            <p className="text-base text-[#A0A7B2] italic font-serif leading-relaxed">
+            <p className="text-lg text-[#A0A7B2] italic font-editorial leading-relaxed">
               "{currentLine.cueLine}"
             </p>
           </div>
@@ -242,8 +242,8 @@ export const PerformWorkspace: React.FC<PerformWorkspaceProps> = ({
           {/* Actor's Line with Interactive Line-Blur Memorization */}
           <div className="p-8 rounded-2xl bg-[#10131B] border border-[#262C36] shadow-2xl space-y-6 text-center relative overflow-hidden">
             <div className="space-y-3">
-              <div className="text-xs font-mono uppercase tracking-widest text-[#D49B54]">
-                Your Line ({activeChar?.name})
+              <div className="text-[10px] font-mono uppercase tracking-widest text-[#D49B54]">
+                Your Rehearsal Cue ({activeChar?.name})
               </div>
 
               {/* Blurred / Revealed Dialogue */}
@@ -253,7 +253,7 @@ export const PerformWorkspace: React.FC<PerformWorkspaceProps> = ({
                 title="Click or tap to reveal/blur line"
               >
                 <p
-                  className={`text-2xl sm:text-3xl font-semibold transition-all duration-300 ${
+                  className={`text-3xl sm:text-4xl font-editorial tracking-tight leading-snug transition-all duration-300 ${
                     isLineBlurred
                       ? "filter blur-md select-none text-[#A0A7B2] group-hover:blur-sm"
                       : "text-white"

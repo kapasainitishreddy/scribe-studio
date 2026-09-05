@@ -1,19 +1,26 @@
-@import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Geist:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 :root {
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-family: 'Geist', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color-scheme: dark;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
   margin: 0;
   padding: 0;
-  background-color: #0c0d10;
-  color: #e2e4e9;
+  background-color: #090B0E;
+  color: #F0F2F5;
   overflow: hidden;
   height: 100vh;
   width: 100vw;
+  font-family: inherit;
+  letter-spacing: -0.011em;
 }
 
 #root {
@@ -21,18 +28,44 @@ body {
   width: 100vw;
 }
 
-/* Custom minimal scrollbar */
+/* Screenplay Paper Monospace — Authenticated 12pt Standard */
+.font-courier, .font-screenplay {
+  font-family: 'Courier Prime', 'Courier New', Courier, monospace !important;
+  font-feature-settings: normal;
+  letter-spacing: 0.022em;
+  font-variant-ligatures: none;
+}
+
+/* Technical / Lens / Timecode Tabular Monospace */
+.font-mono, .font-mono-tech {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-feature-settings: "tnum" 1, "zero" 1;
+  letter-spacing: -0.015em;
+}
+
+/* Actor Rehearsal Editorial Serif */
+.font-editorial, .font-serif-dialogue {
+  font-family: 'Newsreader', Georgia, Cambria, serif !important;
+  letter-spacing: -0.01em;
+}
+
+/* Caret Branding */
+textarea, input {
+  caret-color: #D49B54;
+}
+
+/* Custom Minimal Studio Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #0f1117;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #252b3b;
-  border-radius: 3px;
+  background: #1C222E;
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #343d54;
+  background: #2D374A;
 }

@@ -43,6 +43,7 @@ export const WriteWorkspace: React.FC<WriteWorkspaceProps> = ({
 
   const parsed = useMemo(() => parseScreenplay(project.screenplayText), [project.screenplayText]);
   const stats = useMemo(() => screenplayStats(project.screenplayText), [project.screenplayText]);
+  const currentRev = project.revisions[0] || { color: "Blue", label: "Draft" };
 
   // Insert standard element prefix
   const insertElementPrefix = (prefix: string) => {
@@ -113,7 +114,7 @@ export const WriteWorkspace: React.FC<WriteWorkspaceProps> = ({
           <div className="flex border-b border-[#262C36] bg-[#12161D] p-1 gap-0.5 text-[11px] font-medium text-[#69717E]">
             <button
               onClick={() => setActiveSubTab("scenes")}
-              className={`flex-1 py-1 rounded text-center transition-colors ${
+              className={`flex-1 py-1 rounded text-center transition-colors tracking-tight ${
                 activeSubTab === "scenes" ? "bg-[#171C24] text-[#F0F2F5] font-semibold" : "hover:text-[#A0A7B2]"
               }`}
             >
@@ -121,7 +122,7 @@ export const WriteWorkspace: React.FC<WriteWorkspaceProps> = ({
             </button>
             <button
               onClick={() => setActiveSubTab("characters")}
-              className={`flex-1 py-1 rounded text-center transition-colors ${
+              className={`flex-1 py-1 rounded text-center transition-colors tracking-tight ${
                 activeSubTab === "characters" ? "bg-[#171C24] text-[#F0F2F5] font-semibold" : "hover:text-[#A0A7B2]"
               }`}
             >
@@ -129,7 +130,7 @@ export const WriteWorkspace: React.FC<WriteWorkspaceProps> = ({
             </button>
             <button
               onClick={() => setActiveSubTab("locations")}
-              className={`flex-1 py-1 rounded text-center transition-colors ${
+              className={`flex-1 py-1 rounded text-center transition-colors tracking-tight ${
                 activeSubTab === "locations" ? "bg-[#171C24] text-[#F0F2F5] font-semibold" : "hover:text-[#A0A7B2]"
               }`}
             >
@@ -137,7 +138,7 @@ export const WriteWorkspace: React.FC<WriteWorkspaceProps> = ({
             </button>
             <button
               onClick={() => setActiveSubTab("story")}
-              className={`flex-1 py-1 rounded text-center transition-colors ${
+              className={`flex-1 py-1 rounded text-center transition-colors tracking-tight ${
                 activeSubTab === "story" ? "bg-[#171C24] text-[#F0F2F5] font-semibold" : "hover:text-[#A0A7B2]"
               }`}
             >
@@ -145,7 +146,7 @@ export const WriteWorkspace: React.FC<WriteWorkspaceProps> = ({
             </button>
             <button
               onClick={() => setActiveSubTab("revisions")}
-              className={`flex-1 py-1 rounded text-center transition-colors ${
+              className={`flex-1 py-1 rounded text-center transition-colors tracking-tight ${
                 activeSubTab === "revisions" ? "bg-[#171C24] text-[#F0F2F5] font-semibold" : "hover:text-[#A0A7B2]"
               }`}
             >
@@ -182,7 +183,7 @@ export const WriteWorkspace: React.FC<WriteWorkspaceProps> = ({
                           <span className="text-[#69717E] uppercase">{scene.timeOfDay}</span>
                         </div>
                       </div>
-                      <div className="truncate text-[11px] font-medium mt-0.5">{scene.location}</div>
+                      <div className="truncate text-[11px] font-medium mt-0.5 tracking-tight">{scene.location}</div>
                     </button>
                   );
                 })}
@@ -201,7 +202,7 @@ export const WriteWorkspace: React.FC<WriteWorkspaceProps> = ({
                       className="w-full text-left p-2 rounded text-[#A0A7B2] hover:text-[#F0F2F5] hover:bg-[#12161D] flex items-center justify-between"
                     >
                       <div>
-                        <div className="font-semibold text-white uppercase text-xs">{char.name}</div>
+                        <div className="font-semibold text-white uppercase text-xs tracking-tight">{char.name}</div>
                         <div className="text-[10px] text-[#69717E] capitalize">{char.role}</div>
                       </div>
                       <span className="font-mono text-[10px] text-[#69717E]">{count} cues</span>
@@ -236,8 +237,8 @@ export const WriteWorkspace: React.FC<WriteWorkspaceProps> = ({
                 </div>
                 {project.canon?.map((fact: CanonFact) => (
                   <div key={fact.id} className="p-2 rounded bg-[#12161D] border border-[#262C36] text-[11px]">
-                    <div className="font-semibold text-[#D49B54] text-[10px] uppercase">{fact.category}</div>
-                    <div className="text-[#F0F2F5] mt-0.5">{fact.statement}</div>
+                    <div className="font-semibold text-[#D49B54] text-[10px] uppercase font-mono">{fact.category}</div>
+                    <div className="text-[#F0F2F5] mt-0.5 leading-relaxed">{fact.statement}</div>
                   </div>
                 ))}
               </div>
@@ -252,7 +253,7 @@ export const WriteWorkspace: React.FC<WriteWorkspaceProps> = ({
                       <span className="font-bold text-[#D49B54]">{rev.color} Rev</span>
                       <span className="text-[#69717E]">{rev.createdAt.split("T")[0]}</span>
                     </div>
-                    <div className="text-[#F0F2F5]">{rev.label}</div>
+                    <div className="text-[#F0F2F5] font-medium">{rev.label}</div>
                     <div className="text-[10px] text-[#69717E] font-mono">{rev.summaryOfChanges}</div>
                   </div>
                 ))}
@@ -269,7 +270,7 @@ export const WriteWorkspace: React.FC<WriteWorkspaceProps> = ({
         {/* Screenplay Formatting & Utility Strip */}
         <div className="h-9 border-b border-[#262C36] bg-[#0D1015] px-4 flex items-center justify-between shrink-0">
           <div className="flex items-center space-x-1 text-xs">
-            <span className="text-[10px] font-mono text-[#69717E] uppercase mr-2">Insert:</span>
+            <span className="text-[10px] font-mono text-[#69717E] uppercase mr-2 tracking-wider">Format:</span>
             {["INT. ", "EXT. ", "CHARACTER\n", "(beat)\n", "FADE OUT.\n\n"].map((el, idx) => (
               <button
                 key={idx}
@@ -286,21 +287,21 @@ export const WriteWorkspace: React.FC<WriteWorkspaceProps> = ({
             <div className="flex items-center bg-[#12161D] p-0.5 rounded border border-[#262C36]">
               <button
                 onClick={() => setThemeMode("paper")}
-                className={`flex items-center space-x-1 px-2 py-0.5 rounded text-[11px] font-medium transition-all ${
+                className={`flex items-center space-x-1 px-2.5 py-0.5 rounded text-[11px] font-medium transition-all ${
                   themeMode === "paper"
-                    ? "bg-[#F3F0E8] text-[#161616] font-bold shadow-sm"
+                    ? "bg-[#F3F0E8] text-[#161616] font-semibold shadow-sm"
                     : "text-[#69717E] hover:text-[#A0A7B2]"
                 }`}
-                title="Physical Screenplay Paper (#F3F0E8)"
+                title="Warm Physical Screenplay Paper (#F3F0E8)"
               >
                 <Sun className="w-3 h-3" />
                 <span>Paper</span>
               </button>
               <button
                 onClick={() => setThemeMode("night")}
-                className={`flex items-center space-x-1 px-2 py-0.5 rounded text-[11px] font-medium transition-all ${
+                className={`flex items-center space-x-1 px-2.5 py-0.5 rounded text-[11px] font-medium transition-all ${
                   themeMode === "night"
-                    ? "bg-[#171C24] text-[#D49B54] font-bold shadow-sm"
+                    ? "bg-[#171C24] text-[#D49B54] font-semibold shadow-sm"
                     : "text-[#69717E] hover:text-[#A0A7B2]"
                 }`}
                 title="Night Script Dark Room (#12161D)"
@@ -319,7 +320,7 @@ export const WriteWorkspace: React.FC<WriteWorkspaceProps> = ({
               >
                 <ZoomOut className="w-3 h-3" />
               </button>
-              <span className="w-8 text-center text-[#A0A7B2]">{zoom}%</span>
+              <span className="w-8 text-center text-[#A0A7B2] font-mono">{zoom}%</span>
               <button
                 onClick={() => setZoom((z) => Math.min(140, z + 10))}
                 className="text-[#69717E] hover:text-white"
@@ -340,17 +341,34 @@ export const WriteWorkspace: React.FC<WriteWorkspaceProps> = ({
           </div>
         </div>
 
-        {/* Screenplay Page Container */}
+        {/* Screenplay Page Container with Physical Studio Aesthetics */}
         <div className="flex-1 overflow-y-auto p-8 flex justify-center bg-[#090B0E]">
           <div
-            className={`w-full max-w-[850px] min-h-[1050px] shadow-2xl rounded-sm p-14 flex flex-col transition-all duration-200 ${
+            className={`w-full max-w-[820px] min-h-[1050px] rounded-sm p-14 flex flex-col transition-all duration-200 relative ${
               themeMode === "paper"
-                ? "bg-[#F3F0E8] text-[#161616] border border-[#E5E0D5]"
-                : "bg-[#12161D] text-[#F0F2F5] border border-[#262C36]"
+                ? "bg-[#F4F0E8] text-[#151618] border border-[#E0DCD2] shadow-2xl"
+                : "bg-[#11141C] text-[#E6E9EE] border border-[#232936] shadow-2xl"
             }`}
-            style={{ transform: `scale(${zoom / 100})`, transformOrigin: "top center" }}
+            style={{
+              transform: `scale(${zoom / 100})`,
+              transformOrigin: "top center",
+              boxShadow: themeMode === "paper"
+                ? "0 4px 6px -1px rgba(0, 0, 0, 0.25), 0 25px 40px -10px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(0,0,0,0.08)"
+                : "0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 25px 40px -10px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255,255,255,0.05)"
+            }}
           >
-            {/* Screenplay Content Area */}
+            {/* Hollywood Physical Script Header Strip */}
+            <div
+              className={`flex justify-between items-center text-[10px] font-courier uppercase tracking-widest pb-3 mb-6 select-none border-b ${
+                themeMode === "paper" ? "text-[#7A756C] border-[#E0DCD2]" : "text-[#69717E] border-[#222735]"
+              }`}
+            >
+              <span>{project.title}</span>
+              <span>SCENE {selectedSceneNumber}</span>
+              <span>{currentRev.color.toUpperCase()} REV. • PG. {selectedSceneNumber}.</span>
+            </div>
+
+            {/* Screenplay Content Area with True 12pt (15px) Hollywood Courier Metrics */}
             <textarea
               ref={textareaRef}
               value={project.screenplayText}
@@ -358,12 +376,16 @@ export const WriteWorkspace: React.FC<WriteWorkspaceProps> = ({
               onClick={handleTextareaClick}
               onKeyUp={handleTextareaClick}
               spellCheck={false}
-              className={`w-full h-full flex-1 bg-transparent resize-none border-none outline-none font-courier text-[13px] leading-relaxed select-text tracking-normal ${
-                themeMode === "paper" ? "text-[#161616] placeholder-[#8A857A]" : "text-[#F0F2F5] placeholder-[#484E58]"
+              className={`w-full h-full flex-1 bg-transparent resize-none border-none outline-none font-courier text-[15px] select-text ${
+                themeMode === "paper"
+                  ? "text-[#151618] placeholder-[#8A857A]"
+                  : "text-[#E6E9EE] placeholder-[#484E58]"
               }`}
               style={{
-                fontFamily: "'Courier Prime', 'Courier New', monospace",
-                lineHeight: "1.4"
+                fontFamily: "'Courier Prime', 'Courier New', Courier, monospace",
+                lineHeight: "1.55",
+                letterSpacing: "0.022em",
+                fontWeight: 400
               }}
               placeholder="BEGIN SCREENPLAY (e.g. EXT. ROOFTOP - NIGHT)"
             />
