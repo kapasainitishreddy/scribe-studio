@@ -10,12 +10,20 @@ const app = express();
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps, curl, server-to-server)
+    // Allow requests with no origin (like curl, health checks, server-to-server)
     if (!origin) return callback(null, true);
-    if (CONFIG.allowedOrigins.includes(origin) || origin.endsWith(".github.io") || origin.includes("localhost") || origin.includes("127.0.0.1")) {
+
+    const isAllowed =
+      CONFIG.allowedOrigins.includes(origin) ||
+      origin === "https://kapasainitishreddy.github.io" ||
+      /^https:\/\/[a-z0-9-]+\.github\.io$/.test(origin) ||
+      /^http:\/\/localhost:(5173|4173|3000|8080)$/.test(origin) ||
+      /^http:\/\/127\.0\.0\.1:(5173|4173|3000|8080)$/.test(origin);
+
+    if (isAllowed) {
       return callback(null, true);
     }
-    return callback(null, true); // Permissive for competition review
+    return callback(new Error(`CORS blocked: Origin ${origin} is not authorized.`));
   },
   credentials: true
 }));

@@ -28,7 +28,7 @@ Every downstream department instantly fractures:
 
 Traditional screenwriting software treats the screenplay as dead text. Generic generative AI tools make this worse: they re-prompt entire scripts or indiscriminately regenerate scenes, erasing human director intent and burning tens of thousands of tokens.
 
-We built **Scribe Studio** to solve the foundational bottleneck of AI-assisted filmmaking: **cascading revision propagation with zero wasted compute**. In Scribe Studio, the screenplay is the root node of an Abstract Syntax Tree (AST) that powers a reactive entity dependency graph. Modifying any line calculates an AST-directed blast radius that selectively invalidates only affected downstream artifacts, verifies real-world facts via the **Parallel Search API**, and protects unaffected scenes with a mathematical guarantee of zero wasted tokens.
+We built **Scribe Studio** to solve the foundational bottleneck of AI-assisted filmmaking: **cascading revision propagation with zero wasted compute**. In Scribe Studio, the screenplay is the root node of an Abstract Syntax Tree (AST) that powers a reactive entity dependency graph. Modifying any line calculates an AST-directed blast radius that selectively invalidates only affected downstream artifacts, verifies real-world facts via the **Parallel Search API**, and protects unaffected scenes with deterministic verification of zero unneeded regeneration.
 
 ---
 
@@ -40,7 +40,7 @@ Scribe Studio is an AI-native filmmaking operating system built around the **Pro
 3. **Perform:** Actor packets, rehearsal sides, and interactive line-memorization HUD.
 4. **Produce:** 16-category production breakdown, script supervisor continuity timeline, and Parallel Search research intelligence.
 
-### The Winning Closed-Loop Workflow:
+### The Closed-Loop Verification Workflow:
 1. **Edit Script:** Edit any scene in the screenplay.
 2. **Dynamic Counterfactual Preview:** The bottom Change Intelligence Bar immediately displays:
    *"Scene 1 AST Modified • Counterfactual Preview: 3 downstream assets require update • 14 protected • 1 fact requires live research"*
@@ -49,7 +49,7 @@ Scribe Studio is an AI-native filmmaking operating system built around the **Pro
    - Affected vs Protected artifact accounting (proving unaffected scenes are 100% shielded).
    - Reality Gate decision (preventing wasteful compute on drama while querying Parallel for regulatory/technical facts).
    - Authoritative citations with rigorous evidence states (`VERIFIED`, `POTENTIAL_CONFLICT`, `UNRESOLVED`).
-   - Provenance citing `@google/adk@2.0.0` and `gemini-1.5-pro`.
+   - Provenance citing `@google/adk@2.0.0` and `gemini-2.5-flash`.
 4. **Director Veto vs Selective Invalidation:**
    - **Reject:** Clean rollback with exactly zero mutations to the screenplay or project graph.
    - **Approve:** Atomically updates only dirty nodes (`unaffectedArtifactsRegenerated === 0`).

@@ -60,7 +60,7 @@ export async function executeServerParallelSearch(
       publishedDate: r.publish_date || undefined
     }));
 
-    RuntimeProofRegistry.get().recordParallelSuccess(latencyMs, searchId);
+    RuntimeProofRegistry.get().recordParallelSuccess(latencyMs, searchId, sources.length, query);
 
     return {
       query,

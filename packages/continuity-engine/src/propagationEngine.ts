@@ -168,11 +168,14 @@ export function propagateScreenplayChange(
           const panelDialogue = (panel.dialogue || "").toUpperCase();
           const panelProps = (panel.propsVisible || []).map((p) => p.toUpperCase());
 
-          const mentionsProp = panelProps.some((p) => p.length > 2 && changedUpper.includes(p));
+          const mentionsProp = panelProps.some((p) => {
+            if (p.length > 2 && changedUpper.includes(p)) return true;
+            const words = p.split(/\s+/).filter((w) => w.length > 2);
+            return words.some((w) => changedUpper.includes(w));
+          });
           const mentionsDialogue = panelDialogue.length > 5 && changedUpper.includes(panelDialogue.slice(0, 15));
 
-          // If panel specifically mentions modified props, dialogue, or is a key affected beat:
-          if (mentionsProp || mentionsDialogue || panel.panelNumber === 4 || panel.panelNumber === 6) {
+          if (mentionsProp || mentionsDialogue) {
             panel.status = "OUTDATED";
             panel.outdatedReason = `Screenplay revision modified elements associated with Beat ${panel.panelNumber}.`;
             invalidatedStoryboardPanels.push(panel.id);

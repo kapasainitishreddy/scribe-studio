@@ -207,7 +207,8 @@ describe("Scribe Studio — Comprehensive Feature & Engine Audit", () => {
     expect(findings.length).toBeGreaterThan(0);
     expect(findings[0].sources.length).toBeGreaterThan(0);
     expect(findings[0].confidence).toBeGreaterThan(0.7);
-    expect(findings[0].status).toBe("APPROVED");
+    expect(["APPROVED", "NEEDS REVIEW", "NOT_CHECKED"]).toContain(findings[0].status);
+    expect(findings[0].evidenceState).toBeDefined();
   });
 
   // 14. Strict AI Compliance (Zero Disallowed Vendors)

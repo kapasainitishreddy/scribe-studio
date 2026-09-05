@@ -14,7 +14,7 @@ export interface ParallelSearchResponse {
   results: ParallelSource[];
   isLiveApi: boolean;
   latencyMs: number;
-  status?: "live_success" | "live_error" | "offline_grounded";
+  status?: "live_success" | "live_error" | "offline_grounded" | "live_no_sources";
   errorMessage?: string;
   searchId?: string;
   telemetry: {
@@ -107,13 +107,12 @@ export async function executeParallelSearch(request: ParallelSearchRequest): Pro
         }));
 
         const latencyMs = Math.round(performance.now() - startTime);
-        const resolvedSources = sources.length > 0 ? sources : CURATED_PARALLEL_RESEARCH.default;
         return {
           query: request.query,
-          sources: resolvedSources,
-          results: resolvedSources,
+          sources,
+          results: sources,
           isLiveApi: true,
-          status: "live_success",
+          status: sources.length > 0 ? "live_success" : "live_no_sources",
           searchId: data.search_id,
           latencyMs,
           telemetry: {

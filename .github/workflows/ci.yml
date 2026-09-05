@@ -1,0 +1,42 @@
+name: Scribe Studio CI & Verification Suite
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+        cache: 'npm'
+
+    - name: Install Monorepo Dependencies
+      run: npm ci
+
+    - name: Typecheck Monorepo
+      run: npm run typecheck
+
+    - name: Run Unit & Integration Tests (13 Suites)
+      run: npm test
+
+    - name: Run Autonomous Multi-Scenario Benchmark (52 Scenarios)
+      run: npm run eval
+
+    - name: Build Production Frontend Bundle
+      run: npm run build
+
+    - name: Install & Build Google ADK Agent Service (server/)
+      run: |
+        cd server
+        npm ci
+        npm run build

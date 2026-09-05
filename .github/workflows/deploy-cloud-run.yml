@@ -1,0 +1,44 @@
+name: Deploy Google Cloud Run Agent Service
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'server/**'
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID || 'scribe-studio-production' }}
+  SERVICE_NAME: scribe-studio-agent-service
+  REGION: us-central1
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ secrets.GCP_SA_KEY != '' }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+
+    - name: Deploy to Cloud Run
+      uses: google-github-actions/deploy-cloudrun@v2
+      with:
+        service: ${{ env.SERVICE_NAME }}
+        region: ${{ env.REGION }}
+        source: ./server
+        env_vars: |
+          NODE_ENV=production
+          GIT_COMMIT=${{ github.sha }}
+          ALLOWED_ORIGINS=https://kapasainitishreddy.github.io,http://localhost:5173
+        secrets: |
+          PARALLEL_API_KEY=PARALLEL_API_KEY:latest
+          GEMINI_API_KEY=GEMINI_API_KEY:latest

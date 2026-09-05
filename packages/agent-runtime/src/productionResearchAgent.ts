@@ -81,19 +81,32 @@ export async function runProductionResearchAgent(request: ResearchRequest): Prom
 
     const primarySource = searchRes.sources[0];
 
+    const isLive = Boolean(searchRes.isLiveApi && searchRes.sources.length > 0);
+    const evidenceState = isLive ? "VERIFIED" : (searchRes.isLiveApi ? "UNRESOLVED" : "NOT_CHECKED");
+    const status = isLive ? "NEEDS REVIEW" : (searchRes.isLiveApi ? "UNRESOLVED" : "NOT_CHECKED");
+
     const finding: ResearchFinding = {
       id: `research-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
       sceneNumber,
       query: q.query,
-      summary: `Parallel Search verified real-world context for Scene ${sceneNumber}: ${q.reason}.`,
-      conclusion: `Real-world data corroborates screenplay parameters. Sourced from ${searchRes.sources.length} authoritative references.`,
-      confidence: searchRes.sources.length > 0 ? 0.94 : 0.75,
+      summary: isLive
+        ? `Parallel Search retrieved live real-world context for Scene ${sceneNumber}: ${q.reason}.`
+        : (searchRes.isLiveApi
+          ? `Parallel Search returned 0 matching live citations for Scene ${sceneNumber}.`
+          : `Scene ${sceneNumber}: ${q.reason} (Offline fixture - not live checked).`),
+      conclusion: isLive
+        ? `Live data corroborates screenplay parameters. Sourced from ${searchRes.sources.length} authoritative references.`
+        : (searchRes.isLiveApi
+          ? "Unresolved: no live citations found for this claim."
+          : "Benchmark offline fixture. Live Parallel verification not executed."),
+      confidence: isLive ? 0.94 : (searchRes.sources.length > 0 ? 0.75 : 0.5),
       sources: searchRes.sources,
-      status: "APPROVED",
+      status,
+      evidenceState,
       retrievedAt: new Date().toISOString(),
       isParallelApiResult: searchRes.isLiveApi,
       claim: q.claim,
-      evidence: primarySource?.snippet || "Authoritative domain corroboration verified.",
+      evidence: primarySource?.snippet || (isLive ? "Authoritative domain corroboration retrieved." : "Offline fixture citation."),
       whyThisMatters: q.whyThisMatters,
       proposedResponse: q.proposedResponse
     };

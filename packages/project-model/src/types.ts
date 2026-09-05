@@ -342,7 +342,7 @@ export interface RevisionRecord {
 }
 
 export type ContinuitySeverity = "critical" | "warning" | "info";
-export type EvidenceState = "VERIFIED" | "POTENTIAL_CONFLICT" | "UNRESOLVED" | "INTENTIONAL_CHANGE" | "NOT_CHECKED";
+export type EvidenceState = "VERIFIED" | "SUPPORTED" | "POTENTIAL_CONFLICT" | "UNRESOLVED" | "INTENTIONAL_CHANGE" | "NOT_CHECKED" | "ERROR";
 
 export interface ContinuityIssue {
   id: string;
@@ -455,7 +455,8 @@ export interface ResearchFinding {
   conclusion: string;
   confidence: number;
   sources: ParallelSource[];
-  status: "APPROVED" | "REJECTED" | "NEEDS REVIEW";
+  status: "APPROVED" | "REJECTED" | "NEEDS REVIEW" | "UNRESOLVED" | "NOT_CHECKED";
+  evidenceState?: EvidenceState;
   retrievedAt: string;
   isParallelApiResult: boolean;
   claim?: string;
@@ -571,6 +572,21 @@ export interface ConsolidatedImpactReport {
   diffPreview: string;
   staleStoryboardCount: number;
   staleStoryboardPanels?: string[];
+  adkExecution?: {
+    runId: string;
+    agentsInvoked: string[];
+    eventCount: number;
+  };
+  executionTrace?: {
+    totalMs: number;
+    adkReasoningMs: number;
+    parallelSearchMs: number;
+    model: string;
+    geminiStatus: string;
+    adkStatus: string;
+  };
+  affectedInternalNodes?: string[];
+  unaffectedProtectedNodes?: string[];
 }
 
 export interface VerificationMetrics {

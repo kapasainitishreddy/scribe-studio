@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
+    "test": "vitest run --exclude tests/liveGoogleCloudParallel.test.ts",
     "test:watch": "vitest",
     "test:live": "vitest run tests/liveGoogleCloudParallel.test.ts",
     "eval": "vitest run tests/agentEvaluationHarness.test.ts",
