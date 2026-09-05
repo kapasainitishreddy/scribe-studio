@@ -8,10 +8,16 @@ The evaluation tests not only the model's ability to identify real narrative fla
 
 ### Benchmark Results Overview (from `evaluation-results/evaluation_metrics.json`)
 
+**Latest Run Timestamp**: `2026-09-05T02:02:11.378Z`  
+**Git Commit SHA**: `707ae88`  
+**Execution Time**: 1.38s across 52 scenarios  
+**Test Suite**: `tests/agentEvaluationHarness.test.ts`  
+
 | Metric | Target Threshold | Actual Measured Value | Status |
 | :--- | :---: | :---: | :---: |
 | **Total Evaluated Scenarios** | $\ge 50$ | **52 Scenarios** | **PASS** |
 | **Hard Negative Test Cases** | $\ge 15$ | **27 Scenarios** | **PASS** |
+| **Positive Test Cases** | $\ge 15$ | **25 Scenarios** | **PASS** |
 | **Overall Suite Accuracy** | $\ge 90.0\%$ | **100.0% (52 / 52 Passed)** | **PASS** |
 | **Continuity Detection Precision** | $\ge 85.0\%$ | **100.0%** | **PASS** |
 | **Continuity Detection Recall** | $\ge 85.0\%$ | **100.0%** | **PASS** |

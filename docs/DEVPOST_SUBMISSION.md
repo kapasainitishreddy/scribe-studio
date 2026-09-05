@@ -6,7 +6,8 @@
 - **Tagline:** The screenplay that understands what it changes. An AI-native filmmaking operating system where the screenplay AST is the root node of a reactive entity dependency graph, powered by Google Gemini, Google ADK, and Parallel Search API.
 - **Track:** Google Cloud AI Track & Partner Track: Parallel Search API
 - **License:** MIT License (100% Permissive Open Source)
-- **Repository:** https://github.com/kapasainitishreddy/scribe
+- **Repository:** https://github.com/kapasainitishreddy/scribe-studio
+- **Live Application:** https://kapasainitishreddy.github.io/scribe-studio/
 
 ---
 
@@ -22,7 +23,7 @@ Every downstream department instantly fractures:
 - The lead actress receives obsolete character sides for tomorrow's table read.
 - The storyboard panels still depict Maya holding a Glock 19.
 - The prop master orders physical weaponry that no longer exists in the narrative.
-- Downstream visual effects teams waste tens of thousands of dollars rendering shots based on obsolete beats.
+- Downstream visual effects teams waste time and budget rendering shots based on obsolete beats.
 
 Traditional screenwriting software treats the screenplay as dead text. Early generative AI tools make this worse: they blindly re-prompt entire scripts or regenerate whole scenes, erasing human director intent and burning tens of thousands of tokens.
 
@@ -30,7 +31,7 @@ We built **Scribe Studio** to solve the foundational bottleneck of AI-assisted f
 
 ---
 
-## Criterion 1: Technical Execution (25%)
+## TECHNOLOGICAL IMPLEMENTATION (25%)
 
 ### 1. 9-Stage Closed-Loop Multi-Agent Architecture
 Scribe Studio is engineered as an end-to-end operational loop without orphaned steps or disconnected features:
@@ -74,7 +75,7 @@ All performance claims are backed by automated tests and reproducible telemetry:
 
 ---
 
-## Criterion 2: Design & User Experience (25%)
+## DESIGN (25%)
 
 ### 1. Filmmaker-First Darkroom IDE
 Scribe Studio is designed for professional film production environments with low visual fatigue and high information density:
@@ -113,13 +114,10 @@ A single click switches the workspace between dedicated views tailored to film d
 
 ---
 
-## Criterion 3: Potential Impact (25%)
+## POTENTIAL IMPACT (25%)
 
-### 1. Solving the Single Costliest Problem in Film Production
-In film and high-budget television, script revisions are the #1 source of production waste. When a scene is rewritten during production:
-- An estimated 15–20% of on-set delays stem from continuity oversights, obsolete sides, or miscommunicated prop changes.
-- Traditional script management tools require script supervisors to manually cross-reference 100+ pages of notes with colored pencils.
-- Scribe Studio automates this entirely: an edit computes the full downstream blast radius in milliseconds, flagging every impacted department before cameras roll.
+### 1. Eliminating Production Revision Friction
+When a screenplay scene is rewritten during production, script supervisors and department heads must manually cross-reference dozens of pages of notes to catch downstream continuity oversights, obsolete character sides, and miscommunicated prop changes. Scribe Studio automates this entirely: an edit computes the full downstream blast radius in under 1.4 milliseconds, flagging impacted departments before filming or table reads commence.
 
 ### 2. Eliminating AI "Catastrophic Re-Prompting"
 Current generative film tools suffer from an existential flaw: modifying one detail requires regenerating the entire scene or sequence. This destroys director blocking, alters unintended character appearances, and consumes enormous token budgets.
@@ -131,9 +129,12 @@ Scribe Studio seamlessly integrates into existing studio pipelines:
 - **Hollywood Standard PDF:** Pure vector Courier 12pt export with exact 1.5-inch left gutter and 1.0-inch margins, complete with scene number headers and page budget calculations.
 - **Final Draft FDX XML Interchange:** Lossless bi-directional import and export preserving dual dialogue, parentheticals, and scene headings.
 
+### 4. External Validation Status
+External filmmaker validation is not yet completed. The automated 52-scenario evaluation harness and Scene 18 Gun E2E benchmark provide the current empirical verification baseline.
+
 ---
 
-## Criterion 4: Originality & Idea (25%)
+## QUALITY OF IDEA (25%)
 
 ### 1. Inverting the AI Paradigm: The Screenplay as an AST Dependency Graph
 Every existing AI screenwriting tool treats the script as flat text passed into a prompt window. Scribe Studio re-imagines the screenplay as an **active database and entity dependency graph**.
