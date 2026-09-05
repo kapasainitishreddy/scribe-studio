@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import type { Project, BreakdownCategory } from "../../../packages/project-model/src/types";
 import { parseScreenplay } from "../../../packages/screenplay-core/src/fountain";
+import { CallSheetView } from "./CallSheetView";
 
 interface ProduceWorkspaceProps {
   project: Project;
@@ -408,33 +409,13 @@ export const ProduceWorkspace: React.FC<ProduceWorkspaceProps> = ({
           </div>
         )}
 
-        {/* SUB-VIEW 4: BUDGET & SCHEDULE */}
+        {/* SUB-VIEW 4: HOLLYWOOD CALL SHEET & PRODUCTION STRIPBOARD */}
         {subTab === "schedule" && (
-          <div className="space-y-6 max-w-5xl w-full mx-auto">
-            <div className="border-b border-[#262C36] pb-3">
-              <h2 className="text-base font-bold text-white tracking-tight uppercase">
-                Production Schedule & Call Sheet Telemetry
-              </h2>
-              <p className="text-xs text-[#A0A7B2]">
-                Automated shoot day estimations and cast call sheets based on page count.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-3 gap-4">
-              <div className="p-4 rounded-xl bg-[#12161D] border border-[#262C36] text-center space-y-1">
-                <div className="text-2xl font-bold font-mono text-white">18 Days</div>
-                <div className="text-xs text-[#A0A7B2]">Estimated Shoot Days</div>
-              </div>
-              <div className="p-4 rounded-xl bg-[#12161D] border border-[#262C36] text-center space-y-1">
-                <div className="text-2xl font-bold font-mono text-[#D49B54]">5.1 pgs/day</div>
-                <div className="text-xs text-[#A0A7B2]">Shooting Pace</div>
-              </div>
-              <div className="p-4 rounded-xl bg-[#12161D] border border-[#262C36] text-center space-y-1">
-                <div className="text-2xl font-bold font-mono text-[#10B981]">14 Locations</div>
-                <div className="text-xs text-[#A0A7B2]">Company Moves: 3</div>
-              </div>
-            </div>
-          </div>
+          <CallSheetView
+            project={project}
+            selectedSceneNumber={selectedSceneNumber}
+            onSelectScene={onSelectScene}
+          />
         )}
       </main>
     </div>

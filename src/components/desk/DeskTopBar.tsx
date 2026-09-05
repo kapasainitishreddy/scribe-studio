@@ -1,6 +1,7 @@
-import React from "react";
-import { Film, Command, FileDown, Home } from "lucide-react";
+import React, { useState } from "react";
+import { Film, Command, FileDown, Home, Volume2, VolumeX } from "lucide-react";
 import type { Project, RevisionColor } from "../../../packages/project-model/src/types";
+import { cinemaAudio } from "../../utils/cinemaAudio";
 
 interface DeskTopBarProps {
   project: Project;
@@ -37,6 +38,7 @@ export const DeskTopBar: React.FC<DeskTopBarProps> = ({
   onOpenJudgeTour
 }) => {
   const currentRev = project.revisions[0] || { color: "White" as RevisionColor, label: "Draft" };
+  const [isMuted, setIsMuted] = useState(cinemaAudio.getIsMuted());
 
   return (
     <header className="h-11 border-b border-[#262C36] bg-[#0D1015] px-4 flex items-center justify-between select-none shrink-0 z-10">
@@ -105,6 +107,23 @@ export const DeskTopBar: React.FC<DeskTopBarProps> = ({
         >
           <Command className="w-3 h-3 text-[#69717E]" />
           <span className="font-mono text-[10px]">⌘K</span>
+        </button>
+
+        {/* Cinema Soundscapes Audio Toggle */}
+        <button
+          onClick={() => {
+            const muted = cinemaAudio.toggleMute();
+            setIsMuted(muted);
+            if (!muted) cinemaAudio.playCameraShutter();
+          }}
+          className={`p-1.5 rounded border transition-all cursor-pointer ${
+            isMuted
+              ? "bg-[#12161D] border-[#262C36] text-[#69717E] hover:text-white"
+              : "bg-[#D49B54]/15 border-[#D49B54]/40 text-[#D49B54]"
+          }`}
+          title={isMuted ? "Enable Cinema Audio (Camera Shutter & Soundscapes)" : "Mute Cinema Audio"}
+        >
+          {isMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
         </button>
 
         {/* Export Modal Trigger */}

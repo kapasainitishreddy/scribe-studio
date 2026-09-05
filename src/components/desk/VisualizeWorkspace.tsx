@@ -12,12 +12,14 @@ import {
   Image as ImageIcon,
   Sparkles,
   RefreshCw,
-  Sliders
+  Sliders,
+  Play
 } from "lucide-react";
 import type { Project, StoryboardPanel } from "../../../packages/project-model/src/types";
 import { parseScreenplay } from "../../../packages/screenplay-core/src/fountain";
 import { generatePanelSvgSchematic } from "../../../packages/production-engine/src/storyboardGenerator";
 import { Scene3DStudio } from "../Scene3DStudio";
+import { AnimaticScreeningModal } from "./AnimaticScreeningModal";
 
 interface VisualizeWorkspaceProps {
   project: Project;
@@ -49,6 +51,7 @@ export const VisualizeWorkspace: React.FC<VisualizeWorkspaceProps> = ({
 
   // Viewport mode: 2D Schematic / 3D Previs
   const [viewportMode, setViewportMode] = useState<"schematic" | "previs_3d">("schematic");
+  const [isAnimaticOpen, setIsAnimaticOpen] = useState(false);
 
   // In-Viewer Overlays
   const [showThirds, setShowThirds] = useState(true);
@@ -313,6 +316,16 @@ export const VisualizeWorkspace: React.FC<VisualizeWorkspaceProps> = ({
                 3D Previs
               </button>
             </div>
+
+            {/* Cinematic Animatic Screening Room Button */}
+            <button
+              onClick={() => setIsAnimaticOpen(true)}
+              className="flex items-center space-x-1.5 px-3 py-1 rounded-md bg-[#D49B54] hover:bg-[#E3AF69] text-black font-extrabold text-[11px] tracking-wide transition-all shadow-md active:scale-95 cursor-pointer"
+              title="Screen scene storyboard as 2.39:1 Anamorphic animatic"
+            >
+              <Play className="w-3 h-3 fill-current" />
+              <span>Screen Animatic</span>
+            </button>
           </div>
         </div>
 
@@ -452,6 +465,15 @@ export const VisualizeWorkspace: React.FC<VisualizeWorkspaceProps> = ({
           )}
         </div>
       </main>
+
+      {/* Cinematic Anamorphic Screening Room Modal */}
+      <AnimaticScreeningModal
+        isOpen={isAnimaticOpen}
+        onClose={() => setIsAnimaticOpen(false)}
+        sceneNumber={selectedSceneNumber}
+        sceneSlugline={activeScene?.location || `Scene ${selectedSceneNumber}`}
+        panels={shots}
+      />
     </div>
   );
 };

@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import type { Project, StoryboardPanel } from "../../../packages/project-model/src/types";
 import { parseScreenplay } from "../../../packages/screenplay-core/src/fountain";
+import { DependencyBlastRadiusGraph } from "./DependencyBlastRadiusGraph";
 
 export type InspectorMode = "character" | "scene" | "shot" | "performance" | "change_impact" | "overview";
 
@@ -444,6 +445,12 @@ export const ContextInspector: React.FC<ContextInspectorProps> = ({
             </div>
 
             <div className="h-px bg-[#262C36]" />
+
+            {/* Interactive Blast Radius Node Graph */}
+            <DependencyBlastRadiusGraph
+              project={project}
+              sceneNumber={selectedSceneNumber}
+            />
 
             <div className="space-y-2">
               <div className="p-2.5 rounded bg-[#12161D] border border-[#262C36] space-y-1">

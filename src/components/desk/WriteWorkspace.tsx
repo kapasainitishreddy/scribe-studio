@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import type { Project, StoryboardPanel, CanonFact } from "../../../packages/project-model/src/types";
 import { parseScreenplay, screenplayStats } from "../../../packages/screenplay-core/src/fountain";
+import { cinemaAudio } from "../../utils/cinemaAudio";
 
 interface WriteWorkspaceProps {
   project: Project;
@@ -373,6 +374,11 @@ export const WriteWorkspace: React.FC<WriteWorkspaceProps> = ({
               ref={textareaRef}
               value={project.screenplayText}
               onChange={(e) => onUpdateScreenplay(e.target.value)}
+              onKeyDown={(e) => {
+                if (!e.ctrlKey && !e.metaKey && e.key.length === 1 || e.key === "Backspace" || e.key === "Enter") {
+                  cinemaAudio.playTypewriterClick();
+                }
+              }}
               onClick={handleTextareaClick}
               onKeyUp={handleTextareaClick}
               spellCheck={false}

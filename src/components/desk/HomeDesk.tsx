@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Film, ArrowRight, Plus, FolderOpen, Clock, FileText, Sparkles, ShieldCheck } from "lucide-react";
 import type { Project } from "../../../packages/project-model/src/types";
+import { parseScreenplay } from "../../../packages/screenplay-core/src/fountain";
 
 interface HomeDeskProps {
   project: Project;
@@ -18,6 +19,7 @@ export const HomeDesk: React.FC<HomeDeskProps> = ({
   onOpenJudgeTour
 }) => {
   const currentRev = project.revisions[0] || { color: "White", label: "Draft" };
+  const parsed = useMemo(() => parseScreenplay(project.screenplayText), [project.screenplayText]);
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning." : hour < 18 ? "Good afternoon." : "Good evening.";
 
@@ -88,7 +90,7 @@ export const HomeDesk: React.FC<HomeDeskProps> = ({
               <p className="text-xs text-[#A0A7B2] flex items-center space-x-3">
                 <span>Feature Film</span>
                 <span>•</span>
-                <span>Scene 18 of 64</span>
+                <span>{parsed.scenes.length} Production Scenes</span>
                 <span>•</span>
                 <span>Revised recently</span>
               </p>

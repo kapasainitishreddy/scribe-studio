@@ -13,6 +13,7 @@ import {
   Lock
 } from "lucide-react";
 import type { ProductionChangePassport } from "../../../packages/project-model/src/types";
+import { cinemaAudio } from "../../utils/cinemaAudio";
 
 interface ChangePassportModalProps {
   passport: ProductionChangePassport;
@@ -200,6 +201,7 @@ export const ChangePassportModal: React.FC<ChangePassportModalProps> = ({
           <div className="flex items-center space-x-3">
             <button
               onClick={() => {
+                cinemaAudio.playDirectorChime(false);
                 onReject(passport.id);
                 onClose();
               }}
@@ -211,6 +213,7 @@ export const ChangePassportModal: React.FC<ChangePassportModalProps> = ({
 
             <button
               onClick={() => {
+                cinemaAudio.playDirectorChime(true);
                 onApprove(passport.id);
                 onClose();
               }}
