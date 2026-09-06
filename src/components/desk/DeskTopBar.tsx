@@ -5,7 +5,7 @@ import { cinemaAudio } from "../../utils/cinemaAudio";
 
 interface DeskTopBarProps {
   project: Project;
-  currentMode: "home" | "write" | "visualize" | "perform" | "produce";
+  currentMode: "home" | "write" | "visualize" | "previs" | "perform" | "produce";
   selectedSceneNumber: number;
   totalScenes: number;
   onOpenCommandPalette: () => void;
@@ -75,14 +75,32 @@ export const DeskTopBar: React.FC<DeskTopBarProps> = ({
         </span>
       </div>
 
-      {/* Center Group: Mode Badge */}
-      <div className="hidden md:flex items-center space-x-1">
-        <span className="text-[10px] uppercase font-mono tracking-widest text-[#69717E]">
-          Mode:
-        </span>
-        <span className="text-[11px] font-semibold tracking-wider uppercase text-[#D49B54]">
-          {currentMode}
-        </span>
+      {/* Center Group: Studio Telemetry & Engine Status */}
+      <div className="hidden lg:flex items-center space-x-3 text-[10px] font-mono">
+        <div className="flex items-center space-x-1.5 px-2 py-0.5 rounded bg-[#12161D] border border-[#202634]">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="text-[#69717E]">ADK ENGINE:</span>
+          <span className="text-emerald-400 font-bold">READY</span>
+        </div>
+
+        <div className="flex items-center space-x-1.5 px-2 py-0.5 rounded bg-[#12161D] border border-[#202634]">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#D49B54]" />
+          <span className="text-[#69717E]">DEXIE IDB:</span>
+          <span className="text-[#D49B54] font-semibold">SYNCED</span>
+        </div>
+
+        <div className="flex items-center space-x-1.5 px-2 py-0.5 rounded bg-[#12161D] border border-[#202634]">
+          <span className="text-[#69717E]">TC:</span>
+          <span className="text-slate-200">00:01:24:08</span>
+          <span className="text-[#D49B54] text-[9px] font-bold">24 FPS</span>
+        </div>
+
+        <div className="flex items-center space-x-1 px-2 py-0.5 rounded bg-[#171C24] border border-[#D49B54]/30">
+          <span className="text-[#69717E]">MODE:</span>
+          <span className="text-[#D49B54] font-bold uppercase tracking-wider">
+            {currentMode === "previs" ? "3D STAGE" : currentMode}
+          </span>
+        </div>
       </div>
 
       {/* Right Group: Judge Walkthrough, Command Palette & Export */}

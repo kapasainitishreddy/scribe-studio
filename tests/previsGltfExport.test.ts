@@ -116,4 +116,37 @@ describe("Three.js GLTFExporter Previs & 3D Blocking Export", () => {
       "Cannot export an empty 3D scene: zero objects found."
     );
   });
+
+  it("verifies sample project contains rich 3D blocking objects for Scenes 1, 2, 3, and 4", async () => {
+    const { createSampleProject } = await import("../packages/project-model/src/sampleProject");
+    const project = createSampleProject();
+
+    expect(project.scene3DObjects).toBeDefined();
+    expect(project.scene3DObjects.length).toBeGreaterThanOrEqual(20);
+
+    // Verify every scene (1, 2, 3, 4) has blocking objects
+    for (const sceneNum of [1, 2, 3, 4]) {
+      const sceneObjects = project.scene3DObjects.filter((o) => o.sceneNumber === sceneNum);
+      expect(sceneObjects.length).toBeGreaterThanOrEqual(5);
+
+      // Verify each scene has at least an actor, camera, and light or prop
+      const hasActor = sceneObjects.some((o) => o.kind === "actor");
+      const hasCamera = sceneObjects.some((o) => o.kind === "camera");
+      expect(hasActor).toBe(true);
+      expect(hasCamera).toBe(true);
+
+      // Verify Three.js scene builds successfully for this scene
+      const threeScene = buildThreeSceneFromBlocking(sceneNum, sceneObjects, {
+        projectId: project.id,
+        projectTitle: project.title,
+        sceneNumber: sceneNum
+      });
+      expect(threeScene).toBeInstanceOf(THREE.Scene);
+      expect(threeScene.children.length).toBeGreaterThan(5);
+
+      // Verify GLB export generates a valid binary buffer
+      const glb = await exportScenePrevisGLB(threeScene);
+      expect(glb.byteLength).toBeGreaterThan(500);
+    }
+  });
 });

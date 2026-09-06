@@ -19,6 +19,7 @@ import { MeetingScribeModal } from "../MeetingScribeModal";
 import { ChangePassportModal } from "./ChangePassportModal";
 import { JudgeTourModal } from "./JudgeTourModal";
 import { createProductionChangePassport } from "../../../packages/project-model/src/passportBuilder";
+import { Scene3DStudio } from "../Scene3DStudio";
 
 
 interface DeskShellProps {
@@ -152,6 +153,7 @@ export const DeskShell: React.FC<DeskShellProps> = ({
     setCurrentMode(mode);
     if (mode === "write") setInspectorMode("scene");
     else if (mode === "visualize") setInspectorMode("shot");
+    else if (mode === "previs") setInspectorMode("scene");
     else if (mode === "perform") setInspectorMode("performance");
     else if (mode === "produce") setInspectorMode("overview");
   };
@@ -301,6 +303,19 @@ export const DeskShell: React.FC<DeskShellProps> = ({
             />
           )}
 
+          {currentMode === "previs" && (
+            <div className="flex-1 w-full h-full min-h-0 flex flex-col overflow-hidden">
+              <Scene3DStudio
+                project={project}
+                selectedSceneNumber={selectedSceneNumber}
+                onSelectScene={handleSelectScene}
+                onAddObject={addScene3DObject}
+                onUpdateObject={updateScene3DObject}
+                onDeleteObject={deleteScene3DObject}
+              />
+            </div>
+          )}
+
           {currentMode === "perform" && (
             <PerformWorkspace
               project={project}
@@ -325,7 +340,7 @@ export const DeskShell: React.FC<DeskShellProps> = ({
         </div>
 
         {/* Right Context-Sensitive Inspector (w-80) */}
-        {isInspectorOpen && currentMode !== "home" && (
+        {isInspectorOpen && currentMode !== "home" && currentMode !== "previs" && (
           <ContextInspector
             project={project}
             mode={inspectorMode}

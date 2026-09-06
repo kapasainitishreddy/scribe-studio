@@ -330,9 +330,9 @@ export const VisualizeWorkspace: React.FC<VisualizeWorkspaceProps> = ({
         </div>
 
         {/* Viewport Canvas Surface */}
-        <div className="flex-1 flex items-center justify-center p-6 bg-[#090B0E] relative overflow-hidden">
+        <div className={`flex-1 ${viewportMode === "previs_3d" ? "flex flex-col p-2 min-h-0 self-stretch" : "flex items-center justify-center p-6"} bg-[#090B0E] relative overflow-hidden`}>
           {viewportMode === "previs_3d" ? (
-            <div className="w-full h-full rounded-lg overflow-hidden border border-[#262C36]">
+            <div className="w-full h-full min-h-0 flex-1 flex flex-col rounded-lg overflow-hidden border border-[#262C36]">
               <Scene3DStudio
                 project={project}
                 selectedSceneNumber={selectedSceneNumber}

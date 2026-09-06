@@ -2,6 +2,7 @@ import React from "react";
 import {
   PenLine,
   Film,
+  Box,
   Play,
   Layers,
   Search,
@@ -9,7 +10,7 @@ import {
   Sliders
 } from "lucide-react";
 
-export type DeskMode = "home" | "write" | "visualize" | "perform" | "produce";
+export type DeskMode = "home" | "write" | "visualize" | "previs" | "perform" | "produce";
 
 interface DeskRailProps {
   currentMode: DeskMode;
@@ -29,6 +30,7 @@ export const DeskRail: React.FC<DeskRailProps> = ({
   const modes: { id: DeskMode; label: string; icon: React.FC<{ className?: string }>; glyph: string }[] = [
     { id: "write", label: "Write", icon: PenLine, glyph: "✎" },
     { id: "visualize", label: "Visualize", icon: Film, glyph: "▣" },
+    { id: "previs", label: "3D Stage", icon: Box, glyph: "🧊" },
     { id: "perform", label: "Perform", icon: Play, glyph: "▶" },
     { id: "produce", label: "Produce", icon: Layers, glyph: "◫" }
   ];
@@ -52,7 +54,7 @@ export const DeskRail: React.FC<DeskRailProps> = ({
 
         <div className="w-6 h-px bg-[#262C36]" />
 
-        {/* 4 Primary Workspaces */}
+        {/* Primary Workspaces */}
         {modes.map((mode) => {
           const Icon = mode.icon;
           const isActive = currentMode === mode.id;
@@ -62,11 +64,14 @@ export const DeskRail: React.FC<DeskRailProps> = ({
               onClick={() => onSelectMode(mode.id)}
               className={`relative group w-9 h-9 rounded-lg flex items-center justify-center transition-all ${
                 isActive
-                  ? "bg-[#171C24] text-[#D49B54] border border-[#D49B54]/40 font-semibold"
+                  ? "bg-[#171C24] text-[#D49B54] border border-[#D49B54]/40 font-semibold shadow-[0_0_12px_rgba(212,155,84,0.18)]"
                   : "text-[#69717E] hover:text-[#F0F2F5] hover:bg-[#12161D]"
               }`}
               title={`${mode.label} Mode`}
             >
+              {isActive && (
+                <span className="absolute -left-1.5 top-1.5 bottom-1.5 w-1 rounded-r-full bg-[#D49B54] shadow-[0_0_8px_#D49B54]" />
+              )}
               <Icon className="w-4 h-4" />
 
               {/* Indicator Pip if stale changes exist */}

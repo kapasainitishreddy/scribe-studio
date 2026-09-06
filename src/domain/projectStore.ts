@@ -52,7 +52,13 @@ export function useProject() {
       if (typeof window !== "undefined" && window.localStorage) {
         const saved = window.localStorage.getItem(LOCAL_STORAGE_KEY);
         if (saved) {
-          return JSON.parse(saved);
+          const parsed = JSON.parse(saved);
+          const sample = createSampleProject();
+          const hasMultiScene3D = (parsed.scene3DObjects || []).some((o: Scene3DObject) => o.sceneNumber > 1);
+          if (!hasMultiScene3D && sample.scene3DObjects?.length) {
+            parsed.scene3DObjects = sample.scene3DObjects;
+          }
+          return parsed;
         }
       }
     } catch (e) {
@@ -102,6 +108,11 @@ export function useProject() {
         if (storedProjects.length > 0 && isMounted) {
           const latest = await loadProject(storedProjects[0].id);
           if (latest && isMounted) {
+            const sample = createSampleProject();
+            const hasMultiScene3D = (latest.scene3DObjects || []).some((o: Scene3DObject) => o.sceneNumber > 1);
+            if (!hasMultiScene3D && sample.scene3DObjects?.length) {
+              latest.scene3DObjects = sample.scene3DObjects;
+            }
             setProject(latest);
           }
         }

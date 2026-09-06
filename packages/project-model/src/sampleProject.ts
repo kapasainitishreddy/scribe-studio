@@ -737,6 +737,7 @@ export function createSampleProject(): Project {
       }
     ],
     scene3DObjects: [
+      // Scene 1: Cyber Vault 7
       {
         id: "obj-maya",
         sceneNumber: 1,
@@ -781,6 +782,183 @@ export function createSampleProject(): Project {
         position: { x: 3.5, y: 1.5, z: 1.5 },
         color: "#ef4444",
         notes: "Hydraulic pressure seal"
+      },
+      {
+        id: "obj-s1-light-cyan",
+        sceneNumber: 1,
+        label: "Server Bioluminescent Rim Light",
+        kind: "light",
+        position: { x: -2.5, y: 2.8, z: 1.0 },
+        color: "#06b6d4",
+        notes: "Cool cyan rack glow"
+      },
+
+      // Scene 2: Rooftop Helipad
+      {
+        id: "obj-s2-thorne",
+        sceneNumber: 2,
+        label: "Dr. Aris Thorne",
+        kind: "actor",
+        position: { x: 0.5, y: 0.9, z: -0.5 },
+        color: "#ec4899",
+        notes: "Trench coat whipping in squall, holding communicator"
+      },
+      {
+        id: "obj-s2-merc",
+        sceneNumber: 2,
+        label: "Mercenary Leader",
+        kind: "actor",
+        position: { x: -1.8, y: 0.9, z: 0.8 },
+        color: "#64748b",
+        notes: "Flanking transport with carbine"
+      },
+      {
+        id: "obj-s2-vtol",
+        sceneNumber: 2,
+        label: "Stealth VTOL Transport",
+        kind: "vehicle",
+        position: { x: -3.5, y: 1.6, z: -2.5 },
+        color: "#475569",
+        notes: "Rotor-spinning stealth transport idling in rain"
+      },
+      {
+        id: "obj-s2-camera-b",
+        sceneNumber: 2,
+        label: "Camera B (35mm Storm Tracker)",
+        kind: "camera",
+        position: { x: 2.2, y: 1.2, z: 3.5 },
+        color: "#f59e0b",
+        notes: "Dutch tilt framing Thorne against stormy horizon"
+      },
+      {
+        id: "obj-s2-beacon",
+        sceneNumber: 2,
+        label: "Helipad Perimeter Beacon",
+        kind: "prop",
+        position: { x: 3.0, y: 0.4, z: -1.5 },
+        color: "#f59e0b",
+        notes: "Pulsing amber airfield boundary marker"
+      },
+      {
+        id: "obj-s2-spotlight",
+        sceneNumber: 2,
+        label: "Storm Xenon Floodlight",
+        kind: "light",
+        position: { x: -4.0, y: 4.5, z: 3.0 },
+        color: "#fde047",
+        notes: "High-intensity xenon searchlight piercing driving rain"
+      },
+
+      // Scene 3: Sub-Level Lab
+      {
+        id: "obj-s3-maya",
+        sceneNumber: 3,
+        label: "Maya Lin (Relay Station)",
+        kind: "actor",
+        position: { x: -1.2, y: 0.9, z: 0.2 },
+        color: "#3b82f6",
+        notes: "Yanking glowing titanium drive from burning terminal"
+      },
+      {
+        id: "obj-s3-marcus",
+        sceneNumber: 3,
+        label: "Marcus Kane (Breach Cover)",
+        kind: "actor",
+        position: { x: 1.8, y: 0.9, z: 1.8 },
+        color: "#10b981",
+        notes: "Firing precision bursts through shattered bulkhead"
+      },
+      {
+        id: "obj-s3-cables",
+        sceneNumber: 3,
+        label: "Severed Cable Relay",
+        kind: "prop",
+        position: { x: 0, y: 2.2, z: 0.5 },
+        color: "#f43f5e",
+        notes: "Showering electrical sparks from high-voltage conduit"
+      },
+      {
+        id: "obj-s3-flume",
+        sceneNumber: 3,
+        label: "Emergency Drainage Chute",
+        kind: "prop",
+        position: { x: -2.8, y: 0.5, z: -2.0 },
+        color: "#6366f1",
+        notes: "Eighty-foot drop chute leading to Tokyo harbor"
+      },
+      {
+        id: "obj-s3-camera-c",
+        sceneNumber: 3,
+        label: "Camera C (50mm Handheld OTS)",
+        kind: "camera",
+        position: { x: 0.5, y: 1.5, z: 3.0 },
+        color: "#f59e0b",
+        notes: "Agitated handheld camera tracking Maya's escape"
+      },
+      {
+        id: "obj-s3-strobe",
+        sceneNumber: 3,
+        label: "Emergency Alarm Strobe",
+        kind: "light",
+        position: { x: 2.0, y: 3.2, z: -1.0 },
+        color: "#ef4444",
+        notes: "Pulsing red siren illuminating corridor smoke"
+      },
+
+      // Scene 4: Tokyo Industrial Docks
+      {
+        id: "obj-s4-maya",
+        sceneNumber: 4,
+        label: "Maya Lin (Drain Grating)",
+        kind: "actor",
+        position: { x: -0.8, y: 0.9, z: -0.4 },
+        color: "#3b82f6",
+        notes: "Clutching decrypted drive casing on wet concrete"
+      },
+      {
+        id: "obj-s4-marcus",
+        sceneNumber: 4,
+        label: "Marcus Kane (Pier Edge)",
+        kind: "actor",
+        position: { x: 1.6, y: 0.8, z: 0.6 },
+        color: "#10b981",
+        notes: "Dragging himself onto concrete pier, clutching ribs"
+      },
+      {
+        id: "obj-s4-containers",
+        sceneNumber: 4,
+        label: "Steel Shipping Containers",
+        kind: "prop",
+        position: { x: 3.5, y: 1.8, z: -1.2 },
+        color: "#d97706",
+        notes: "Monolithic freight containers framing the pier"
+      },
+      {
+        id: "obj-s4-terminal",
+        sceneNumber: 4,
+        label: "Pulsing Blue Data Reel",
+        kind: "prop",
+        position: { x: -0.8, y: 0.5, z: 0.2 },
+        color: "#38bdf8",
+        notes: "Reveals thousands of encrypted dossier files"
+      },
+      {
+        id: "obj-s4-camera-d",
+        sceneNumber: 4,
+        label: "Camera D (65mm Anamorphic Master)",
+        kind: "camera",
+        position: { x: 0, y: 1.4, z: 4.8 },
+        color: "#f59e0b",
+        notes: "Wide cinematic vista framing dawn exfiltration"
+      },
+      {
+        id: "obj-s4-dawn-light",
+        sceneNumber: 4,
+        label: "Dawn Horizon Fill Light",
+        kind: "light",
+        position: { x: 5.0, y: 2.0, z: -4.0 },
+        color: "#fdba74",
+        notes: "Warm morning glow breaking through grey harbour fog"
       }
     ],
     dependencyEdges: [

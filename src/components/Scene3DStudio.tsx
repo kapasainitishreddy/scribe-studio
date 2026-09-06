@@ -13,7 +13,11 @@ import {
   Clapperboard,
   Sliders,
   Move,
-  Download
+  Download,
+  Sparkles,
+  RefreshCw,
+  Video,
+  Car
 } from "lucide-react";
 import type { Project, Scene3DObject } from "../../packages/project-model/src/types";
 import { parseScreenplay } from "../../packages/screenplay-core/src/fountain";
@@ -43,11 +47,20 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
   const [viewAngle, setViewAngle] = useState<ViewAngle>("orbit");
   const [selectedObjectId, setSelectedObjectId] = useState<string | null>(null);
   const [copiedStatus, setCopiedStatus] = useState(false);
+  const [isExportingGLB, setIsExportingGLB] = useState(false);
 
   // Filter 3D objects for the selected scene
   const sceneObjects = (project.scene3DObjects || []).filter(
     (o) => o.sceneNumber === selectedSceneNumber
   );
+
+  // Sync selected object ID when scene changes
+  useEffect(() => {
+    const exists = sceneObjects.some((o) => o.id === selectedObjectId);
+    if (!exists) {
+      setSelectedObjectId(sceneObjects[0]?.id || null);
+    }
+  }, [selectedSceneNumber, sceneObjects, selectedObjectId]);
 
   const selectedObject = sceneObjects.find((o) => o.id === selectedObjectId) || sceneObjects[0] || null;
 
@@ -60,21 +73,21 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const meshesMapRef = useRef<Map<string, THREE.Group>>(new Map());
 
-  // Initialize Three.js Stage
+  // Initialize Three.js Stage with ResizeObserver
   useEffect(() => {
     const container = mountRef.current;
     if (!container) return;
 
-    const width = container.clientWidth;
-    const height = container.clientHeight;
+    const width = container.clientWidth || 800;
+    const height = container.clientHeight || 500;
 
     // Scene
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0c0e14);
+    scene.background = new THREE.Color(0x0a0c10);
     sceneRef.current = scene;
 
-    // Fog for depth & atmosphere
-    scene.fog = new THREE.FogExp2(0x0c0e14, 0.035);
+    // Fog for depth & cinematic atmosphere
+    scene.fog = new THREE.FogExp2(0x0a0c10, 0.032);
 
     // Camera
     const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 100);
@@ -83,7 +96,7 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
     camera.lookAt(0, 1, 0);
 
     // Renderer
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
@@ -93,36 +106,36 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
     container.innerHTML = "";
     container.appendChild(renderer.domElement);
 
-    // Grid Floor
-    const grid = new THREE.GridHelper(20, 20, 0x3b82f6, 0x1e2638);
+    // Studio Grid Floor
+    const grid = new THREE.GridHelper(24, 24, 0xd49b54, 0x1e2638);
     grid.position.y = 0;
     scene.add(grid);
 
     // Studio Stage Floor Disc
-    const floorGeo = new THREE.CircleGeometry(10, 64);
+    const floorGeo = new THREE.CircleGeometry(12, 64);
     const floorMat = new THREE.MeshStandardMaterial({
-      color: 0x11141c,
-      roughness: 0.8,
-      metalness: 0.2
+      color: 0x0e1117,
+      roughness: 0.85,
+      metalness: 0.15
     });
     const floorMesh = new THREE.Mesh(floorGeo, floorMat);
     floorMesh.rotation.x = -Math.PI / 2;
     floorMesh.receiveShadow = true;
     scene.add(floorMesh);
 
-    // Lights
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+    // Studio Lighting
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.65);
     scene.add(ambientLight);
 
-    const dirLight = new THREE.DirectionalLight(0xfff5e6, 1.2);
-    dirLight.position.set(5, 10, 7);
+    const dirLight = new THREE.DirectionalLight(0xfff5e6, 1.3);
+    dirLight.position.set(6, 11, 7);
     dirLight.castShadow = true;
     dirLight.shadow.mapSize.width = 1024;
     dirLight.shadow.mapSize.height = 1024;
     scene.add(dirLight);
 
-    const accentLight = new THREE.PointLight(0x38bdf8, 2, 15);
-    accentLight.position.set(-4, 3, -3);
+    const accentLight = new THREE.PointLight(0x38bdf8, 2.2, 18);
+    accentLight.position.set(-5, 4, -3);
     scene.add(accentLight);
 
     // Mouse Drag Rotation
@@ -172,16 +185,32 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
     window.addEventListener("mouseup", onMouseUp);
     dom.addEventListener("wheel", onWheel, { passive: false });
 
-    // Handle Resize
-    const handleResize = () => {
-      if (!container || !camera || !renderer) return;
-      const w = container.clientWidth;
-      const h = container.clientHeight;
+    // Handle Resize with ResizeObserver & window fallback
+    const updateSize = (w: number, h: number) => {
+      if (w <= 0 || h <= 0 || !camera || !renderer) return;
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
     };
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width: w, height: h } = entry.contentRect;
+        updateSize(w, h);
+      }
+    });
+    resizeObserver.observe(container);
+
+    const handleResize = () => {
+      if (!container) return;
+      updateSize(container.clientWidth, container.clientHeight);
+    };
     window.addEventListener("resize", handleResize);
+
+    // Initial kick to ensure layout pass sets dimensions
+    requestAnimationFrame(() => {
+      if (container) updateSize(container.clientWidth, container.clientHeight);
+    });
 
     // Render loop
     let animId: number;
@@ -198,6 +227,7 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
       window.removeEventListener("mouseup", onMouseUp);
       dom.removeEventListener("wheel", onWheel);
       window.removeEventListener("resize", handleResize);
+      resizeObserver.disconnect();
       renderer.dispose();
     };
   }, []);
@@ -208,10 +238,9 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
     if (!camera) return;
 
     if (viewAngle === "top-down") {
-      camera.position.set(0, 15, 0.001);
+      camera.position.set(0, 16, 0.001);
       camera.lookAt(0, 0, 0);
     } else if (viewAngle === "director") {
-      // Look from the primary camera object in the scene, or fallback
       const directorCam = sceneObjects.find((o) => o.kind === "camera");
       if (directorCam) {
         camera.position.set(directorCam.position.x, directorCam.position.y + 0.3, directorCam.position.z);
@@ -226,7 +255,6 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
         camera.lookAt(0, 1, 0);
       }
     } else {
-      // Default Orbit view
       camera.position.set(5, 6, 8);
       camera.lookAt(0, 1, 0);
     }
@@ -237,7 +265,6 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
     const scene = sceneRef.current;
     if (!scene) return;
 
-    // Clear previous meshes
     meshesMapRef.current.forEach((group) => {
       scene.remove(group);
     });
@@ -268,14 +295,14 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
         headMesh.castShadow = true;
         group.add(headMesh);
 
-        // Direction indicator visor
+        // Direction visor
         const visorGeo = new THREE.BoxGeometry(0.2, 0.08, 0.15);
         const visorMat = new THREE.MeshBasicMaterial({ color: 0x0f172a });
         const visorMesh = new THREE.Mesh(visorGeo, visorMat);
         visorMesh.position.set(0, 0.82, 0.18);
         group.add(visorMesh);
       } else if (obj.kind === "camera") {
-        // Camera Mesh: Box body + cone lens + frustum
+        // Cinema Camera Mesh
         const bodyGeo = new THREE.BoxGeometry(0.5, 0.4, 0.6);
         const bodyMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.3, metalness: 0.5 });
         const bodyMesh = new THREE.Mesh(bodyGeo, bodyMat);
@@ -295,14 +322,14 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
           color: 0xf59e0b,
           wireframe: true,
           transparent: true,
-          opacity: 0.3
+          opacity: 0.35
         });
         const frustumMesh = new THREE.Mesh(frustumGeo, frustumMat);
         frustumMesh.rotation.x = -Math.PI / 2;
         frustumMesh.position.z = -1.6;
         group.add(frustumMesh);
       } else if (obj.kind === "prop") {
-        // Prop: Sci-Fi Console or Crate
+        // Prop: Sci-Fi Console or Cargo Crate
         const boxGeo = new THREE.BoxGeometry(0.8, 1.2, 0.8);
         const boxMat = new THREE.MeshStandardMaterial({
           color: colorHex,
@@ -313,12 +340,34 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
         boxMesh.castShadow = true;
         group.add(boxMesh);
 
-        // Glowing accent strip
         const stripGeo = new THREE.BoxGeometry(0.82, 0.05, 0.82);
         const stripMat = new THREE.MeshBasicMaterial({ color: 0x60a5fa });
         const stripMesh = new THREE.Mesh(stripGeo, stripMat);
         stripMesh.position.y = 0.2;
         group.add(stripMesh);
+      } else if (obj.kind === "vehicle") {
+        // Vehicle / Transport
+        const fuselageGeo = new THREE.BoxGeometry(2.4, 0.8, 1.4);
+        const fuselageMat = new THREE.MeshStandardMaterial({
+          color: colorHex,
+          roughness: 0.3,
+          metalness: 0.6
+        });
+        const fuselageMesh = new THREE.Mesh(fuselageGeo, fuselageMat);
+        fuselageMesh.castShadow = true;
+        group.add(fuselageMesh);
+
+        const canopyGeo = new THREE.BoxGeometry(0.9, 0.4, 0.9);
+        const canopyMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.7 });
+        const canopyMesh = new THREE.Mesh(canopyGeo, canopyMat);
+        canopyMesh.position.set(0.6, 0.45, 0);
+        group.add(canopyMesh);
+
+        const rotorGeo = new THREE.CylinderGeometry(1.2, 1.2, 0.04, 16);
+        const rotorMat = new THREE.MeshBasicMaterial({ color: 0x94a3b8, wireframe: true });
+        const rotorMesh = new THREE.Mesh(rotorGeo, rotorMat);
+        rotorMesh.position.y = 0.6;
+        group.add(rotorMesh);
       } else if (obj.kind === "light") {
         // Light fixture indicator
         const lightGeo = new THREE.SphereGeometry(0.25, 16, 16);
@@ -326,16 +375,15 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
         const lightMesh = new THREE.Mesh(lightGeo, lightMat);
         group.add(lightMesh);
 
-        // PointLight source
-        const pointLight = new THREE.PointLight(0xfffbeb, 1.5, 8);
+        const pointLight = new THREE.PointLight(colorHex, 1.8, 10);
         group.add(pointLight);
       }
 
       // Selection ring indicator
       if (obj.id === selectedObjectId) {
-        const ringGeo = new THREE.RingGeometry(0.5, 0.65, 32);
+        const ringGeo = new THREE.RingGeometry(0.5, 0.68, 32);
         const ringMat = new THREE.MeshBasicMaterial({
-          color: 0x38bdf8,
+          color: 0xd49b54,
           side: THREE.DoubleSide
         });
         const ringMesh = new THREE.Mesh(ringGeo, ringMat);
@@ -366,38 +414,131 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
       kind,
       position: {
         x: (Math.random() - 0.5) * 4,
-        y: kind === "actor" ? 0.9 : kind === "camera" ? 1.4 : 0.8,
+        y: kind === "actor" ? 0.9 : kind === "camera" ? 1.4 : kind === "vehicle" ? 1.2 : 0.8,
         z: (Math.random() - 0.5) * 4
       },
       color: colors[kind] || "#3b82f6",
-      notes: "Placed via 3D Studio"
+      notes: "Placed via 3D Previs Studio"
     };
 
+    cinemaAudio.playCameraShutter();
     onAddObject(newObj);
     setSelectedObjectId(id);
   };
 
-  const handleApplyPreset = (presetType: "two-shot" | "stand-off") => {
+  // 1-Click Auto-Block from Screenplay Script
+  const handleAutoBlockFromScript = () => {
+    if (!currentScene) return;
+    cinemaAudio.playCameraShutter();
+    const sceneNum = selectedSceneNumber;
+
+    const charNames: string[] = [];
+    const sceneLineIds = new Set(currentScene.lineIds || []);
+    parsed.lines.forEach((l) => {
+      if (sceneLineIds.has(l.id) && l.kind === "character" && l.text) {
+        const name = l.text.trim().replace(/\s*\(.*?\)/g, "").toUpperCase();
+        if (name && !charNames.includes(name)) charNames.push(name);
+      }
+    });
+    if (charNames.length === 0) {
+      Object.keys(project.characters || {}).forEach((k) => {
+        const c = project.characters[k];
+        if (c && c.name && !charNames.includes(c.name.toUpperCase())) {
+          charNames.push(c.name.toUpperCase());
+        }
+      });
+    }
+
+    const colors = ["#3b82f6", "#10b981", "#ec4899", "#8b5cf6"];
+    let actorIndex = 0;
+
+    charNames.slice(0, 3).forEach((name, idx) => {
+      const angle = (idx * (2 * Math.PI)) / Math.max(charNames.length, 2);
+      const radius = 1.6;
+      onAddObject({
+        id: `auto-actor-${sceneNum}-${idx}-${Date.now()}`,
+        sceneNumber: sceneNum,
+        label: `${name} (Actor)`,
+        kind: "actor",
+        position: {
+          x: Math.cos(angle) * radius,
+          y: 0.9,
+          z: Math.sin(angle) * radius
+        },
+        color: colors[actorIndex % colors.length],
+        notes: `Extracted from dialogue in ${currentScene.heading}`
+      });
+      actorIndex++;
+    });
+
+    // Primary Camera
+    onAddObject({
+      id: `auto-cam-${sceneNum}-${Date.now()}`,
+      sceneNumber: sceneNum,
+      label: "Camera A (35mm Master)",
+      kind: "camera",
+      position: { x: 0, y: 1.4, z: 3.8 },
+      color: "#f59e0b",
+      notes: "Anamorphic master wide framing actors"
+    });
+
+    // Key Light
+    onAddObject({
+      id: `auto-key-${sceneNum}-${Date.now()}`,
+      sceneNumber: sceneNum,
+      label: "Key Fill Light (Warm)",
+      kind: "light",
+      position: { x: -3.0, y: 3.5, z: 2.0 },
+      color: "#fde047",
+      notes: "Three-point lighting key fixture"
+    });
+
+    // Scene Asset Prop
+    onAddObject({
+      id: `auto-prop-${sceneNum}-${Date.now()}`,
+      sceneNumber: sceneNum,
+      label: "Scene Stage Asset",
+      kind: "prop",
+      position: { x: 0, y: 0.8, z: -0.5 },
+      color: "#8b5cf6",
+      notes: `Set dressing for ${currentScene.heading}`
+    });
+  };
+
+  const handleApplyPreset = (presetType: "two-shot" | "low-angle" | "noir-lights" | "top-down") => {
+    cinemaAudio.playDirectorChime(true);
     if (presetType === "two-shot") {
       onAddObject({
-        id: `preset-cam-${Date.now()}`,
+        id: `preset-cam-ots-${Date.now()}`,
         sceneNumber: selectedSceneNumber,
         label: "Camera B (Over-The-Shoulder 50mm)",
         kind: "camera",
         position: { x: -1.2, y: 1.5, z: 2.5 },
         color: "#f59e0b",
-        notes: "Framing tight on Maya past Marcus's shoulder"
+        notes: "Framing tight past actor's shoulder"
       });
-    } else if (presetType === "stand-off") {
+    } else if (presetType === "low-angle") {
       onAddObject({
-        id: `preset-light-${Date.now()}`,
+        id: `preset-cam-low-${Date.now()}`,
         sceneNumber: selectedSceneNumber,
-        label: "Rim Key Light (Strobe Amber)",
-        kind: "light",
-        position: { x: 3.5, y: 3.0, z: -2.0 },
-        color: "#facc15",
-        notes: "High angle edge light accentuating rain drops"
+        label: "Camera C (24mm Low-Angle Hero)",
+        kind: "camera",
+        position: { x: 0.8, y: 0.6, z: 2.8 },
+        color: "#f59e0b",
+        notes: "Upward hero angle tracking action"
       });
+    } else if (presetType === "noir-lights") {
+      onAddObject({
+        id: `preset-light-rim-${Date.now()}`,
+        sceneNumber: selectedSceneNumber,
+        label: "Cyan Edge Backlight",
+        kind: "light",
+        position: { x: 3.5, y: 3.2, z: -2.5 },
+        color: "#38bdf8",
+        notes: "Cool cyan edge backlight for dramatic separation"
+      });
+    } else if (presetType === "top-down") {
+      setViewAngle("top-down");
     }
   };
 
@@ -416,8 +557,6 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
     setCopiedStatus(true);
     setTimeout(() => setCopiedStatus(false), 2000);
   };
-
-  const [isExportingGLB, setIsExportingGLB] = useState(false);
 
   const handleExportGLB = async () => {
     setIsExportingGLB(true);
@@ -457,17 +596,17 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
   };
 
   return (
-    <div className="flex-1 flex overflow-hidden bg-[#0c0e14] select-none">
+    <div className="w-full h-full min-h-0 flex-1 flex overflow-hidden bg-[#0a0c10] select-none">
       {/* 3D Viewport Area */}
-      <div className="flex-1 flex flex-col relative">
+      <div className="flex-1 flex flex-col relative min-h-0 overflow-hidden">
         {/* Top Viewport Control Bar */}
-        <div className="h-12 border-b border-[#232836] bg-[#11141c]/90 backdrop-blur px-4 flex items-center justify-between z-10">
+        <div className="h-12 border-b border-[#232836] bg-[#0e1117]/95 backdrop-blur px-4 flex items-center justify-between z-10 shrink-0">
           <div className="flex items-center space-x-3">
             <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Scene</span>
             <select
               value={selectedSceneNumber}
               onChange={(e) => onSelectScene(Number(e.target.value))}
-              className="bg-[#181d28] text-amber-400 border border-[#2d3446] rounded px-2.5 py-1 text-xs font-semibold focus:outline-none"
+              className="bg-[#141822] text-[#d49b54] border border-[#272e40] rounded px-2.5 py-1 text-xs font-semibold focus:outline-none cursor-pointer"
             >
               {parsed.scenes.map((s) => (
                 <option key={s.number} value={s.number}>
@@ -475,18 +614,18 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
                 </option>
               ))}
             </select>
-            <span className="text-xs text-slate-500 font-mono">
+            <span className="text-xs text-slate-400 font-mono bg-[#141822] px-2 py-0.5 rounded border border-[#202634]">
               {sceneObjects.length} 3D entities
             </span>
           </div>
 
           {/* Camera View Mode Toggles */}
-          <div className="flex items-center space-x-1.5 bg-[#181d28] p-1 rounded-lg border border-[#272e40]">
+          <div className="flex items-center space-x-1 bg-[#141822] p-1 rounded-lg border border-[#202634]">
             <button
               onClick={() => setViewAngle("orbit")}
-              className={`flex items-center space-x-1 px-2.5 py-1 rounded text-xs transition-colors ${
+              className={`flex items-center space-x-1.5 px-3 py-1 rounded text-xs transition-colors cursor-pointer ${
                 viewAngle === "orbit"
-                  ? "bg-amber-500/20 text-amber-300 font-semibold border border-amber-500/40"
+                  ? "bg-[#d49b54]/20 text-[#d49b54] font-semibold border border-[#d49b54]/40"
                   : "text-slate-400 hover:text-slate-200"
               }`}
             >
@@ -496,9 +635,9 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
 
             <button
               onClick={() => setViewAngle("director")}
-              className={`flex items-center space-x-1 px-2.5 py-1 rounded text-xs transition-colors ${
+              className={`flex items-center space-x-1.5 px-3 py-1 rounded text-xs transition-colors cursor-pointer ${
                 viewAngle === "director"
-                  ? "bg-amber-500/20 text-amber-300 font-semibold border border-amber-500/40"
+                  ? "bg-[#d49b54]/20 text-[#d49b54] font-semibold border border-[#d49b54]/40"
                   : "text-slate-400 hover:text-slate-200"
               }`}
             >
@@ -508,9 +647,9 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
 
             <button
               onClick={() => setViewAngle("top-down")}
-              className={`flex items-center space-x-1 px-2.5 py-1 rounded text-xs transition-colors ${
+              className={`flex items-center space-x-1.5 px-3 py-1 rounded text-xs transition-colors cursor-pointer ${
                 viewAngle === "top-down"
-                  ? "bg-amber-500/20 text-amber-300 font-semibold border border-amber-500/40"
+                  ? "bg-[#d49b54]/20 text-[#d49b54] font-semibold border border-[#d49b54]/40"
                   : "text-slate-400 hover:text-slate-200"
               }`}
             >
@@ -523,7 +662,7 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
           <div className="flex items-center space-x-2">
             <button
               onClick={handleCopyBlockingSummary}
-              className="flex items-center space-x-1 px-2.5 py-1 bg-[#1c2230] hover:bg-[#252d40] border border-[#2d364a] text-slate-300 rounded text-xs transition-colors"
+              className="flex items-center space-x-1 px-2.5 py-1 bg-[#141822] hover:bg-[#1b212f] border border-[#232a3b] text-slate-300 rounded text-xs transition-colors cursor-pointer"
             >
               {copiedStatus ? (
                 <>
@@ -532,7 +671,7 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
                 </>
               ) : (
                 <>
-                  <Clapperboard className="w-3.5 h-3.5 text-amber-400" />
+                  <Clapperboard className="w-3.5 h-3.5 text-[#d49b54]" />
                   <span>Copy Notes</span>
                 </>
               )}
@@ -550,58 +689,109 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
         </div>
 
         {/* WebGL Canvas Container */}
-        <div ref={mountRef} className="flex-1 w-full h-full cursor-grab active:cursor-grabbing" />
+        <div ref={mountRef} className="flex-1 w-full h-full min-h-[360px] cursor-grab active:cursor-grabbing relative" />
 
-        {/* Floating Viewport Hint Overlay */}
-        <div className="absolute bottom-3 left-4 pointer-events-none flex items-center space-x-2 bg-[#11141c]/80 backdrop-blur border border-[#232836] px-3 py-1.5 rounded-md text-[11px] text-slate-400">
-          <Move className="w-3.5 h-3.5 text-amber-400" />
-          <span>Click & drag to rotate • Scroll to zoom • Select objects on right to reposition</span>
+        {/* Hollywood Camera HUD Reticle & Metadata Overlay */}
+        <div className="absolute inset-0 pointer-events-none flex flex-col justify-between p-4 z-10 pt-16">
+          {/* Top HUD Stats */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2 bg-black/75 backdrop-blur px-2.5 py-1 rounded border border-white/10 text-[10px] font-mono text-slate-300 shadow-lg">
+              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+              <span className="text-[#d49b54] font-bold">REC</span>
+              <span className="text-slate-600">|</span>
+              <span>CAM A</span>
+              <span className="text-slate-600">|</span>
+              <span className="text-slate-200 font-semibold">35mm T2.0</span>
+              <span className="text-slate-600">|</span>
+              <span>2.39:1 SCOPE</span>
+              <span className="text-slate-600">|</span>
+              <span className="text-emerald-400 font-semibold">24.00 FPS</span>
+            </div>
+
+            <div className="bg-black/75 backdrop-blur px-2.5 py-1 rounded border border-white/10 text-[10px] font-mono text-[#d49b54] uppercase font-semibold shadow-lg">
+              {viewAngle === "orbit" ? "3D Free Orbit View" : viewAngle === "director" ? "Director POV (A-Cam)" : "Plan View (Top-Down)"}
+            </div>
+          </div>
+
+          {/* Center Crosshair & Framing Safe Guides (Shown in Director POV) */}
+          {viewAngle === "director" && (
+            <div className="self-center my-auto relative w-72 h-40 border border-amber-400/25 flex items-center justify-center pointer-events-none">
+              <div className="w-8 h-px bg-amber-400/50" />
+              <div className="h-8 w-px bg-amber-400/50 absolute" />
+              <div className="absolute inset-2 border border-white/10" />
+              <span className="absolute bottom-1 right-1.5 text-[8px] font-mono text-amber-400/40">90% SAFE ACTION</span>
+            </div>
+          )}
+
+          {/* Bottom Viewport Hint Overlay */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2 bg-black/75 backdrop-blur border border-[#232836] px-3 py-1.5 rounded-md text-[11px] text-slate-400 shadow-lg">
+              <Move className="w-3.5 h-3.5 text-[#d49b54]" />
+              <span>Left-drag to rotate • Wheel to zoom • Select entity on right to edit coordinates</span>
+            </div>
+
+            <div className="text-[10px] font-mono text-slate-400 bg-black/75 backdrop-blur px-2.5 py-1.5 rounded border border-white/10 shadow-lg">
+              STAGE: {currentScene?.heading || `SCENE ${selectedSceneNumber}`}
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Right-Hand Inspector & Entity Palette */}
-      <div className="w-80 border-l border-[#232836] bg-[#10131b] flex flex-col">
+      <div className="w-84 border-l border-[#232836] bg-[#0e1117] flex flex-col shrink-0">
         {/* Header */}
-        <div className="p-3 border-b border-[#232836] flex items-center justify-between">
+        <div className="p-3 border-b border-[#232836] flex items-center justify-between bg-[#12161f]">
           <div className="flex items-center space-x-2">
-            <Box className="w-4 h-4 text-amber-400" />
+            <Box className="w-4 h-4 text-[#d49b54]" />
             <span className="text-xs font-bold uppercase tracking-wider text-slate-200">
-              Stage Blocking Objects
+              Stage Blocking
             </span>
           </div>
-          <span className="text-[11px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30">
+          <span className="text-[10px] px-2 py-0.5 rounded bg-[#d49b54]/10 text-[#d49b54] border border-[#d49b54]/30 font-mono">
             Three.js WebGL
           </span>
         </div>
 
-        {/* Quick Add Entity Bar */}
+        {/* 1-Click Auto-Block from Script Button */}
         <div className="p-3 border-b border-[#232836] bg-[#141822]">
-          <div className="text-[11px] font-semibold text-slate-400 mb-2">Place New Entity:</div>
+          <button
+            onClick={handleAutoBlockFromScript}
+            className="w-full py-2 px-3 rounded-lg bg-gradient-to-r from-[#d49b54]/20 to-amber-500/10 hover:from-[#d49b54]/30 hover:to-amber-500/20 border border-[#d49b54]/40 text-[#d49b54] font-semibold text-xs flex items-center justify-center space-x-2 transition-all cursor-pointer shadow-sm active:scale-95"
+            title="Automatically place actors, camera and key lighting based on current screenplay scene text"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <span>⚡ Auto-Block Scene from Script</span>
+          </button>
+        </div>
+
+        {/* Quick Add Entity Bar */}
+        <div className="p-3 border-b border-[#232836] bg-[#12161f]">
+          <div className="text-[11px] font-semibold text-slate-400 mb-2">Place Stage Entity:</div>
           <div className="grid grid-cols-4 gap-1.5">
             <button
               onClick={() => handleCreateObject("actor")}
-              className="flex flex-col items-center justify-center p-2 rounded bg-[#1b212f] hover:bg-[#252d40] border border-[#2a3449] text-xs text-blue-300 transition-colors"
+              className="flex flex-col items-center justify-center p-2 rounded bg-[#181d28] hover:bg-[#202736] border border-[#273044] text-xs text-blue-300 transition-colors cursor-pointer"
             >
               <User className="w-3.5 h-3.5 mb-1 text-blue-400" />
               <span className="text-[10px]">Actor</span>
             </button>
             <button
               onClick={() => handleCreateObject("camera")}
-              className="flex flex-col items-center justify-center p-2 rounded bg-[#1b212f] hover:bg-[#252d40] border border-[#2a3449] text-xs text-amber-300 transition-colors"
+              className="flex flex-col items-center justify-center p-2 rounded bg-[#181d28] hover:bg-[#202736] border border-[#273044] text-xs text-amber-300 transition-colors cursor-pointer"
             >
               <Camera className="w-3.5 h-3.5 mb-1 text-amber-400" />
               <span className="text-[10px]">Camera</span>
             </button>
             <button
               onClick={() => handleCreateObject("prop")}
-              className="flex flex-col items-center justify-center p-2 rounded bg-[#1b212f] hover:bg-[#252d40] border border-[#2a3449] text-xs text-violet-300 transition-colors"
+              className="flex flex-col items-center justify-center p-2 rounded bg-[#181d28] hover:bg-[#202736] border border-[#273044] text-xs text-violet-300 transition-colors cursor-pointer"
             >
               <Box className="w-3.5 h-3.5 mb-1 text-violet-400" />
               <span className="text-[10px]">Prop</span>
             </button>
             <button
               onClick={() => handleCreateObject("light")}
-              className="flex flex-col items-center justify-center p-2 rounded bg-[#1b212f] hover:bg-[#252d40] border border-[#2a3449] text-xs text-yellow-300 transition-colors"
+              className="flex flex-col items-center justify-center p-2 rounded bg-[#181d28] hover:bg-[#202736] border border-[#273044] text-xs text-yellow-300 transition-colors cursor-pointer"
             >
               <Lightbulb className="w-3.5 h-3.5 mb-1 text-yellow-400" />
               <span className="text-[10px]">Light</span>
@@ -609,15 +799,23 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
           </div>
         </div>
 
-        {/* Objects List */}
+        {/* Objects List & Inspector */}
         <div className="flex-1 overflow-y-auto p-3 space-y-2">
-          <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-            Entities in Scene {selectedSceneNumber}
+          <div className="flex items-center justify-between text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
+            <span>Scene {selectedSceneNumber} Entities ({sceneObjects.length})</span>
           </div>
 
           {sceneObjects.length === 0 ? (
-            <div className="text-center py-6 text-xs text-slate-500">
-              No 3D objects placed for this scene yet. Click an entity button above to add one.
+            <div className="text-center py-8 px-4 rounded-lg bg-[#12161f] border border-[#202634] space-y-3">
+              <p className="text-xs text-slate-400">
+                No 3D objects placed for Scene {selectedSceneNumber} yet.
+              </p>
+              <button
+                onClick={handleAutoBlockFromScript}
+                className="w-full py-1.5 px-3 rounded bg-[#d49b54] hover:bg-[#e3af69] text-black font-extrabold text-xs transition-all shadow cursor-pointer"
+              >
+                ⚡ Auto-Block from Script
+              </button>
             </div>
           ) : (
             sceneObjects.map((obj) => {
@@ -628,8 +826,8 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
                   onClick={() => setSelectedObjectId(obj.id)}
                   className={`p-2.5 rounded-lg border text-xs cursor-pointer transition-colors ${
                     isSelected
-                      ? "bg-[#1f2638] border-amber-500/50 shadow-sm"
-                      : "bg-[#141822] border-[#252d3f] hover:bg-[#1a202d]"
+                      ? "bg-[#1c2230] border-[#d49b54]/60 shadow-sm"
+                      : "bg-[#141822] border-[#222938] hover:bg-[#181d28]"
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1">
@@ -640,7 +838,7 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
                       />
                       <span className="text-slate-200">{obj.label}</span>
                     </div>
-                    <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-[#0d1017] text-slate-400">
+                    <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-[#0a0c10] text-slate-400">
                       {obj.kind}
                     </span>
                   </div>
@@ -655,7 +853,7 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
                         onDeleteObject(obj.id);
                         if (selectedObjectId === obj.id) setSelectedObjectId(null);
                       }}
-                      className="text-slate-500 hover:text-rose-400 transition-colors"
+                      className="text-slate-500 hover:text-rose-400 transition-colors p-1"
                       title="Delete Object"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -668,11 +866,11 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
 
           {/* Selected Object Detail Inspector */}
           {selectedObject && (
-            <div className="mt-4 p-3 bg-[#161a25] rounded-lg border border-[#283247] space-y-3">
-              <div className="flex items-center justify-between border-b border-[#263044] pb-2">
+            <div className="mt-4 p-3 bg-[#141822] rounded-lg border border-[#273044] space-y-3 shadow-md">
+              <div className="flex items-center justify-between border-b border-[#232b3d] pb-2">
                 <div className="flex items-center space-x-1.5">
-                  <Sliders className="w-3.5 h-3.5 text-amber-400" />
-                  <span className="text-xs font-semibold text-slate-200">Inspector</span>
+                  <Sliders className="w-3.5 h-3.5 text-[#d49b54]" />
+                  <span className="text-xs font-semibold text-slate-200">Entity Inspector</span>
                 </div>
                 <span className="text-[10px] text-slate-400 font-mono">{selectedObject.id}</span>
               </div>
@@ -684,13 +882,13 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
                   type="text"
                   value={selectedObject.label}
                   onChange={(e) => onUpdateObject(selectedObject.id, { label: e.target.value })}
-                  className="mt-1 w-full bg-[#0e1118] border border-[#2b354a] rounded px-2 py-1 text-xs text-slate-200 focus:outline-none"
+                  className="mt-1 w-full bg-[#0a0c10] border border-[#273044] rounded px-2.5 py-1 text-xs text-slate-200 focus:outline-none focus:border-[#d49b54]"
                 />
               </div>
 
               {/* Position Coordinate Sliders */}
               <div className="space-y-2">
-                <div className="text-[10px] font-semibold text-slate-400 uppercase">Position (X, Y, Z)</div>
+                <div className="text-[10px] font-semibold text-slate-400 uppercase">Coordinates (X, Y, Z)</div>
                 <div className="flex items-center space-x-2">
                   <span className="text-[10px] font-mono text-red-400 w-3">X</span>
                   <input
@@ -704,7 +902,7 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
                         position: { ...selectedObject.position, x: parseFloat(e.target.value) }
                       })
                     }
-                    className="flex-1 accent-amber-500"
+                    className="flex-1 accent-[#d49b54]"
                   />
                   <span className="text-[10px] font-mono text-slate-300 w-8 text-right">
                     {selectedObject.position.x.toFixed(1)}
@@ -724,7 +922,7 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
                         position: { ...selectedObject.position, y: parseFloat(e.target.value) }
                       })
                     }
-                    className="flex-1 accent-amber-500"
+                    className="flex-1 accent-[#d49b54]"
                   />
                   <span className="text-[10px] font-mono text-slate-300 w-8 text-right">
                     {selectedObject.position.y.toFixed(1)}
@@ -744,7 +942,7 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
                         position: { ...selectedObject.position, z: parseFloat(e.target.value) }
                       })
                     }
-                    className="flex-1 accent-amber-500"
+                    className="flex-1 accent-[#d49b54]"
                   />
                   <span className="text-[10px] font-mono text-slate-300 w-8 text-right">
                     {selectedObject.position.z.toFixed(1)}
@@ -754,35 +952,54 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
 
               {/* Director Notes */}
               <div>
-                <label className="text-[10px] font-semibold text-slate-400 uppercase">Director Blocking Notes</label>
+                <label className="text-[10px] font-semibold text-slate-400 uppercase">Director Previs Notes</label>
                 <textarea
                   rows={2}
                   value={selectedObject.notes || ""}
                   onChange={(e) => onUpdateObject(selectedObject.id, { notes: e.target.value })}
                   placeholder="e.g. Maya turns abruptly when alarm sirens trigger..."
-                  className="mt-1 w-full bg-[#0e1118] border border-[#2b354a] rounded p-1.5 text-xs text-slate-200 focus:outline-none resize-none"
+                  className="mt-1 w-full bg-[#0a0c10] border border-[#273044] rounded p-1.5 text-xs text-slate-200 focus:outline-none focus:border-[#d49b54] resize-none"
                 />
               </div>
             </div>
           )}
 
-          {/* Quick Presets */}
+          {/* Director Quick Presets */}
           <div className="mt-4 pt-3 border-t border-[#232836]">
-            <div className="text-[11px] font-semibold text-slate-400 mb-2">Director Blocking Presets:</div>
-            <div className="space-y-1.5">
+            <div className="text-[11px] font-semibold text-slate-400 mb-2 uppercase tracking-wider">
+              Director Blocking Presets:
+            </div>
+            <div className="grid grid-cols-2 gap-1.5">
               <button
                 onClick={() => handleApplyPreset("two-shot")}
-                className="w-full text-left p-2 rounded bg-[#141822] hover:bg-[#1b212f] border border-[#252d3f] text-xs text-slate-300 transition-colors flex items-center justify-between"
+                className="p-2 rounded bg-[#141822] hover:bg-[#1b212f] border border-[#222938] text-xs text-slate-300 transition-colors flex flex-col items-start cursor-pointer"
               >
-                <span>+ Over-The-Shoulder Camera B</span>
-                <span className="text-[10px] text-amber-400 font-mono">50mm OTS</span>
+                <span className="font-semibold text-slate-200 text-[11px]">+ Two-Shot OTS</span>
+                <span className="text-[10px] text-amber-400 font-mono">50mm Camera</span>
               </button>
+
               <button
-                onClick={() => handleApplyPreset("stand-off")}
-                className="w-full text-left p-2 rounded bg-[#141822] hover:bg-[#1b212f] border border-[#252d3f] text-xs text-slate-300 transition-colors flex items-center justify-between"
+                onClick={() => handleApplyPreset("low-angle")}
+                className="p-2 rounded bg-[#141822] hover:bg-[#1b212f] border border-[#222938] text-xs text-slate-300 transition-colors flex flex-col items-start cursor-pointer"
               >
-                <span>+ High-Tension Rim Key Light</span>
-                <span className="text-[10px] text-yellow-400 font-mono">Amber Rim</span>
+                <span className="font-semibold text-slate-200 text-[11px]">+ Hero Low-Angle</span>
+                <span className="text-[10px] text-amber-400 font-mono">24mm Wide</span>
+              </button>
+
+              <button
+                onClick={() => handleApplyPreset("noir-lights")}
+                className="p-2 rounded bg-[#141822] hover:bg-[#1b212f] border border-[#222938] text-xs text-slate-300 transition-colors flex flex-col items-start cursor-pointer"
+              >
+                <span className="font-semibold text-slate-200 text-[11px]">+ Noir Edge Rim</span>
+                <span className="text-[10px] text-cyan-400 font-mono">Cyan Accent</span>
+              </button>
+
+              <button
+                onClick={() => handleApplyPreset("top-down")}
+                className="p-2 rounded bg-[#141822] hover:bg-[#1b212f] border border-[#222938] text-xs text-slate-300 transition-colors flex flex-col items-start cursor-pointer"
+              >
+                <span className="font-semibold text-slate-200 text-[11px]">Plan View</span>
+                <span className="text-[10px] text-slate-400 font-mono">Top-Down Grid</span>
               </button>
             </div>
           </div>
