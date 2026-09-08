@@ -241,6 +241,7 @@ export const PerformWorkspace: React.FC<PerformWorkspaceProps> = ({
 
               <button
                 onClick={handleRecordTake}
+                title="Toggle Recording"
                 className={`flex items-center space-x-2 px-6 py-2 rounded-sm text-xs font-bold transition-all border ${
                   isRecording
                     ? "bg-[#F43F5E]/10 border-[#F43F5E]/50 text-[#F43F5E] animate-pulse"

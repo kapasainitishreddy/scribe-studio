@@ -76,11 +76,16 @@ export const ProduceWorkspace: React.FC<ProduceWorkspaceProps> = ({
     if (!query || isSearching) return;
     setIsSearching(true);
     try {
-      await onRunParallelResearch(query);
+      const researchPromise = onRunParallelResearch(query);
+      toast.promise(researchPromise, {
+        loading: `Verifying via Parallel Search: ${query}`,
+        success: `Ground Truth verified for "${query}"`,
+        error: "Failed to perform ground-truth research"
+      });
+      await researchPromise;
       setSearchQuery("");
-      toast.success(`Ground Truth verified for "${query}"`);
     } catch {
-      toast.error("Failed to perform ground-truth research");
+      // error handled by toast
     } finally {
       setIsSearching(false);
     }

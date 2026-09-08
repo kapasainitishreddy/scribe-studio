@@ -60,7 +60,8 @@ export const WriteWorkspace: React.FC<WriteWorkspaceProps> = ({
     const currentVal = textareaRef.current.value;
     const nextVal = currentVal.substring(0, start) + prefix + currentVal.substring(end);
     onUpdateScreenplay(nextVal);
-    toast.success(`Inserted ${prefix.trim()}`);
+    const formatLabel = prefix.trim() || "Action";
+    toast.success(`${formatLabel} format inserted`);
     setTimeout(() => {
       if (textareaRef.current) {
         textareaRef.current.focus();
