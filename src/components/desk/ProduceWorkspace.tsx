@@ -79,7 +79,7 @@ export const ProduceWorkspace: React.FC<ProduceWorkspaceProps> = ({
       const researchPromise = onRunParallelResearch(query);
       toast.promise(researchPromise, {
         loading: `Verifying via Parallel Search: ${query}`,
-        success: `Ground Truth verified for "${query}"`,
+        success: "Ground-truth research verified and added to the production desk.",
         error: "Failed to perform ground-truth research"
       });
       await researchPromise;
