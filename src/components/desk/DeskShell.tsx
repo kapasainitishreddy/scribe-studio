@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { Group, Panel, Separator } from "react-resizable-panels";
+import { AnimatePresence, motion } from "motion/react";
 import type { Project, StoryboardPanel } from "../../../packages/project-model/src/types";
 import { parseScreenplay } from "../../../packages/screenplay-core/src/fountain";
 import { DeskTopBar } from "./DeskTopBar";
@@ -267,104 +269,169 @@ export const DeskShell: React.FC<DeskShellProps> = ({
         />
 
         {/* Central Creative Canvas Area */}
-        <div className="flex-1 flex overflow-hidden">
-          {currentMode === "home" && (
-            <HomeDesk
-              project={project}
-              onContinue={() => setCurrentMode("write")}
-              onNewProject={createNewProject}
-              onLoadSample={loadSampleProject}
-              onOpenJudgeTour={() => setIsJudgeTourOpen(true)}
-            />
+        <Group orientation="horizontal">
+          <Panel defaultSize={78} minSize={50}>
+            <AnimatePresence mode="wait">
+              {currentMode === "home" && (
+                <motion.div
+                  key="home"
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex-1 flex overflow-hidden h-full"
+                >
+                  <HomeDesk
+                    project={project}
+                    onContinue={() => setCurrentMode("write")}
+                    onNewProject={createNewProject}
+                    onLoadSample={loadSampleProject}
+                    onOpenJudgeTour={() => setIsJudgeTourOpen(true)}
+                  />
+                </motion.div>
+              )}
+
+
+              {currentMode === "write" && (
+                <motion.div
+                  key="write"
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex-1 flex overflow-hidden h-full"
+                >
+                  <WriteWorkspace
+                    project={project}
+                    selectedSceneNumber={selectedSceneNumber}
+                    onSelectScene={handleSelectScene}
+                    onSelectCharacter={handleSelectCharacter}
+                    onUpdateScreenplay={updateScreenplay}
+                    onOpenWriterModal={() => setIsWriterModalOpen(true)}
+                  />
+                </motion.div>
+              )}
+
+              {currentMode === "visualize" && (
+                <motion.div
+                  key="visualize"
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex-1 flex overflow-hidden h-full"
+                >
+                  <VisualizeWorkspace
+                    project={project}
+                    selectedSceneNumber={selectedSceneNumber}
+                    onSelectScene={handleSelectScene}
+                    selectedShotId={selectedShot?.id || null}
+                    onSelectShot={handleSelectShot}
+                    onAddScene3DObject={addScene3DObject}
+                    onUpdateScene3DObject={updateScene3DObject}
+                    onDeleteScene3DObject={deleteScene3DObject}
+                  />
+                </motion.div>
+              )}
+
+              {currentMode === "previs" && (
+                <motion.div
+                  key="previs"
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex-1 flex overflow-hidden h-full"
+                >
+                  <div className="flex-1 w-full h-full min-h-0 flex flex-col overflow-hidden">
+                    <Scene3DStudio
+                      project={project}
+                      selectedSceneNumber={selectedSceneNumber}
+                      onSelectScene={handleSelectScene}
+                      onAddObject={addScene3DObject}
+                      onUpdateObject={updateScene3DObject}
+                      onDeleteObject={deleteScene3DObject}
+                    />
+                  </div>
+                </motion.div>
+              )}
+
+              {currentMode === "perform" && (
+                <motion.div
+                  key="perform"
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex-1 flex overflow-hidden h-full"
+                >
+                  <PerformWorkspace
+                    project={project}
+                    selectedCharacterId={selectedCharacterId}
+                    onSelectCharacter={handleSelectCharacter}
+                    selectedSceneNumber={selectedSceneNumber}
+                    onSelectScene={handleSelectScene}
+                    onRegeneratePacket={regenerateActorPacket}
+                  />
+                </motion.div>
+              )}
+
+              {currentMode === "produce" && (
+                <motion.div
+                  key="produce"
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex-1 flex overflow-hidden h-full"
+                >
+                  <ProduceWorkspace
+                    project={project}
+                    selectedSceneNumber={selectedSceneNumber}
+                    onSelectScene={handleSelectScene}
+                    onResolveIssue={resolveContinuityIssue}
+                    onToggleBreakdownLock={toggleBreakdownLock}
+                    onRunParallelResearch={runParallelResearch}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </Panel>
+
+          {/* Right Context-Sensitive Inspector (w-80) */}
+          {isInspectorOpen && currentMode !== "home" && currentMode !== "previs" && (
+            <>
+              <Separator className="w-1.5 bg-[#0D1015] hover:bg-[#D49B54]/50 active:bg-[#D49B54] transition-colors duration-150 cursor-col-resize flex items-center justify-center group">
+                <div className="w-0.5 h-8 bg-[#262C36] group-hover:bg-[#D49B54]/70 rounded-full transition-colors" />
+              </Separator>
+              <Panel defaultSize={22} minSize={15} maxSize={35} collapsible>
+                <ContextInspector
+                  project={project}
+                  mode={inspectorMode}
+                  selectedCharacterId={selectedCharacterId}
+                  selectedSceneNumber={selectedSceneNumber}
+                  selectedShot={selectedShot}
+                  onSelectCharacter={handleSelectCharacter}
+                  onSelectScene={handleSelectScene}
+                  onClose={() => setIsInspectorOpen(false)}
+                  onOpenCharacterBible={() => {
+                    setCurrentMode("write");
+                    setInspectorMode("character");
+                  }}
+                  onOpenWriterAgent={() => setIsWriterModalOpen(true)}
+                  onApplyChanges={handleApplyChanges}
+                  isApplyingChanges={isApplyingChanges}
+                  changeProgress={changeProgress}
+                  onRegenerateShot={(shotId) => {
+                    const seqId = `seq-${selectedSceneNumber}`;
+                    regenerateStoryboardPanel(seqId, shotId);
+                  }}
+                  onOpenPassport={() => setIsPassportModalOpen(true)}
+                />
+              </Panel>
+            </>
           )}
-
-
-          {currentMode === "write" && (
-            <WriteWorkspace
-              project={project}
-              selectedSceneNumber={selectedSceneNumber}
-              onSelectScene={handleSelectScene}
-              onSelectCharacter={handleSelectCharacter}
-              onUpdateScreenplay={updateScreenplay}
-              onOpenWriterModal={() => setIsWriterModalOpen(true)}
-            />
-          )}
-
-          {currentMode === "visualize" && (
-            <VisualizeWorkspace
-              project={project}
-              selectedSceneNumber={selectedSceneNumber}
-              onSelectScene={handleSelectScene}
-              selectedShotId={selectedShot?.id || null}
-              onSelectShot={handleSelectShot}
-              onAddScene3DObject={addScene3DObject}
-              onUpdateScene3DObject={updateScene3DObject}
-              onDeleteScene3DObject={deleteScene3DObject}
-            />
-          )}
-
-          {currentMode === "previs" && (
-            <div className="flex-1 w-full h-full min-h-0 flex flex-col overflow-hidden">
-              <Scene3DStudio
-                project={project}
-                selectedSceneNumber={selectedSceneNumber}
-                onSelectScene={handleSelectScene}
-                onAddObject={addScene3DObject}
-                onUpdateObject={updateScene3DObject}
-                onDeleteObject={deleteScene3DObject}
-              />
-            </div>
-          )}
-
-          {currentMode === "perform" && (
-            <PerformWorkspace
-              project={project}
-              selectedCharacterId={selectedCharacterId}
-              onSelectCharacter={handleSelectCharacter}
-              selectedSceneNumber={selectedSceneNumber}
-              onSelectScene={handleSelectScene}
-              onRegeneratePacket={regenerateActorPacket}
-            />
-          )}
-
-          {currentMode === "produce" && (
-            <ProduceWorkspace
-              project={project}
-              selectedSceneNumber={selectedSceneNumber}
-              onSelectScene={handleSelectScene}
-              onResolveIssue={resolveContinuityIssue}
-              onToggleBreakdownLock={toggleBreakdownLock}
-              onRunParallelResearch={runParallelResearch}
-            />
-          )}
-        </div>
-
-        {/* Right Context-Sensitive Inspector (w-80) */}
-        {isInspectorOpen && currentMode !== "home" && currentMode !== "previs" && (
-          <ContextInspector
-            project={project}
-            mode={inspectorMode}
-            selectedCharacterId={selectedCharacterId}
-            selectedSceneNumber={selectedSceneNumber}
-            selectedShot={selectedShot}
-            onSelectCharacter={handleSelectCharacter}
-            onSelectScene={handleSelectScene}
-            onClose={() => setIsInspectorOpen(false)}
-            onOpenCharacterBible={() => {
-              setCurrentMode("write");
-              setInspectorMode("character");
-            }}
-            onOpenWriterAgent={() => setIsWriterModalOpen(true)}
-            onApplyChanges={handleApplyChanges}
-            isApplyingChanges={isApplyingChanges}
-            changeProgress={changeProgress}
-            onRegenerateShot={(shotId) => {
-              const seqId = `seq-${selectedSceneNumber}`;
-              regenerateStoryboardPanel(seqId, shotId);
-            }}
-            onOpenPassport={() => setIsPassportModalOpen(true)}
-          />
-        )}
+        </Group>
       </div>
 
       {/* 3. BOTTOM CHANGE INTELLIGENCE BAR */}

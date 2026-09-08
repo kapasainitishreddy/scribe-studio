@@ -1,4 +1,6 @@
 import React, { useState, useMemo } from "react";
+import { toast } from "sonner";
+import confetti from "canvas-confetti";
 import {
   FileDown,
   FileText,
@@ -65,8 +67,13 @@ export const ExportModal: React.FC<ExportModalProps> = ({ project, onClose }) =>
     a.download = filename;
     a.click();
     URL.revokeObjectURL(url);
-    setSuccessMsg(`Successfully exported: ${filename}`);
-    setTimeout(() => setSuccessMsg(null), 3500);
+    toast.success(`Successfully exported: ${filename}`);
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors: ['#D49B54', '#ffffff', '#10B981']
+    });
   };
 
   // 1. Master Screenplay Exports
@@ -148,20 +155,28 @@ export const ExportModal: React.FC<ExportModalProps> = ({ project, onClose }) =>
 
   // Batch Export All Department Packets as ONE Unified Production Call ZIP
   const handleExportAllDepartments = async () => {
-    try {
-      setIsPackagingZip(true);
-      const zipBlob = await buildProductionPackageZip(project);
-      triggerDownload(zipBlob, `${project.title.replace(/\s+/g, "_")}_PRODUCTION_PACKAGE.zip`);
-    } catch (err: any) {
-      console.error("ZIP Generation error, falling back to individual downloads:", err);
-      handleExportPdf();
-      setTimeout(() => handleExportDirectorSheet(), 400);
-      setTimeout(() => handleExportCinematographerKit(), 800);
-      setTimeout(() => handleExportContinuityReport(), 1200);
-      setTimeout(() => handleExportBreakdownCsv(), 1600);
-    } finally {
-      setIsPackagingZip(false);
-    }
+    setIsPackagingZip(true);
+    toast.promise(
+      buildProductionPackageZip(project),
+      {
+        loading: 'Packaging production assets...',
+        success: (zipBlob) => {
+          setIsPackagingZip(false);
+          triggerDownload(zipBlob, `${project.title.replace(/\s+/g, "_")}_PRODUCTION_PACKAGE.zip`);
+          return "Production package ready!";
+        },
+        error: (err) => {
+          setIsPackagingZip(false);
+          console.error("ZIP Generation error, falling back to individual downloads:", err);
+          handleExportPdf();
+          setTimeout(() => handleExportDirectorSheet(), 400);
+          setTimeout(() => handleExportCinematographerKit(), 800);
+          setTimeout(() => handleExportContinuityReport(), 1200);
+          setTimeout(() => handleExportBreakdownCsv(), 1600);
+          return "ZIP failed, falling back to individual downloads";
+        }
+      }
+    );
   };
 
   return (

@@ -1,6 +1,8 @@
 import React from "react";
 import { useProject } from "./domain/projectStore";
 import { DeskShell } from "./components/desk/DeskShell";
+import { Toaster } from "sonner";
+import { LazyMotion, domAnimation } from "motion/react";
 
 export const App: React.FC = () => {
   const {
@@ -44,44 +46,59 @@ export const App: React.FC = () => {
   } = useProject();
 
   return (
-    <DeskShell
-      project={project}
-      updateScreenplay={updateScreenplay}
-      selectedSceneNumber={selectedSceneNumber}
-      setSelectedSceneNumber={setSelectedSceneNumber}
-      selectedCharacterId={selectedCharacterId}
-      setSelectedCharacterId={setSelectedCharacterId}
-      isCommandPaletteOpen={isCommandPaletteOpen}
-      setIsCommandPaletteOpen={setIsCommandPaletteOpen}
-      isComplianceOpen={isComplianceOpen}
-      setIsComplianceOpen={setIsComplianceOpen}
-      isExportModalOpen={isExportModalOpen}
-      setIsExportModalOpen={setIsExportModalOpen}
-      isWriterModalOpen={isWriterModalOpen}
-      setIsWriterModalOpen={setIsWriterModalOpen}
-      isTableReadOpen={isTableReadOpen}
-      setIsTableReadOpen={setIsTableReadOpen}
-      isScribeModalOpen={isScribeModalOpen}
-      setIsScribeModalOpen={setIsScribeModalOpen}
-      executeHeroWorkflow={executeHeroWorkflow}
-      approveHeroWorkflow={approveHeroWorkflow}
-      rejectHeroWorkflow={rejectHeroWorkflow}
-      regenerateActorPacket={regenerateActorPacket}
-      regenerateAllStalePackets={regenerateAllStalePackets}
-      resolveContinuityIssue={(id) => resolveContinuityIssue(id, "resolved")}
-      toggleBreakdownLock={toggleBreakdownLock}
-      addBreakdownElement={addBreakdownElement}
-      addScene3DObject={addScene3DObject}
-      updateScene3DObject={updateScene3DObject}
-      deleteScene3DObject={deleteScene3DObject}
-      runParallelResearch={(query) => runParallelResearch(selectedSceneNumber, query)}
-      loadSampleProject={loadSampleProject}
-      createNewProject={() => createNewProject("Untitled Screenplay", "Writer")}
-      setActiveAiProvider={setActiveAiProvider}
-      updateStoryboardPanel={updateStoryboardPanel}
-      regenerateStoryboardPanel={regenerateStoryboardPanel}
-      regenerateOutdatedPanels={regenerateOutdatedPanels}
-      generateStoryboardForScene={generateStoryboardForScene}
-    />
+    <LazyMotion features={domAnimation}>
+      <DeskShell
+        project={project}
+        updateScreenplay={updateScreenplay}
+        selectedSceneNumber={selectedSceneNumber}
+        setSelectedSceneNumber={setSelectedSceneNumber}
+        selectedCharacterId={selectedCharacterId}
+        setSelectedCharacterId={setSelectedCharacterId}
+        isCommandPaletteOpen={isCommandPaletteOpen}
+        setIsCommandPaletteOpen={setIsCommandPaletteOpen}
+        isComplianceOpen={isComplianceOpen}
+        setIsComplianceOpen={setIsComplianceOpen}
+        isExportModalOpen={isExportModalOpen}
+        setIsExportModalOpen={setIsExportModalOpen}
+        isWriterModalOpen={isWriterModalOpen}
+        setIsWriterModalOpen={setIsWriterModalOpen}
+        isTableReadOpen={isTableReadOpen}
+        setIsTableReadOpen={setIsTableReadOpen}
+        isScribeModalOpen={isScribeModalOpen}
+        setIsScribeModalOpen={setIsScribeModalOpen}
+        executeHeroWorkflow={executeHeroWorkflow}
+        approveHeroWorkflow={approveHeroWorkflow}
+        rejectHeroWorkflow={rejectHeroWorkflow}
+        regenerateActorPacket={regenerateActorPacket}
+        regenerateAllStalePackets={regenerateAllStalePackets}
+        resolveContinuityIssue={(id) => resolveContinuityIssue(id, "resolved")}
+        toggleBreakdownLock={toggleBreakdownLock}
+        addBreakdownElement={addBreakdownElement}
+        addScene3DObject={addScene3DObject}
+        updateScene3DObject={updateScene3DObject}
+        deleteScene3DObject={deleteScene3DObject}
+        runParallelResearch={(query) => runParallelResearch(selectedSceneNumber, query)}
+        loadSampleProject={loadSampleProject}
+        createNewProject={() => createNewProject("Untitled Screenplay", "Writer")}
+        setActiveAiProvider={setActiveAiProvider}
+        updateStoryboardPanel={updateStoryboardPanel}
+        regenerateStoryboardPanel={regenerateStoryboardPanel}
+        regenerateOutdatedPanels={regenerateOutdatedPanels}
+        generateStoryboardForScene={generateStoryboardForScene}
+      />
+      <Toaster
+        position="bottom-right"
+        theme="dark"
+        richColors
+        toastOptions={{
+          style: {
+            background: '#12161D',
+            border: '1px solid #262C36',
+            color: '#F0F2F5',
+            fontFamily: 'Geist, sans-serif',
+          },
+        }}
+      />
+    </LazyMotion>
   );
 };

@@ -1,4 +1,5 @@
 import React from "react";
+import { motion } from "motion/react";
 import {
   PenLine,
   Film,
@@ -59,10 +60,13 @@ export const DeskRail: React.FC<DeskRailProps> = ({
           const Icon = mode.icon;
           const isActive = currentMode === mode.id;
           return (
-            <button
+            <motion.button
               key={mode.id}
               onClick={() => onSelectMode(mode.id)}
-              className={`relative group w-9 h-9 rounded-lg flex items-center justify-center transition-all ${
+              whileHover={{ scale: 1.12 }}
+              whileTap={{ scale: 0.92 }}
+              transition={{ type: "spring", stiffness: 500, damping: 25 }}
+              className={`relative group w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${
                 isActive
                   ? "bg-[#171C24] text-[#D49B54] border border-[#D49B54]/40 font-semibold shadow-[0_0_12px_rgba(212,155,84,0.18)]"
                   : "text-[#69717E] hover:text-[#F0F2F5] hover:bg-[#12161D]"
@@ -70,7 +74,11 @@ export const DeskRail: React.FC<DeskRailProps> = ({
               title={`${mode.label} Mode`}
             >
               {isActive && (
-                <span className="absolute -left-1.5 top-1.5 bottom-1.5 w-1 rounded-r-full bg-[#D49B54] shadow-[0_0_8px_#D49B54]" />
+                <motion.span
+                  layoutId="rail-active-indicator"
+                  className="absolute -left-1.5 top-1.5 bottom-1.5 w-1 rounded-r-full bg-[#D49B54] shadow-[0_0_8px_#D49B54]"
+                  transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                />
               )}
               <Icon className="w-4 h-4" />
 
@@ -83,7 +91,7 @@ export const DeskRail: React.FC<DeskRailProps> = ({
               <span className="absolute left-full ml-2 px-2 py-1 bg-[#171C24] text-[#F0F2F5] text-xs rounded border border-[#262C36] opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50 whitespace-nowrap shadow-xl">
                 {mode.label}
               </span>
-            </button>
+            </motion.button>
           );
         })}
       </div>

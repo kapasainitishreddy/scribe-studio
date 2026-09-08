@@ -1,7 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Film, Command, FileDown, Home, Volume2, VolumeX } from "lucide-react";
 import type { Project, RevisionColor } from "../../../packages/project-model/src/types";
 import { cinemaAudio } from "../../utils/cinemaAudio";
+
+/** Convert screenplay word count to estimated SMPTE timecode (HH:MM:SS:FF at 24fps) */
+function estimateTimecode(wordCount: number): string {
+  const totalMinutes = wordCount / 250; // ~1 page = 250 words = 1 min
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = Math.floor(totalMinutes % 60);
+  const seconds = Math.floor((totalMinutes * 60) % 60);
+  const frames = Math.floor(Math.random() * 24); // simulated frame position
+  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}:${String(frames).padStart(2, '0')}`;
+}
 
 interface DeskTopBarProps {
   project: Project;
@@ -39,6 +49,10 @@ export const DeskTopBar: React.FC<DeskTopBarProps> = ({
 }) => {
   const currentRev = project.revisions[0] || { color: "White" as RevisionColor, label: "Draft" };
   const [isMuted, setIsMuted] = useState(cinemaAudio.getIsMuted());
+  const timecode = useMemo(() => {
+    const wordCount = project.screenplayText.split(/\s+/).filter(Boolean).length;
+    return estimateTimecode(wordCount);
+  }, [project.screenplayText]);
 
   return (
     <header className="h-11 border-b border-[#262C36] bg-[#0D1015] px-4 flex items-center justify-between select-none shrink-0 z-10">
@@ -91,7 +105,7 @@ export const DeskTopBar: React.FC<DeskTopBarProps> = ({
 
         <div className="flex items-center space-x-1.5 px-2 py-0.5 rounded bg-[#12161D] border border-[#202634]">
           <span className="text-[#69717E]">TC:</span>
-          <span className="text-slate-200">00:01:24:08</span>
+          <span className="text-slate-200">{timecode}</span>
           <span className="text-[#D49B54] text-[9px] font-bold">24 FPS</span>
         </div>
 

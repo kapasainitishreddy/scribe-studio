@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import { Film, ArrowRight, Plus, FolderOpen, Clock, FileText, Sparkles, ShieldCheck } from "lucide-react";
+import { motion } from "motion/react";
 import type { Project } from "../../../packages/project-model/src/types";
 import { parseScreenplay } from "../../../packages/screenplay-core/src/fountain";
 
@@ -23,11 +24,22 @@ export const HomeDesk: React.FC<HomeDeskProps> = ({
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning." : hour < 18 ? "Good afternoon." : "Good evening.";
 
+  const wordCount = project.screenplayText.trim().split(/\s+/).length;
+  const estimatedRuntime = Math.max(1, Math.round(wordCount / 250));
+
   return (
-    <div className="flex-1 flex flex-col items-center justify-center bg-[#090B0E] text-[#F0F2F5] px-6 select-none overflow-y-auto">
+    <div 
+      className="flex-1 flex flex-col items-center justify-center bg-[#090B0E] text-[#F0F2F5] px-6 select-none overflow-y-auto"
+      style={{ background: "radial-gradient(ellipse at 50% 20%, rgba(212,155,84,0.04) 0%, #090B0E 60%)" }}
+    >
       <div className="max-w-xl w-full py-12 space-y-8">
         {/* Brand & Salutation */}
-        <div className="space-y-1 text-left">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          transition={{ delay: 0, duration: 0.5 }}
+          className="space-y-1 text-left"
+        >
           <div className="flex items-center space-x-2.5 text-[#D49B54] mb-3">
             <img src="./logo.svg" alt="Scribe Studio Logo" className="w-7 h-7 object-contain" />
             <span className="font-extrabold text-sm tracking-widest uppercase">Scribe Studio</span>
@@ -38,11 +50,14 @@ export const HomeDesk: React.FC<HomeDeskProps> = ({
           <p className="text-sm text-[#A0A7B2]">
             Select a screenplay or resume your active production desk.
           </p>
-        </div>
+        </motion.div>
 
         {/* Hackathon Judge Interactive Walkthrough Card */}
         {onOpenJudgeTour && (
-          <div
+          <motion.div
+            initial={{ opacity: 0, y: 20 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            transition={{ delay: 0.1, duration: 0.5 }}
             onClick={onOpenJudgeTour}
             className="group relative bg-gradient-to-r from-[#D49B54]/15 via-[#12161D] to-[#12161D] hover:from-[#D49B54]/25 border border-[#D49B54]/50 rounded-xl p-5 transition-all duration-200 cursor-pointer shadow-xl flex items-center justify-between"
           >
@@ -65,12 +80,15 @@ export const HomeDesk: React.FC<HomeDeskProps> = ({
             <div className="w-9 h-9 rounded-full bg-[#D49B54]/20 group-hover:bg-[#D49B54] flex items-center justify-center transition-colors shrink-0">
               <ArrowRight className="w-4 h-4 text-[#D49B54] group-hover:text-black transition-colors" />
             </div>
-          </div>
+          </motion.div>
         )}
 
-
         {/* Primary Continue Project Card */}
-        <div
+        <motion.div
+          initial={{ opacity: 0, y: 20 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          transition={{ delay: 0.2, duration: 0.5 }}
+          whileHover={{ scale: 1.01, y: -2 }}
           onClick={onContinue}
           className="group relative bg-[#12161D] hover:bg-[#171C24] border border-[#262C36] hover:border-[#D49B54]/50 rounded-xl p-6 transition-all duration-200 cursor-pointer shadow-xl"
         >
@@ -83,12 +101,15 @@ export const HomeDesk: React.FC<HomeDeskProps> = ({
                 <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#262C36] text-[#A0A7B2]">
                   {currentRev.color} Rev
                 </span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#262C36] text-[#A0A7B2]">
+                  Feature Film · Thriller
+                </span>
               </div>
               <h2 className="text-2xl font-bold tracking-tight text-white group-hover:text-[#D49B54] transition-colors">
                 {project.title}
               </h2>
               <p className="text-xs text-[#A0A7B2] flex items-center space-x-3">
-                <span>Feature Film</span>
+                <span>{estimatedRuntime} min est. runtime</span>
                 <span>•</span>
                 <span>{parsed.scenes.length} Production Scenes</span>
                 <span>•</span>
@@ -100,10 +121,15 @@ export const HomeDesk: React.FC<HomeDeskProps> = ({
               <ArrowRight className="w-5 h-5 text-[#A0A7B2] group-hover:text-black transition-colors" />
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Recent Screenplays */}
-        <div className="space-y-3 pt-2">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          transition={{ delay: 0.3, duration: 0.5 }}
+          className="space-y-3 pt-2"
+        >
           <div className="flex items-center justify-between text-xs font-semibold text-[#69717E] tracking-wider uppercase">
             <span>Recent Screenplays</span>
             <Clock className="w-3.5 h-3.5" />
@@ -129,10 +155,15 @@ export const HomeDesk: React.FC<HomeDeskProps> = ({
               </div>
             ))}
           </div>
-        </div>
+        </motion.div>
 
         {/* Desk Actions */}
-        <div className="flex items-center justify-between pt-4 border-t border-[#1A1F29]">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          transition={{ delay: 0.4, duration: 0.5 }}
+          className="flex items-center justify-between pt-4 border-t border-[#1A1F29]"
+        >
           <button
             onClick={onNewProject}
             className="flex items-center space-x-2 text-xs font-medium text-[#A0A7B2] hover:text-white transition-colors"
@@ -156,7 +187,7 @@ export const HomeDesk: React.FC<HomeDeskProps> = ({
               <span>Open Desk</span>
             </button>
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

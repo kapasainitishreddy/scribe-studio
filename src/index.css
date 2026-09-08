@@ -69,3 +69,50 @@ textarea, input {
 ::-webkit-scrollbar-thumb:hover {
   background: #2D374A;
 }
+
+:root {
+  --gold: #D49B54;
+  --gold-hover: #E3AF69;
+  --gold-dim: rgba(212, 155, 84, 0.15);
+  --onyx: #090B0E;
+  --panel: #0D1015;
+  --panel-elevated: #12161D;
+  --panel-hover: #171C24;
+  --border: #262C36;
+  --border-hover: #363E4F;
+  --text-primary: #F0F2F5;
+  --text-secondary: #A0A7B2;
+  --text-muted: #69717E;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(212, 155, 84, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(212, 155, 84, 0.6); }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-fade-in { animation: fade-in 0.3s ease-out both; }
+.animate-slide-up { animation: slide-up 0.4s ease-out both; }
+.animate-scale-in { animation: scale-in 0.25s ease-out both; }
+.animate-glow-pulse { animation: glow-pulse 2s ease-in-out infinite; }
+
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
