@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
+import { toast } from "sonner";
 import {
   Mic,
   Volume2,
@@ -36,7 +37,6 @@ export const PerformWorkspace: React.FC<PerformWorkspaceProps> = ({
   const [isRecording, setIsRecording] = useState(false);
   const [isLineBlurred, setIsLineBlurred] = useState(true);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
-  const [downloadSuccess, setDownloadSuccess] = useState<string | null>(null);
 
   const characterKeys = Object.keys(project.characters);
   const activeChar = project.characters[selectedCharacterId] || project.characters[characterKeys[0]];
@@ -123,8 +123,17 @@ export const PerformWorkspace: React.FC<PerformWorkspaceProps> = ({
     a.download = `${project.title}_${activeChar.name}_SIDES.pdf`;
     a.click();
     URL.revokeObjectURL(url);
-    setDownloadSuccess("Sides PDF generated!");
-    setTimeout(() => setDownloadSuccess(null), 3000);
+    toast.success("Actor sides PDF exported");
+  };
+
+  const handleToggleRecording = () => {
+    const nextRecording = !isRecording;
+    setIsRecording(nextRecording);
+    if (nextRecording) {
+      toast.info(`Take ${takeNumber} recording started`);
+    } else {
+      toast.success(`Take ${takeNumber} captured`);
+    }
   };
 
   return (
@@ -275,7 +284,7 @@ export const PerformWorkspace: React.FC<PerformWorkspaceProps> = ({
               </button>
 
               <button
-                onClick={() => setIsRecording(!isRecording)}
+                onClick={handleToggleRecording}
                 className={`flex items-center space-x-2 px-5 py-2 rounded-lg text-xs font-bold transition-all shadow-lg ${
                   isRecording
                     ? "bg-[#F43F5E] text-white animate-pulse"
@@ -309,11 +318,6 @@ export const PerformWorkspace: React.FC<PerformWorkspaceProps> = ({
           </div>
         </div>
 
-        {downloadSuccess && (
-          <div className="fixed bottom-12 right-6 p-3 rounded-lg bg-[#10B981] text-black font-semibold text-xs shadow-xl animate-fade-in">
-            {downloadSuccess}
-          </div>
-        )}
       </main>
     </div>
   );

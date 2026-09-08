@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { toast } from "sonner";
 import {
   ShieldAlert,
   CheckCircle2,
@@ -92,11 +93,23 @@ export const ProduceWorkspace: React.FC<ProduceWorkspaceProps> = ({
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!searchQuery.trim() || isSearching) return;
+    const query = searchQuery.trim();
+    if (!query || isSearching) return;
+
     setIsSearching(true);
+    const researchPromise = onRunParallelResearch(query);
+    toast.promise(researchPromise, {
+      loading: `Parallel Search verifying: ${query}`,
+      success: "Ground-truth research verified and added to the production desk.",
+      error: (error) =>
+        `Parallel research failed: ${error instanceof Error ? error.message : "Unknown error"}`
+    });
+
     try {
-      await onRunParallelResearch(searchQuery.trim());
+      await researchPromise;
       setSearchQuery("");
+    } catch {
+      // toast.promise owns the user-facing failure state.
     } finally {
       setIsSearching(false);
     }

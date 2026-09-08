@@ -1,4 +1,5 @@
 import React, { useState, useRef, useMemo } from "react";
+import { toast } from "sonner";
 import {
   Users,
   MapPin,
@@ -54,6 +55,8 @@ export const WriteWorkspace: React.FC<WriteWorkspaceProps> = ({
     const currentVal = textareaRef.current.value;
     const nextVal = currentVal.substring(0, start) + prefix + currentVal.substring(end);
     onUpdateScreenplay(nextVal);
+    const formatLabel = prefix.trim() || "Action";
+    toast.success(`${formatLabel} format inserted`, { duration: 1200 });
     setTimeout(() => {
       if (textareaRef.current) {
         textareaRef.current.focus();
