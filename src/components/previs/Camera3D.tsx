@@ -4,20 +4,22 @@ import * as THREE from 'three';
 import { Scene3DObject } from '../../../packages/project-model/src/types';
 import { usePrevisStore } from '../../domain/previsStore';
 
+import { SceneObjectTransformWrapper } from './SceneObjectTransformWrapper';
+
 export const Camera3D: React.FC<{ object: Scene3DObject, onUpdateObject?: (id: string, updates: Partial<Scene3DObject>) => void }> = ({ object, onUpdateObject }) => {
   const camRef = useRef<THREE.PerspectiveCamera>(null);
-  const selectedObjectId = usePrevisStore(s => s.selectedObjectId);
   const activeCameraId = usePrevisStore(s => s.activeCameraId);
   const showFramingGuides = usePrevisStore(s => s.showFramingGuides);
+  const selectedObjectId = usePrevisStore(s => s.selectedObjectId);
 
   const isActive = activeCameraId === object.id;
-  const transformMode = usePrevisStore(s => s.transformMode);
-  const groupRef = React.useRef<any>(null);
   const isSelected = selectedObjectId === object.id;
 
+  const fov = object.cameraProps?.fov || 50;
+
   return (
-    <group position={[object.position.x, object.position.y, object.position.z]}>
-      <PerspectiveCamera ref={camRef} makeDefault={isActive} fov={50} near={0.1} far={100} />
+    <SceneObjectTransformWrapper object={object} onUpdateObject={onUpdateObject}>
+      <PerspectiveCamera ref={camRef} makeDefault={isActive} fov={fov} near={0.1} far={100} />
       
       {!isActive && (
         <group>
@@ -45,6 +47,6 @@ export const Camera3D: React.FC<{ object: Scene3DObject, onUpdateObject?: (id: s
           </div>
         </Html>
       )}
-    </group>
+    </SceneObjectTransformWrapper>
   );
 };

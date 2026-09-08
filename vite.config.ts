@@ -8,6 +8,10 @@ export default defineConfig({
     react(),
     tailwindcss()
   ],
+  test: {
+    environment: 'jsdom',
+    exclude: ['tests/liveGoogleCloudParallel.test.ts', 'tests/e2e/**'],
+  },
   server: {
     port: 5173,
     host: "127.0.0.1"

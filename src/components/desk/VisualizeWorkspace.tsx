@@ -195,13 +195,14 @@ export const VisualizeWorkspace: React.FC<VisualizeWorkspaceProps> = ({
               <span>Scene Comic</span>
             </button>
             <button
+              data-testid="tab-3d-studio"
               onClick={() => setActiveTab("previs_3d")}
               className={`px-4 h-full flex items-center space-x-2 text-xs font-medium border-b-2 transition-colors ${
                 activeTab === "previs_3d" ? "border-[#D49B54] text-[#D49B54] bg-[#12161D]" : "border-transparent text-[#69717E] hover:text-[#A0A7B2]"
               }`}
             >
               <Box className="w-4 h-4"/>
-              <span>3D Previs</span>
+              <span>3D Studio</span>
             </button>
           </div>
           

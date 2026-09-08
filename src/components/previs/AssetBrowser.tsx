@@ -17,10 +17,12 @@ const ASSET_LIBRARY: Asset[] = [
   { id: 'soldier', name: 'Soldier', kind: 'actor', url: '/models/characters/Soldier.glb' },
   { id: 'horse', name: 'Horse', kind: 'actor', url: '/models/characters/Horse.glb' },
   { id: 'flamingo', name: 'Flamingo', kind: 'actor', url: '/models/characters/Flamingo.glb' },
+  { id: 'xbot', name: 'XBot', kind: 'actor', url: '/models/characters/Xbot.glb' },
+  { id: 'michelle', name: 'Michelle', kind: 'actor', url: '/models/characters/Michelle.glb' },
   { id: 'cam-35', name: '35mm Camera', kind: 'camera' },
   { id: 'light-point', name: 'Point Light', kind: 'light' },
-  { id: 'prop-chair', name: 'Chair', kind: 'prop' },
-  { id: 'prop-table', name: 'Table', kind: 'prop' },
+  { id: 'prop-chair', name: 'Chair', kind: 'prop', url: '/models/props/SheenChair.glb' },
+  { id: 'prop-mug', name: 'Mug', kind: 'prop', url: '/models/props/coffeeMug.glb' },
 ];
 
 export const AssetBrowser: React.FC<{
@@ -29,6 +31,7 @@ export const AssetBrowser: React.FC<{
 }> = ({ onAddObject, sceneNumber }) => {
   const [filter, setFilter] = useState<'all' | 'actor' | 'prop' | 'camera' | 'light'>('all');
   const [search, setSearch] = useState('');
+  const setSelectedObjectId = usePrevisStore(s => s.setSelectedObjectId);
 
   const filtered = ASSET_LIBRARY.filter(a => {
     if (filter !== 'all' && a.kind !== filter) return false;
@@ -49,10 +52,11 @@ export const AssetBrowser: React.FC<{
       color: '#ffffff'
     };
     onAddObject(base);
+    setTimeout(() => setSelectedObjectId(base.id), 50); // Give React time to mount the object so ref works
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#0D1015] border-r border-[#262C36] select-none">
+    <div data-testid="asset-browser-panel" className="flex flex-col h-full bg-[#0D1015] border-r border-[#262C36] select-none">
       <div className="p-3 border-b border-[#262C36]">
         <input 
           type="text" 
@@ -77,6 +81,7 @@ export const AssetBrowser: React.FC<{
         {filtered.map(asset => (
           <button
             key={asset.id}
+            data-testid={`asset-card-${asset.id}`}
             onClick={() => handleAdd(asset)}
             className="flex flex-col items-center justify-center p-4 bg-[#12161D] border border-[#262C36] hover:border-[#D49B54] rounded-sm transition-all group"
           >

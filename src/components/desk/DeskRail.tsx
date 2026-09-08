@@ -43,6 +43,8 @@ export const DeskRail: React.FC<DeskRailProps> = ({
         {/* Home Button */}
         <button
           onClick={() => onSelectMode("home")}
+          data-testid="rail-mode-home"
+          aria-label="Home"
           className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${
             currentMode === "home"
               ? "bg-[#D49B54]/20 border border-[#D49B54] shadow-md shadow-[#D49B54]/20"
@@ -62,6 +64,8 @@ export const DeskRail: React.FC<DeskRailProps> = ({
           return (
             <motion.button
               key={mode.id}
+              data-testid={`rail-mode-${mode.id}`}
+              aria-label={mode.label}
               onClick={() => onSelectMode(mode.id)}
               whileHover={{ scale: 1.12 }}
               whileTap={{ scale: 0.92 }}

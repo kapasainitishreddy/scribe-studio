@@ -2,6 +2,7 @@ import React from 'react';
 import { usePrevisStore } from '../../domain/previsStore';
 import { Scene3DObject } from '../../../packages/project-model/src/types';
 import { Trash2, Move, RotateCw, Maximize, Eye, EyeOff } from 'lucide-react';
+import { AnimationClipList } from './AnimationClipList';
 
 export const Inspector3D: React.FC<{
   objects: Scene3DObject[];
@@ -14,7 +15,7 @@ export const Inspector3D: React.FC<{
 
   if (!selectedObject) {
     return (
-      <div className="flex flex-col h-full bg-[#0D1015] border-l border-[#262C36] p-4 text-xs">
+      <div data-testid="inspector-3d-panel" className="flex flex-col h-full bg-[#0D1015] border-l border-[#262C36] p-4 text-xs">
         <h3 className="text-[10px] font-mono text-[#69717E] uppercase mb-4 tracking-wider">Environment Inspector</h3>
         <label className="text-[10px] uppercase text-[#69717E] mb-1 block">HDRI / Environment Preset</label>
         <select 
@@ -42,7 +43,7 @@ export const Inspector3D: React.FC<{
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#0D1015] border-l border-[#262C36] p-4 text-xs overflow-y-auto">
+    <div data-testid="inspector-3d-panel" className="flex flex-col h-full bg-[#0D1015] border-l border-[#262C36] p-4 text-xs overflow-y-auto">
       <h3 className="text-[10px] font-mono text-[#69717E] uppercase mb-4 tracking-wider flex justify-between items-center">
         <span>{selectedObject.kind} Inspector</span>
         <button onClick={() => onDeleteObject(selectedObject.id)} className="text-[#F43F5E] hover:text-white p-1 rounded-sm hover:bg-[#F43F5E]/20">
@@ -64,17 +65,55 @@ export const Inspector3D: React.FC<{
         {selectedObject.kind === 'actor' && (
           <div>
             <label className="text-[10px] uppercase text-[#69717E] mb-1 block">Animation</label>
+            <React.Suspense fallback={<div className="text-[10px] text-[#A0A7B2]">Loading animations...</div>}>
+              <AnimationClipList 
+                url={selectedObject.assetUrl || '/models/RobotExpressive.glb'} 
+                current={selectedObject.animation || 'Idle'} 
+                onChange={(val) => onUpdateObject(selectedObject.id, { animation: val })}
+              />
+            </React.Suspense>
+          </div>
+        )}
+
+        {selectedObject.kind === 'camera' && (
+          <div>
+            <label className="text-[10px] uppercase text-[#69717E] mb-1 block">Lens (Focal Length)</label>
             <select 
-              value={selectedObject.animation || 'Idle'} 
-              onChange={(e) => onUpdateObject(selectedObject.id, { animation: e.target.value })}
+              value={selectedObject.cameraProps?.fov ? Math.round(36 / (2 * Math.tan((selectedObject.cameraProps.fov * Math.PI / 180) / 2))) : '50'} 
+              onChange={(e) => {
+                const focalLength = parseFloat(e.target.value);
+                const sensorWidth = 36;
+                const fov = 2 * Math.atan(sensorWidth / (2 * focalLength)) * (180 / Math.PI);
+                onUpdateObject(selectedObject.id, { cameraProps: { ...(selectedObject.cameraProps || { aspect: 16/9, near: 0.1, far: 100 }), fov } });
+              }}
               className="w-full bg-[#12161D] border border-[#262C36] rounded-sm p-1 text-white"
             >
-              <option value="Idle">Idle</option>
-              <option value="Walk">Walk</option>
-              <option value="Run">Run</option>
-              <option value="Wave">Wave</option>
-              <option value="Sit">Sit</option>
+              <option value="18">18mm (Ultra Wide)</option>
+              <option value="24">24mm (Wide)</option>
+              <option value="35">35mm (Documentary)</option>
+              <option value="50">50mm (Standard)</option>
+              <option value="85">85mm (Portrait)</option>
+              <option value="135">135mm (Telephoto)</option>
             </select>
+          </div>
+        )}
+
+        {selectedObject.kind === 'light' && (
+          <div>
+            <label className="text-[10px] uppercase text-[#69717E] mb-1 block">Light Intensity</label>
+            <input 
+              type="range" min="0" max="10" step="0.1"
+              value={selectedObject.lightProps?.intensity ?? 2} 
+              onChange={(e) => onUpdateObject(selectedObject.id, { lightProps: { ...(selectedObject.lightProps || {}), intensity: parseFloat(e.target.value) } })}
+              className="w-full mb-2"
+            />
+            <label className="text-[10px] uppercase text-[#69717E] mb-1 block">Light Color</label>
+            <input 
+              type="color" 
+              value={selectedObject.color || '#ffffff'} 
+              onChange={(e) => onUpdateObject(selectedObject.id, { color: e.target.value })}
+              className="w-full bg-[#12161D] border border-[#262C36] rounded-sm h-8"
+            />
           </div>
         )}
 
@@ -97,6 +136,7 @@ export const Inspector3D: React.FC<{
                   return (
                     <input 
                       key={axis}
+                      data-testid={`input-${field}-${axis}`}
                       type="number"
                       step={field === 'rotation' ? 0.1 : 0.5}
                       value={val.toFixed(2)}

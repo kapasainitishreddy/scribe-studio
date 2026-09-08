@@ -36,3 +36,8 @@ This document tracks all external assets (3D models, textures, HDRIs, audio) use
   - `public/models/characters/Horse.glb`
   - `public/models/characters/Flamingo.glb`
 - **Notes:** Supplementary actors injected to prove genuine multi-character layout and animation system support. They naturally integrate into the animation dropdown and replace the 1.5GB Quaternius blocking issue.
+\n\n## 4. More Characters and Props\n\n**Xbot, Michelle, SheenChair, coffeeMug**\n- **Source:** Three.js Examples Repository\n- **Original URL:** https://github.com/mrdoob/three.js/tree/master/examples/models/gltf/\n- **Creator:** Various (via Three.js repo)\n- **License:** CC0 / MIT\n- **Filenames:**\n  - public/models/characters/Xbot.glb\
+  - public/models/characters/Michelle.glb\
+  - public/models/props/SheenChair.glb\
+  - public/models/props/coffeeMug.glb\
+- **Notes:** Added to support human character variations and standard set props (chairs, tables).
