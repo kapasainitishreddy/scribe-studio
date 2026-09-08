@@ -13,7 +13,10 @@ interface Asset {
 }
 
 const ASSET_LIBRARY: Asset[] = [
-  { id: 'fallback-robot', name: 'Robot (Fallback)', kind: 'actor', url: '/models/RobotExpressive.glb' },
+  { id: 'robot-fallback', name: 'Robot (Fallback)', kind: 'actor', url: '/models/RobotExpressive.glb' },
+  { id: 'soldier', name: 'Soldier', kind: 'actor', url: '/models/characters/Soldier.glb' },
+  { id: 'horse', name: 'Horse', kind: 'actor', url: '/models/characters/Horse.glb' },
+  { id: 'flamingo', name: 'Flamingo', kind: 'actor', url: '/models/characters/Flamingo.glb' },
   { id: 'cam-35', name: '35mm Camera', kind: 'camera' },
   { id: 'light-point', name: 'Point Light', kind: 'light' },
   { id: 'prop-chair', name: 'Chair', kind: 'prop' },
