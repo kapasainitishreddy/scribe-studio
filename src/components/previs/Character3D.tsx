@@ -1,12 +1,12 @@
 import React, { useEffect, useMemo } from 'react';
-import { useGLTF, useAnimations } from '@react-three/drei';
+import { TransformControls,  useGLTF, useAnimations  } from '@react-three/drei';
 import { SkeletonUtils } from 'three-stdlib';
 import * as THREE from 'three';
 import { MeshoptDecoder } from 'meshoptimizer';
 import { Scene3DObject } from '../../../packages/project-model/src/types';
 import { usePrevisStore } from '../../domain/previsStore';
 
-export const Character3D: React.FC<{ object: Scene3DObject }> = ({ object }) => {
+export const Character3D: React.FC<{ object: Scene3DObject, onUpdateObject?: (id: string, updates: Partial<Scene3DObject>) => void }> = ({ object, onUpdateObject }) => {
   const assetUrl = object.assetUrl || '/models/RobotExpressive.glb';
   const { scene, animations } = useGLTF(assetUrl, true, true, (loader: any) => {
     loader.setMeshoptDecoder(MeshoptDecoder);
@@ -36,6 +36,8 @@ export const Character3D: React.FC<{ object: Scene3DObject }> = ({ object }) => 
     });
   }, [clone]);
 
+  const transformMode = usePrevisStore(s => s.transformMode);
+  const groupRef = React.useRef<any>(null);
   const isSelected = selectedObjectId === object.id;
 
   return (

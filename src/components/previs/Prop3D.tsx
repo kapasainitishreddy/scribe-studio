@@ -3,8 +3,10 @@ import * as THREE from 'three';
 import { Scene3DObject } from '../../../packages/project-model/src/types';
 import { usePrevisStore } from '../../domain/previsStore';
 
-export const Prop3D: React.FC<{ object: Scene3DObject }> = ({ object }) => {
+export const Prop3D: React.FC<{ object: Scene3DObject, onUpdateObject?: (id: string, updates: Partial<Scene3DObject>) => void }> = ({ object, onUpdateObject }) => {
   const selectedObjectId = usePrevisStore(s => s.selectedObjectId);
+  const transformMode = usePrevisStore(s => s.transformMode);
+  const groupRef = React.useRef<any>(null);
   const isSelected = selectedObjectId === object.id;
 
   return (

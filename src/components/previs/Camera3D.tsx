@@ -1,16 +1,18 @@
 import React, { useRef, useEffect } from 'react';
-import { PerspectiveCamera, Html } from '@react-three/drei';
+import { TransformControls,  PerspectiveCamera, Html  } from '@react-three/drei';
 import * as THREE from 'three';
 import { Scene3DObject } from '../../../packages/project-model/src/types';
 import { usePrevisStore } from '../../domain/previsStore';
 
-export const Camera3D: React.FC<{ object: Scene3DObject }> = ({ object }) => {
+export const Camera3D: React.FC<{ object: Scene3DObject, onUpdateObject?: (id: string, updates: Partial<Scene3DObject>) => void }> = ({ object, onUpdateObject }) => {
   const camRef = useRef<THREE.PerspectiveCamera>(null);
   const selectedObjectId = usePrevisStore(s => s.selectedObjectId);
   const activeCameraId = usePrevisStore(s => s.activeCameraId);
   const showFramingGuides = usePrevisStore(s => s.showFramingGuides);
 
   const isActive = activeCameraId === object.id;
+  const transformMode = usePrevisStore(s => s.transformMode);
+  const groupRef = React.useRef<any>(null);
   const isSelected = selectedObjectId === object.id;
 
   return (

@@ -117,7 +117,7 @@ export const PerformWorkspace: React.FC<PerformWorkspaceProps> = ({
       a.download = `${project.title}_${activeChar.name}_SIDES.pdf`;
       a.click();
       URL.revokeObjectURL(url);
-      toast.success(`Sides PDF exported for ${activeChar.name}`);
+      toast.success("Actor sides PDF exported");
     } catch (err) {
       toast.error("Failed to generate sides PDF");
     }
@@ -132,6 +132,11 @@ export const PerformWorkspace: React.FC<PerformWorkspaceProps> = ({
     } else {
       setIsRecording(true);
       toast.info(`Recording Take ${takeNumber}...`);
+      setTimeout(() => {
+        setIsRecording(false);
+        setTakes([{ take: takeNumber, status: "PRINT", notes: "Good energy." }, ...takes]);
+        toast.success(`Take ${takeNumber} captured`);
+      }, 2000);
     }
   };
 
