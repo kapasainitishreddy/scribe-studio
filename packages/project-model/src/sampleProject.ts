@@ -743,7 +743,11 @@ export function createSampleProject(): Project {
         sceneNumber: 1,
         label: "Maya Lin (Terminal)",
         kind: "actor",
-        position: { x: 0, y: 0.9, z: 0 },
+        position: { x: 0, y: 0.0, z: 0 },
+        rotation: { x: 0, y: 3.14, z: 0 },
+        scale: { x: 1, y: 1, z: 1 },
+        assetUrl: "/models/RobotExpressive.glb",
+        animation: "Sitting",
         color: "#3b82f6",
         notes: "Kneeling before primary server monolith"
       },
@@ -752,7 +756,11 @@ export function createSampleProject(): Project {
         sceneNumber: 1,
         label: "Marcus Kane (Perimeter)",
         kind: "actor",
-        position: { x: 2.4, y: 0.9, z: 1.5 },
+        position: { x: 2.4, y: 0.0, z: 1.5 },
+        rotation: { x: 0, y: -0.5, z: 0 },
+        scale: { x: 1, y: 1, z: 1 },
+        assetUrl: "/models/RobotExpressive.glb",
+        animation: "Idle",
         color: "#10b981",
         notes: "Suppressed carbine trained on service lift"
       },
@@ -762,17 +770,21 @@ export function createSampleProject(): Project {
         label: "Camera A (24mm Low Angle)",
         kind: "camera",
         position: { x: -1.8, y: 0.7, z: 3.2 },
+        rotation: { x: 0.1, y: -0.5, z: 0 },
+        cameraProps: { fov: 45, aspect: 1.77, near: 0.1, far: 100 },
         color: "#f59e0b",
         notes: "Motorized track pushing inward"
       },
       {
         id: "obj-terminal",
         sceneNumber: 1,
-        label: "Vault Console Monolith",
+        label: "Monolith Server",
         kind: "prop",
-        position: { x: 0, y: 1.2, z: -0.8 },
-        color: "#6366f1",
-        notes: "Active luminescent biometric port"
+        position: { x: 0, y: 1.5, z: -2 },
+        rotation: { x: 0, y: 0, z: 0 },
+        scale: { x: 1, y: 3, z: 1 },
+        color: "#1e293b",
+        notes: "Main mainframe node"
       },
       {
         id: "obj-door",

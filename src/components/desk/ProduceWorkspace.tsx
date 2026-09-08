@@ -1,18 +1,16 @@
 import React, { useState, useMemo } from "react";
+import { toast } from "sonner";
 import {
-  ShieldAlert,
-  CheckCircle2,
-  AlertTriangle,
   Lock,
   Unlock,
   Globe,
-  DollarSign,
-  Calendar,
-  Layers,
-  ArrowRight,
-  Info
+  ChevronDown,
+  ChevronRight,
+  FolderOpen,
+  Search,
+  Loader2
 } from "lucide-react";
-import type { Project, BreakdownCategory } from "../../../packages/project-model/src/types";
+import type { Project } from "../../../packages/project-model/src/types";
 import { parseScreenplay } from "../../../packages/screenplay-core/src/fountain";
 import { CallSheetView } from "./CallSheetView";
 
@@ -35,14 +33,29 @@ export const ProduceWorkspace: React.FC<ProduceWorkspaceProps> = ({
   onToggleBreakdownLock,
   onRunParallelResearch
 }) => {
-  const [subTab, setSubTab] = useState<ProduceSubTab>("continuity");
-  const [hoveredConflict, setHoveredConflict] = useState<string | null>(null);
+  const [subTab, setSubTab] = useState<ProduceSubTab>("breakdown");
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
+  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
 
   const parsed = useMemo(() => parseScreenplay(project.screenplayText), [project.screenplayText]);
 
-  // Continuity tracked items timeline
+  // Breakdown categorization
+  const breakdownElements = project.breakdown?.elements || [];
+  const categorizedElements = useMemo(() => {
+    const acc: Record<string, typeof breakdownElements> = {};
+    breakdownElements.forEach(el => {
+      const cat = el.category.toUpperCase();
+      if (!acc[cat]) acc[cat] = [];
+      acc[cat].push(el);
+    });
+    return acc;
+  }, [breakdownElements]);
+
+  const toggleCategory = (cat: string) => {
+    setExpandedCategories(prev => ({ ...prev, [cat]: !prev[cat] }));
+  };
+
   const continuityTimeline = [
     {
       element: "Maya Jacket",
@@ -53,369 +66,227 @@ export const ProduceWorkspace: React.FC<ProduceWorkspaceProps> = ({
         { scene: "S22", value: "RED", status: "warning", issueId: "c-jacket" },
         { scene: "S29", value: "RED", status: "ok" }
       ],
-      conflict: "Continuity conflict: Scene 18 ends with Maya in black leather jacket. Scene 22 begins with red trench coat without scene transition."
-    },
-    {
-      element: "9mm Revolver",
-      category: "Props",
-      states: [
-        { scene: "S12", value: "—", status: "ok" },
-        { scene: "S18", value: "ARJUN", status: "ok" },
-        { scene: "S22", value: "MAYA", status: "ok" },
-        { scene: "S29", value: "EVIDENCE", status: "ok" }
-      ],
-      conflict: null
-    },
-    {
-      element: "Silver Locket",
-      category: "Props",
-      states: [
-        { scene: "S12", value: "MAYA", status: "ok" },
-        { scene: "S18", value: "FLOOR", status: "ok" },
-        { scene: "S22", value: "MAYA", status: "warning", issueId: "c-locket" },
-        { scene: "S29", value: "MAYA", status: "ok" }
-      ],
-      conflict: "Scene 18 ends: Locket kicked onto floor. Scene 22 begins: Locket around Maya's neck. Retrieval beat missing."
-    },
-    {
-      element: "Weather Condition",
-      category: "Environment",
-      states: [
-        { scene: "S12", value: "DRY", status: "ok" },
-        { scene: "S18", value: "HEAVY RAIN", status: "ok" },
-        { scene: "S22", value: "WET / DRIP", status: "ok" },
-        { scene: "S29", value: "DRY", status: "ok" }
-      ],
-      conflict: null
+      conflict: "Continuity conflict: Scene 18 ends with Maya in black leather jacket. Scene 22 begins with red trench coat."
     }
   ];
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!searchQuery.trim() || isSearching) return;
+    const query = searchQuery.trim();
+    if (!query || isSearching) return;
     setIsSearching(true);
     try {
-      await onRunParallelResearch(searchQuery.trim());
+      await onRunParallelResearch(query);
       setSearchQuery("");
+      toast.success(`Ground Truth verified for "${query}"`);
+    } catch {
+      toast.error("Failed to perform ground-truth research");
     } finally {
       setIsSearching(false);
     }
   };
 
   return (
-    <div className="flex-1 flex h-full overflow-hidden bg-[#090B0E] select-none">
-      {/* ============================================================ */}
-      {/* LEFT SECOND RAIL: PRODUCE SUB-TABS                           */}
-      {/* ============================================================ */}
+    <div className="flex-1 flex h-full overflow-hidden bg-[#090B0E] select-none text-sm rounded-none">
       <nav aria-label="Production Navigation" className="w-56 border-r border-[#262C36] bg-[#0D1015] flex flex-col shrink-0">
-        <div className="p-2.5 border-b border-[#262C36] bg-[#12161D] flex items-center justify-between text-xs font-semibold text-[#A0A7B2]">
+        <div className="p-2 border-b border-[#262C36] bg-[#12161D] flex items-center justify-between text-[11px] font-semibold text-[#A0A7B2]">
           <span>PRODUCTION</span>
-          <span className="font-mono text-[10px] text-[#D49B54] uppercase font-bold">Desk</span>
+          <span className="font-mono text-[#D49B54] uppercase">Desk</span>
         </div>
-
-        <div className="p-2 space-y-1 text-xs">
-          <button
-            onClick={() => setSubTab("continuity")}
-            className={`w-full text-left p-2 rounded transition-all flex items-center justify-between ${
-              subTab === "continuity"
-                ? "bg-[#171C24] border border-[#D49B54]/40 text-[#F0F2F5] font-semibold"
-                : "text-[#A0A7B2] hover:text-[#F0F2F5] hover:bg-[#12161D]"
-            }`}
-          >
-            <span>Continuity Matrix</span>
-            {project.continuityIssues.filter((i) => i.status === "active").length > 0 && (
-              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-[#F43F5E]/20 text-[#F43F5E] font-bold">
-                {project.continuityIssues.filter((i) => i.status === "active").length}
-              </span>
-            )}
-          </button>
-
-          <button
-            onClick={() => setSubTab("breakdown")}
-            className={`w-full text-left p-2 rounded transition-all flex items-center justify-between ${
-              subTab === "breakdown"
-                ? "bg-[#171C24] border border-[#D49B54]/40 text-[#F0F2F5] font-semibold"
-                : "text-[#A0A7B2] hover:text-[#F0F2F5] hover:bg-[#12161D]"
-            }`}
-          >
-            <span>Production Breakdown</span>
-            <span className="text-[10px] font-mono text-[#69717E]">
-              {project.breakdown?.elements?.length || 16}
-            </span>
-          </button>
-
-          <button
-            onClick={() => setSubTab("research")}
-            className={`w-full text-left p-2 rounded transition-all flex items-center justify-between ${
-              subTab === "research"
-                ? "bg-[#171C24] border border-[#D49B54]/40 text-[#F0F2F5] font-semibold"
-                : "text-[#A0A7B2] hover:text-[#F0F2F5] hover:bg-[#12161D]"
-            }`}
-          >
-            <span>Parallel Ground Truth</span>
-            <span className="text-[10px] font-mono text-[#0EA5E9]">
-              {project.researchFindings?.length || 0}
-            </span>
-          </button>
-
-          <button
-            onClick={() => setSubTab("schedule")}
-            className={`w-full text-left p-2 rounded transition-all flex items-center justify-between ${
-              subTab === "schedule"
-                ? "bg-[#171C24] border border-[#D49B54]/40 text-[#F0F2F5] font-semibold"
-                : "text-[#A0A7B2] hover:text-[#F0F2F5] hover:bg-[#12161D]"
-            }`}
-          >
-            <span>Budget & Schedule</span>
-            <span className="text-[10px] font-mono text-[#69717E]">Est</span>
-          </button>
+        <div className="p-2 space-y-0.5 text-xs">
+          {[
+            { id: "breakdown", label: "Production Breakdown", count: breakdownElements.length },
+            { id: "continuity", label: "Continuity Matrix", count: project.continuityIssues?.length || 0 },
+            { id: "research", label: "Parallel Ground Truth", count: project.researchFindings?.length || 0 },
+            { id: "schedule", label: "Budget & Schedule", count: "Est" }
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setSubTab(tab.id as ProduceSubTab)}
+              className={`w-full text-left px-2 py-1.5 rounded-sm transition-all flex items-center justify-between ${
+                subTab === tab.id
+                  ? "bg-[#171C24] border border-[#262C36] text-[#F0F2F5] font-semibold"
+                  : "text-[#A0A7B2] hover:text-[#F0F2F5] hover:bg-[#12161D]"
+              }`}
+            >
+              <span>{tab.label}</span>
+              <span className="text-[10px] font-mono text-[#69717E]">{tab.count}</span>
+            </button>
+          ))}
         </div>
       </nav>
 
-      {/* ============================================================ */}
-      {/* CENTER: PRODUCTION TABLES & TIMELINES                        */}
-      {/* ============================================================ */}
-      <main className="flex-1 flex flex-col h-full overflow-y-auto p-6 bg-[#090B0E]">
-        {/* SUB-VIEW 1: CONTINUITY TIMELINE MATRIX */}
-        {subTab === "continuity" && (
-          <div className="space-y-6 max-w-5xl w-full mx-auto">
-            <div className="flex items-center justify-between border-b border-[#262C36] pb-3">
-              <div>
-                <h2 className="text-base font-bold text-white tracking-tight uppercase">
-                  Script Supervisor & Continuity Matrix
-                </h2>
-                <p className="text-xs text-[#A0A7B2]">
-                  Live state propagation tracking props, wardrobe, weather, and physical continuity across scenes.
-                </p>
-              </div>
-
-              <div className="flex items-center space-x-2 text-xs font-mono">
-                <span className="flex items-center space-x-1 text-[#10B981]">
-                  <span className="w-2 h-2 rounded-full bg-[#10B981]" />
-                  <span>Consistent</span>
-                </span>
-                <span className="flex items-center space-x-1 text-[#F43F5E] ml-3">
-                  <span className="w-2 h-2 rounded-full bg-[#F43F5E]" />
-                  <span>Conflict Warning</span>
-                </span>
-              </div>
+      <main className="flex-1 flex h-full overflow-hidden bg-[#090B0E]">
+        {subTab === "breakdown" && (
+          <div className="flex-1 flex flex-col p-4 overflow-hidden">
+            <div className="flex items-center justify-between border-b border-[#262C36] pb-2 mb-2">
+              <h2 className="text-sm font-bold text-white uppercase tracking-tight">Production Breakdown</h2>
+              <span className="text-xs font-mono text-[#D49B54]">{breakdownElements.length} Elements</span>
             </div>
-
-            {/* Timeline Matrix Table */}
-            <div className="rounded-xl border border-[#262C36] bg-[#12161D] overflow-hidden shadow-xl">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-[#262C36] bg-[#0D1015] text-[11px] font-mono text-[#69717E] uppercase">
-                    <th className="p-3.5 w-48 font-semibold">Tracked Element</th>
-                    <th className="p-3.5 text-center w-32">Scene 12</th>
-                    <th className="p-3.5 text-center w-32">Scene 18</th>
-                    <th className="p-3.5 text-center w-32">Scene 22</th>
-                    <th className="p-3.5 text-center w-32">Scene 29</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#1A202C] text-xs">
-                  {continuityTimeline.map((item, idx) => (
-                    <tr key={idx} className="hover:bg-[#171C24]/50 transition-colors">
-                      <td className="p-3.5 font-medium text-white">
-                        <div className="font-semibold">{item.element}</div>
-                        <div className="text-[10px] text-[#69717E] uppercase font-mono">{item.category}</div>
-                      </td>
-
-                      {item.states.map((st, sIdx) => {
-                        const isWarning = st.status === "warning";
-                        return (
-                          <td key={sIdx} className="p-3.5 text-center font-mono relative">
-                            <div className="flex items-center justify-center space-x-1">
-                              {sIdx > 0 && (
-                                <span className="text-[#262C36] font-bold text-xs select-none">────</span>
-                              )}
-                              <span
-                                onMouseEnter={() => item.conflict && isWarning && setHoveredConflict(item.conflict)}
-                                onMouseLeave={() => setHoveredConflict(null)}
-                                className={`px-2 py-0.5 rounded text-[11px] font-semibold cursor-default transition-all ${
-                                  isWarning
-                                    ? "bg-[#F43F5E]/20 text-[#F43F5E] border border-[#F43F5E]/40 font-bold animate-pulse"
-                                    : "bg-[#171C24] text-[#A0A7B2] border border-[#262C36]"
-                                }`}
-                              >
-                                {st.value} {isWarning && "⚠"}
-                              </span>
-                            </div>
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Hovered / Active Conflict Inspector Popover */}
-            {hoveredConflict ? (
-              <div className="p-4 rounded-xl bg-[#171C24] border border-[#F43F5E]/40 shadow-2xl space-y-3 animate-fade-in">
-                <div className="flex items-center space-x-2 text-[#F43F5E] font-semibold text-xs uppercase tracking-wider">
-                  <AlertTriangle className="w-4 h-4" />
-                  <span>Continuity Conflict Detected</span>
-                </div>
-                <p className="text-sm text-[#F0F2F5] leading-relaxed">
-                  {hoveredConflict}
-                </p>
-                <div className="flex items-center space-x-3 pt-1">
-                  <button
-                    onClick={() => onSelectScene(18)}
-                    className="px-3 py-1 rounded bg-[#12161D] hover:bg-[#202736] border border-[#262C36] text-xs font-mono text-[#D49B54]"
-                  >
-                    [ View Source Scene 18 ]
-                  </button>
-                  <button
-                    onClick={() => setHoveredConflict(null)}
-                    className="px-3 py-1 rounded bg-[#12161D] hover:bg-[#202736] border border-[#262C36] text-xs font-mono text-[#A0A7B2]"
-                  >
-                    [ Mark Intentional ]
-                  </button>
-                  <button
-                    onClick={() => {
-                      onResolveIssue("c-jacket");
-                      setHoveredConflict(null);
-                    }}
-                    className="px-3 py-1 rounded bg-[#D49B54] hover:bg-[#E3AF69] text-black text-xs font-bold font-mono"
-                  >
-                    [ Create Fix ]
-                  </button>
-                </div>
+            
+            {breakdownElements.length === 0 ? (
+              <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
+                <FolderOpen className="w-12 h-12 text-[#262C36] mb-4" />
+                <h3 className="text-sm font-semibold text-[#F0F2F5] mb-2">No Breakdown Elements Found</h3>
+                <p className="text-xs text-[#A0A7B2] max-w-md mb-4">Run the AI breakdown to automatically extract props, wardrobe, cast, and special effects from the screenplay.</p>
+                <button className="px-4 py-2 bg-[#D49B54] text-black text-xs font-bold rounded-sm hover:bg-[#E3AF69] transition-colors">
+                  Run AI Breakdown
+                </button>
               </div>
             ) : (
-              <div className="p-3 rounded-lg bg-[#12161D] border border-[#262C36] flex items-center justify-between text-xs text-[#69717E]">
-                <div className="flex items-center space-x-2">
-                  <Info className="w-3.5 h-3.5 text-[#D49B54]" />
-                  <span>Hover over any ⚠ warning badge to inspect cross-scene transfer discrepancies.</span>
-                </div>
-                <span className="font-mono text-[10px]">Zero Inconsistencies Target</span>
+              <div className="flex-1 overflow-y-auto border border-[#262C36] bg-[#0D1015] rounded-sm">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="border-b border-[#262C36] bg-[#12161D] text-[10px] font-mono text-[#69717E] uppercase">
+                      <th className="p-2 w-16">Scene</th>
+                      <th className="p-2 w-48">Element</th>
+                      <th className="p-2">Notes</th>
+                      <th className="p-2 w-24 text-center">Status</th>
+                      <th className="p-2 w-16 text-center">Lock</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {Object.entries(categorizedElements).map(([category, items]) => {
+                      const isExpanded = expandedCategories[category] !== false;
+                      return (
+                        <React.Fragment key={category}>
+                          <tr className="border-y border-[#262C36] bg-[#171C24] hover:bg-[#202736] cursor-pointer" onClick={() => toggleCategory(category)}>
+                            <td colSpan={5} className="p-1.5 px-2">
+                              <div className="flex items-center space-x-2 text-[10px] font-mono font-bold text-[#F0F2F5]">
+                                {isExpanded ? <ChevronDown className="w-3 h-3 text-[#A0A7B2]" /> : <ChevronRight className="w-3 h-3 text-[#A0A7B2]" />}
+                                <span>{category}</span>
+                                <span className="text-[#69717E] px-1.5 py-0.5 rounded-sm bg-[#090B0E]">{items.length}</span>
+                              </div>
+                            </td>
+                          </tr>
+                          {isExpanded && items.map(el => (
+                            <tr key={el.id} className="border-b border-[#262C36]/50 bg-[#090B0E] hover:bg-[#12161D] transition-colors">
+                              <td className="p-2 font-mono text-[#D49B54]">S{el.sceneNumber}</td>
+                              <td className="p-2 font-medium text-white">{el.name}</td>
+                              <td className="p-2 text-[#A0A7B2] truncate max-w-xs">{el.notes || "—"}</td>
+                              <td className="p-2 text-center">
+                                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-sm bg-[#171C24] text-[#A0A7B2] border border-[#262C36]">
+                                  {el.locked ? "LOCKED" : "REVIEW"}
+                                </span>
+                              </td>
+                              <td className="p-2 text-center">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onToggleBreakdownLock(el.id);
+                                  }}
+                                  className="text-[#69717E] hover:text-[#F0F2F5]"
+                                >
+                                  {el.locked ? <Lock className="w-3.5 h-3.5 text-[#D49B54] mx-auto" /> : <Unlock className="w-3.5 h-3.5 mx-auto" />}
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </React.Fragment>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
             )}
           </div>
         )}
 
-        {/* SUB-VIEW 2: 16-CATEGORY PRODUCTION BREAKDOWN */}
-        {subTab === "breakdown" && (
-          <div className="space-y-4 max-w-5xl w-full mx-auto">
-            <div className="flex items-center justify-between border-b border-[#262C36] pb-3">
-              <div>
-                <h2 className="text-base font-bold text-white tracking-tight uppercase">
-                  16-Category Production Breakdown
-                </h2>
-                <p className="text-xs text-[#A0A7B2]">
-                  Standard Hollywood departmental classification generated from screenplay AST.
-                </p>
-              </div>
-              <span className="text-xs font-mono text-[#D49B54]">
-                {project.breakdown?.elements?.length || 0} Elements
-              </span>
-            </div>
-
-            <div className="rounded-xl border border-[#262C36] bg-[#12161D] overflow-hidden shadow-xl">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-[#262C36] bg-[#0D1015] text-[11px] font-mono text-[#69717E] uppercase">
-                    <th className="p-3 w-20">Scene</th>
-                    <th className="p-3 w-36">Category</th>
-                    <th className="p-3">Element Name</th>
-                    <th className="p-3 w-48">Department Notes</th>
-                    <th className="p-3 w-24 text-center">Lock State</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#1A202C] text-xs">
-                  {project.breakdown?.elements?.map((el) => (
-                    <tr key={el.id} className="hover:bg-[#171C24]/50 transition-colors">
-                      <td className="p-3 font-mono text-[#D49B54] font-semibold">S{el.sceneNumber}</td>
-                      <td className="p-3 uppercase font-mono text-[10px] text-[#A0A7B2]">{el.category}</td>
-                      <td className="p-3 font-semibold text-white">{el.name}</td>
-                      <td className="p-3 text-[#69717E] text-[11px] truncate max-w-[200px]">
-                        {el.notes || "Production standard check"}
-                      </td>
-                      <td className="p-3 text-center">
-                        <button
-                          onClick={() => onToggleBreakdownLock(el.id)}
-                          className="p-1 rounded text-[#69717E] hover:text-[#F0F2F5] transition-colors"
-                          title={el.locked ? "Locked" : "Unlocked"}
-                        >
-                          {el.locked ? (
-                            <Lock className="w-3.5 h-3.5 text-[#D49B54]" />
-                          ) : (
-                            <Unlock className="w-3.5 h-3.5 text-[#69717E]" />
-                          )}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* SUB-VIEW 3: GROUND-TRUTH RESEARCH (PARALLEL SEARCH) */}
         {subTab === "research" && (
-          <div className="space-y-4 max-w-5xl w-full mx-auto">
-            <div className="flex items-center justify-between border-b border-[#262C36] pb-3">
-              <div>
-                <h2 className="text-base font-bold text-white tracking-tight uppercase">
-                  Parallel Search Ground-Truth Verification
-                </h2>
-                <p className="text-xs text-[#A0A7B2]">
-                  Real-time historical, geographical, and ballistic fact verification via Parallel Search.
-                </p>
-              </div>
+          <div className="flex-1 flex overflow-hidden">
+            <div className="flex-1 flex flex-col p-4 border-r border-[#262C36]">
+               <div className="flex items-center justify-between border-b border-[#262C36] pb-2 mb-4">
+                  <h2 className="text-sm font-bold text-white uppercase tracking-tight">Parallel Ground Truth</h2>
+               </div>
+               {(!project.researchFindings || project.researchFindings.length === 0) ? (
+                 <div className="flex-1 flex flex-col items-center justify-center text-center text-[#A0A7B2]">
+                   <Globe className="w-10 h-10 mb-3 text-[#262C36]" />
+                   <p className="text-xs">No active research findings. Query the knowledge base.</p>
+                 </div>
+               ) : (
+                 <div className="flex-1 overflow-y-auto space-y-2 pr-2">
+                   {project.researchFindings.map(finding => (
+                     <div key={finding.id} className="p-3 bg-[#12161D] border border-[#262C36] rounded-sm">
+                       <div className="flex items-center justify-between mb-1">
+                         <span className="text-xs font-semibold text-white">{finding.query}</span>
+                         <span className="text-[10px] font-mono text-[#0EA5E9]">
+                           {finding.confidence ? `${Math.round(finding.confidence * 100)}%` : "VERIFIED"}
+                         </span>
+                       </div>
+                       <p className="text-xs text-[#A0A7B2]">{finding.summary}</p>
+                     </div>
+                   ))}
+                 </div>
+               )}
             </div>
-
-            {/* Search Query Form */}
-            <form onSubmit={handleSearch} className="flex gap-2">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Verify historical/production detail (e.g. Hyderabad police ballistic protocols 2024)..."
-                className="flex-1 bg-[#12161D] border border-[#262C36] rounded-lg px-3 py-2 text-xs text-white placeholder-[#69717E] outline-none focus:border-[#0EA5E9]"
-              />
-              <button
-                type="submit"
-                disabled={isSearching}
-                className="px-4 py-2 bg-[#0EA5E9] hover:bg-[#0284C7] text-black font-bold text-xs rounded-lg transition-colors flex items-center space-x-1.5"
-              >
-                <Globe className="w-3.5 h-3.5" />
-                <span>{isSearching ? "Verifying..." : "Run Parallel Search"}</span>
-              </button>
-            </form>
-
-            {/* Findings List */}
-            <div className="space-y-2 pt-2">
-              {project.researchFindings?.map((finding) => (
-                <div key={finding.id} className="p-3 rounded-lg bg-[#12161D] border border-[#262C36] space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-white">{finding.query}</span>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#0EA5E9]/20 text-[#0EA5E9] font-bold">
-                      {finding.confidence ? `${Math.round(finding.confidence * 100)}% Confidence` : "Verified Ground Truth"}
-                    </span>
-                  </div>
-                  <p className="text-xs text-[#A0A7B2] leading-relaxed">{finding.summary}</p>
-                  {finding.sources && finding.sources.length > 0 && (
-                    <div className="text-[10px] font-mono text-[#69717E] truncate">
-                      Citations: {finding.sources.join(", ")}
-                    </div>
-                  )}
-                </div>
-              ))}
+            {/* Sidebar Inspector */}
+            <div className="w-72 bg-[#0D1015] flex flex-col p-4">
+              <h3 className="text-xs font-mono uppercase text-[#A0A7B2] mb-3 flex items-center"><Search className="w-3 h-3 mr-2" /> Research Inspector</h3>
+              <form onSubmit={handleSearch} className="flex flex-col gap-2 mb-4">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Verify fact..."
+                  className="bg-[#12161D] border border-[#262C36] rounded-sm px-2 py-1.5 text-xs text-white placeholder-[#69717E] outline-none focus:border-[#D49B54]"
+                />
+                <button
+                  type="submit"
+                  disabled={isSearching}
+                  className="px-3 py-1.5 bg-[#D49B54] hover:bg-[#E3AF69] text-black font-bold text-xs rounded-sm transition-colors flex items-center justify-center"
+                >
+                  {isSearching ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <span>Verify</span>}
+                </button>
+              </form>
+              <div className="flex-1 p-3 border border-[#262C36] border-dashed rounded-sm flex items-center justify-center text-center">
+                 <p className="text-[10px] text-[#69717E] uppercase font-mono">Select a finding to inspect sources and confidence metrics.</p>
+              </div>
             </div>
           </div>
         )}
 
-        {/* SUB-VIEW 4: HOLLYWOOD CALL SHEET & PRODUCTION STRIPBOARD */}
+        {subTab === "continuity" && (
+           <div className="flex-1 flex flex-col p-4 overflow-hidden">
+             <div className="flex items-center justify-between border-b border-[#262C36] pb-2 mb-4">
+               <h2 className="text-sm font-bold text-white uppercase tracking-tight">Continuity Matrix</h2>
+             </div>
+             <div className="border border-[#262C36] rounded-sm overflow-hidden bg-[#0D1015]">
+               <table className="w-full text-left text-xs">
+                 <thead className="bg-[#12161D] border-b border-[#262C36]">
+                   <tr className="text-[10px] font-mono text-[#69717E] uppercase">
+                     <th className="p-2 w-48">Element</th>
+                     <th className="p-2 text-center">S12</th>
+                     <th className="p-2 text-center">S18</th>
+                     <th className="p-2 text-center">S22</th>
+                     <th className="p-2 text-center">S29</th>
+                   </tr>
+                 </thead>
+                 <tbody>
+                   {continuityTimeline.map((item, idx) => (
+                     <tr key={idx} className="border-b border-[#262C36]/50">
+                       <td className="p-2">
+                         <div className="font-semibold text-white">{item.element}</div>
+                         <div className="text-[10px] text-[#A0A7B2] font-mono">{item.category}</div>
+                       </td>
+                       {item.states.map((st, i) => (
+                         <td key={i} className="p-2 text-center">
+                           <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded-sm border ${st.status === 'warning' ? 'bg-[#F43F5E]/10 text-[#F43F5E] border-[#F43F5E]/30' : 'bg-[#171C24] text-[#A0A7B2] border-[#262C36]'}`}>
+                             {st.value}
+                           </span>
+                         </td>
+                       ))}
+                     </tr>
+                   ))}
+                 </tbody>
+               </table>
+             </div>
+           </div>
+        )}
+
         {subTab === "schedule" && (
-          <CallSheetView
-            project={project}
-            selectedSceneNumber={selectedSceneNumber}
-            onSelectScene={onSelectScene}
-          />
+          <div className="flex-1 overflow-y-auto">
+            <CallSheetView project={project} selectedSceneNumber={selectedSceneNumber} onSelectScene={onSelectScene} />
+          </div>
         )}
       </main>
     </div>

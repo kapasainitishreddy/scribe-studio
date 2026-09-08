@@ -35,7 +35,6 @@ type ExportTab = "screenplay" | "departments";
 
 export const ExportModal: React.FC<ExportModalProps> = ({ project, onClose }) => {
   const [activeTab, setActiveTab] = useState<ExportTab>("departments");
-  const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   const parsed = useMemo(() => parseScreenplay(project.screenplayText), [project.screenplayText]);
   const stats = useMemo(() => screenplayStats(project.screenplayText), [project.screenplayText]);
@@ -230,12 +229,6 @@ export const ExportModal: React.FC<ExportModalProps> = ({ project, onClose }) =>
           </button>
         </div>
 
-        {successMsg && (
-          <div className="bg-emerald-950/40 border-b border-emerald-500/40 px-6 py-2 text-xs text-emerald-300 flex items-center space-x-2 shrink-0">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-            <span>{successMsg}</span>
-          </div>
-        )}
 
         {/* Modal Body Content */}
         <div className="p-6 overflow-y-auto space-y-4 text-xs">

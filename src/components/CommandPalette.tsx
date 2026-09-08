@@ -10,7 +10,11 @@ import {
   Package,
   Clapperboard,
   ArrowRight,
-  Settings
+  Settings,
+  Edit3,
+  Box,
+  Image as ImageIcon,
+  Users
 } from "lucide-react";
 import { Command } from "cmdk";
 import type { Project } from "../../packages/project-model/src/types";
@@ -125,6 +129,67 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
               
               <Command.Separator />
               
+              <Command.Group heading="Workspace Actions">
+                <Command.Item 
+                  onSelect={() => { onClose(); onNavigateToTab("write"); }}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="p-1.5 bg-[#1a1e2a] rounded-lg">
+                      <Edit3 className="w-4 h-4 text-[#D49B54]" />
+                    </div>
+                    <div>
+                      <div className="font-semibold text-slate-200">Switch to Write Workspace</div>
+                      <div className="text-[10px] text-slate-400 capitalize">Workspace</div>
+                    </div>
+                  </div>
+                  <ArrowRight className="w-3.5 h-3.5 text-slate-500 opacity-70" />
+                </Command.Item>
+                <Command.Item 
+                  onSelect={() => { onClose(); onNavigateToTab("visualize"); }}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="p-1.5 bg-[#1a1e2a] rounded-lg">
+                      <Box className="w-4 h-4 text-[#D49B54]" />
+                    </div>
+                    <div>
+                      <div className="font-semibold text-slate-200">Open 3D Previs</div>
+                      <div className="text-[10px] text-slate-400 capitalize">Workspace</div>
+                    </div>
+                  </div>
+                  <ArrowRight className="w-3.5 h-3.5 text-slate-500 opacity-70" />
+                </Command.Item>
+                <Command.Item 
+                  onSelect={() => { onClose(); }}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="p-1.5 bg-[#1a1e2a] rounded-lg">
+                      <ImageIcon className="w-4 h-4 text-[#D49B54]" />
+                    </div>
+                    <div>
+                      <div className="font-semibold text-slate-200">Generate Storyboard</div>
+                      <div className="text-[10px] text-slate-400 capitalize">AI Actions</div>
+                    </div>
+                  </div>
+                  <ArrowRight className="w-3.5 h-3.5 text-slate-500 opacity-70" />
+                </Command.Item>
+                <Command.Item 
+                  onSelect={() => { onClose(); }}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="p-1.5 bg-[#1a1e2a] rounded-lg">
+                      <Users className="w-4 h-4 text-[#D49B54]" />
+                    </div>
+                    <div>
+                      <div className="font-semibold text-slate-200">Add 3D Actor</div>
+                      <div className="text-[10px] text-slate-400 capitalize">Workspace</div>
+                    </div>
+                  </div>
+                  <ArrowRight className="w-3.5 h-3.5 text-slate-500 opacity-70" />
+                </Command.Item>
+              </Command.Group>
+
+              <Command.Separator />
+
               <Command.Group heading="AI Actions">
                 <Command.Item 
                   onSelect={() => { onClose(); onOpenWriterModal(); }}
@@ -167,7 +232,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                       <ShieldCheck className="w-4 h-4 text-[#D49B54]" />
                     </div>
                     <div>
-                      <div className="font-semibold text-slate-200">Inspect Continuity Issues</div>
+                      <div className="font-semibold text-slate-200">Run Continuity Check</div>
                       <div className="text-[10px] text-slate-400 capitalize">Analysis</div>
                     </div>
                   </div>

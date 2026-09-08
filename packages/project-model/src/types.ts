@@ -479,10 +479,17 @@ export interface Scene3DObject {
   id: string;
   sceneNumber: number;
   label: string;
-  kind: "actor" | "camera" | "prop" | "light" | "vehicle";
+  kind: "actor" | "camera" | "prop" | "light" | "vehicle" | "environment";
   position: Vec3;
+  rotation?: Vec3;
+  scale?: Vec3;
   color: string;
   notes?: string;
+  assetUrl?: string; // e.g. path to glb
+  animation?: string; // e.g. "Idle", "Walk"
+  // Specific properties
+  lightProps?: { intensity: number; distance?: number; angle?: number; penumbra?: number };
+  cameraProps?: { fov: number; aspect: number; near: number; far: number };
 }
 
 // -------------------------------------------------------------

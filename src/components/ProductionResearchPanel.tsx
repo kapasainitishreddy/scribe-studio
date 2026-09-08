@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { toast } from "sonner";
 import {
   Search,
   Globe,
@@ -88,7 +89,7 @@ export const ProductionResearchPanel: React.FC<ProductionResearchPanelProps> = (
         establishedInScene: finding.sceneNumber,
         confidence: finding.confidence
       });
-      alert(`Added finding to Story Bible Canon!`);
+      toast.success("Added finding to Story Bible Canon!");
     }
   };
 
