@@ -35,7 +35,20 @@ jobs:
         run: npm test
 
       - name: Build production frontend
+        env:
+          VITE_AGENT_API_BASE_URL: ${{ vars.AGENT_API_BASE_URL }}
         run: npm run build
+
+      - name: Report backend wiring
+        shell: bash
+        env:
+          AGENT_API_BASE_URL: ${{ vars.AGENT_API_BASE_URL }}
+        run: |
+          if [ -n "$AGENT_API_BASE_URL" ]; then
+            echo "Pages bundle is wired to the production agent service."
+          else
+            echo "AGENT_API_BASE_URL is not configured; frontend will retain graceful offline behavior for server-backed operations."
+          fi
 
       - name: Disable Jekyll processing
         run: touch dist/.nojekyll
