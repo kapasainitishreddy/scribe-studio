@@ -22,6 +22,8 @@ test.describe('Agentic Cinema Final Demo Recording', () => {
     if (!process.env.VITE_PARALLEL_API_KEY) {
       if (process.env.CI || process.env.GITHUB_ACTIONS) {
         test.skip(true, "Skipping demo recording in CI because VITE_PARALLEL_API_KEY is missing, to keep the build green.");
+      } else {
+        throw new Error("VITE_PARALLEL_API_KEY is missing. Do NOT fabricate a live Parallel result. The video must show real Parallel Search runtime behavior. Please add the Parallel API key to run this demo test.");
       }
     }
 
@@ -122,9 +124,9 @@ test.describe('Agentic Cinema Final Demo Recording', () => {
     await pause(1000);
 
     // 16. Demonstrate Translate/Rotate/Scale
-    await page.getByRole('button', { name: 'T' }).click();
+    await page.getByRole('button', { name: 'T', exact: true }).click();
     await pause(1000);
-    await page.getByRole('button', { name: 'R' }).click();
+    await page.getByRole('button', { name: 'R', exact: true }).click();
     await pause(1000);
 
     // 17. Add camera and light
