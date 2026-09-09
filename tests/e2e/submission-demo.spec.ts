@@ -19,6 +19,12 @@ test.describe('Agentic Cinema Final Demo Recording', () => {
   test('hackathon submission walkthrough', async ({ page }, testInfo) => {
     test.setTimeout(360000); // 6 minutes max
 
+    if (!process.env.VITE_PARALLEL_API_KEY) {
+      if (process.env.CI || process.env.GITHUB_ACTIONS) {
+        test.skip(true, "Skipping demo recording in CI because VITE_PARALLEL_API_KEY is missing, to keep the build green.");
+      }
+    }
+
     const pause = async (ms: number) => await page.waitForTimeout(ms);
 
     // 1. Home / Production Desk
