@@ -1,29 +1,9 @@
 import React, { useState } from 'react';
 import { usePrevisStore } from '../../domain/previsStore';
-import { User, Video, Lightbulb, Box } from 'lucide-react';
+import { User, Box, Video, Lightbulb } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { Scene3DObject } from '../../../packages/project-model/src/types';
-
-interface Asset {
-  id: string;
-  name: string;
-  kind: 'actor' | 'prop' | 'camera' | 'light';
-  url?: string;
-  thumbnail?: string;
-}
-
-const ASSET_LIBRARY: Asset[] = [
-  { id: 'robot-fallback', name: 'Robot (Fallback)', kind: 'actor', url: '/models/RobotExpressive.glb' },
-  { id: 'soldier', name: 'Soldier', kind: 'actor', url: '/models/characters/Soldier.glb' },
-  { id: 'horse', name: 'Horse', kind: 'actor', url: '/models/characters/Horse.glb' },
-  { id: 'flamingo', name: 'Flamingo', kind: 'actor', url: '/models/characters/Flamingo.glb' },
-  { id: 'xbot', name: 'XBot', kind: 'actor', url: '/models/characters/Xbot.glb' },
-  { id: 'michelle', name: 'Michelle', kind: 'actor', url: '/models/characters/Michelle.glb' },
-  { id: 'cam-35', name: '35mm Camera', kind: 'camera' },
-  { id: 'light-point', name: 'Point Light', kind: 'light' },
-  { id: 'prop-chair', name: 'Chair', kind: 'prop', url: '/models/props/SheenChair.glb' },
-  { id: 'prop-mug', name: 'Mug', kind: 'prop', url: '/models/props/coffeeMug.glb' },
-];
+import { ASSET_LIBRARY, AssetManifestEntry } from '../../data/previsAssetManifest';
 
 export const AssetBrowser: React.FC<{
   onAddObject: (obj: Scene3DObject) => void;
@@ -39,7 +19,7 @@ export const AssetBrowser: React.FC<{
     return true;
   });
 
-  const handleAdd = (asset: Asset) => {
+  const handleAdd = (asset: AssetManifestEntry) => {
     const base: Scene3DObject = {
       id: uuidv4(),
       sceneNumber,

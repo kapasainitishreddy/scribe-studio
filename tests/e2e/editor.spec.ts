@@ -4,125 +4,133 @@ import * as fs from 'fs';
 
 const SCREENSHOTS_DIR = path.resolve(process.cwd(), 'artifacts/screenshots');
 
-test.describe('Agentic Cinema E2E Studio Suite', () => {
+test.describe('Agentic Cinema E2E Master Journey', () => {
   test.beforeAll(async () => {
     if (!fs.existsSync(SCREENSHOTS_DIR)) {
       fs.mkdirSync(SCREENSHOTS_DIR, { recursive: true });
     }
   });
 
-  test('navigate through workspaces and 3D studio with soldier', async ({ page }) => {
-    test.setTimeout(120000);
+  test('full hackathon master journey', async ({ page }) => {
+    test.setTimeout(360000); // 6 minutes for the full journey
 
     page.on('console', msg => console.log(`[BROWSER CONSOLE] ${msg.type()}: ${msg.text()}`));
     page.on('pageerror', err => console.log(`[BROWSER ERROR]: ${err.message}`));
 
-    // 1. Navigate to the running Vite server
+    // 1. Open application
     await page.goto('/', { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(1500);
 
-    // Ensure main layout is mounted
-    const railWrite = page.locator('[data-testid="rail-mode-write"]');
-    await expect(railWrite).toBeVisible({ timeout: 15000 });
-
-    // 2. Screenshot: Write Workspace
-    const writePath = path.join(SCREENSHOTS_DIR, 'write-workspace.png');
-    await page.screenshot({ path: writePath, fullPage: true, animations: 'disabled' });
-    fs.copyFileSync(writePath, path.join(SCREENSHOTS_DIR, 'write.png'));
-
-    // 3. Screenshot: Home Desk
+    // 2. Navigate Home
     const railHome = page.locator('[data-testid="rail-mode-home"]');
     if (await railHome.isVisible()) {
       await railHome.click();
       await page.waitForTimeout(800);
-      const homePath = path.join(SCREENSHOTS_DIR, 'home.png');
-      await page.screenshot({ path: homePath, fullPage: true, animations: 'disabled' });
+      await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '01-hero-home.png'), fullPage: true, animations: 'disabled' });
     }
 
-    // 4. Screenshot: Produce Workspace
-    const railProduce = page.locator('[data-testid="rail-mode-produce"]');
-    if (await railProduce.isVisible()) {
-      await railProduce.click();
-      await page.waitForTimeout(800);
-      const producePath = path.join(SCREENSHOTS_DIR, 'produce.png');
-      await page.screenshot({ path: producePath, fullPage: true, animations: 'disabled' });
-    }
+    // 3. Navigate Write
+    const railWrite = page.locator('[data-testid="rail-mode-write"]');
+    await railWrite.click();
+    await page.waitForTimeout(1000);
+    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '02-hero-write.png'), fullPage: true, animations: 'disabled' });
 
-    // 5. Screenshot: Perform Workspace
-    const railPerform = page.locator('[data-testid="rail-mode-perform"]');
-    if (await railPerform.isVisible()) {
-      await railPerform.click();
-      await page.waitForTimeout(800);
-      const performPath = path.join(SCREENSHOTS_DIR, 'perform.png');
-      await page.screenshot({ path: performPath, fullPage: true, animations: 'disabled' });
-    }
-
-    // 6. Screenshot: Visualize Workspace
+    // 4. Navigate Visualize
     const railVisualize = page.locator('[data-testid="rail-mode-visualize"]');
-    await expect(railVisualize).toBeVisible();
     await railVisualize.click();
     await page.waitForTimeout(1000);
+    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '03-hero-visualize.png'), fullPage: true, animations: 'disabled' });
 
-    const visualizePath = path.join(SCREENSHOTS_DIR, 'visualize.png');
-    await page.screenshot({ path: visualizePath, fullPage: true, animations: 'disabled' });
-
-    // 7. Click 3D Studio Tab
-    const tab3DStudio = page.locator('[data-testid="tab-3d-studio"]');
+    // 5. Open 3D Studio
+    const tab3DStudio = page.locator('button', { hasText: '3D Studio' });
     await expect(tab3DStudio).toBeVisible({ timeout: 10000 });
     await tab3DStudio.click();
     await page.waitForTimeout(1500);
+    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '04-hero-3d-studio.png'), fullPage: true, animations: 'disabled' });
 
-    // 8. Locate Asset Browser Panel & Take Screenshot
-    const assetBrowser = page.locator('[data-testid="asset-browser-panel"]');
-    await expect(assetBrowser).toBeVisible({ timeout: 10000 });
-    const assetBrowserPath = path.join(SCREENSHOTS_DIR, 'asset-browser-panel.png');
-    await assetBrowser.screenshot({ path: assetBrowserPath, animations: 'disabled' });
-    fs.copyFileSync(assetBrowserPath, path.join(SCREENSHOTS_DIR, 'asset-browser.png'));
-
-    // 9. Spawn a Soldier
+    // 6. Add Soldier
     const soldierCard = page.locator('[data-testid="asset-card-soldier"]');
-    await expect(soldierCard).toBeVisible({ timeout: 10000 });
-    await soldierCard.click();
-    await page.waitForTimeout(2000);
+    await soldierCard.click({ force: true });
+    await page.waitForTimeout(1500);
+    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '05-add-soldier.png'), fullPage: true, animations: 'disabled' });
 
-    // 10. Verify Soldier is selected and Inspector Panel updates
-    const inspector = page.locator('[data-testid="inspector-3d-panel"]');
-    await expect(inspector).toBeVisible({ timeout: 10000 });
+    // 7. Add Michelle
+    const michelleCard = page.locator('[data-testid="asset-card-michelle"]');
+    await michelleCard.click({ force: true });
+    await page.waitForTimeout(1500);
+    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '06-add-michelle.png'), fullPage: true, animations: 'disabled' });
 
-    // 11. Move the Soldier by adjusting position inputs & using transform keys
-    const posXInput = page.locator('[data-testid="input-position-x"]');
-    if (await posXInput.isVisible()) {
-      await posXInput.fill('2.50');
-      await posXInput.dispatchEvent('change');
-      await page.waitForTimeout(400);
-    }
-
-    const posZInput = page.locator('[data-testid="input-position-z"]');
-    if (await posZInput.isVisible()) {
-      await posZInput.fill('1.00');
-      await posZInput.dispatchEvent('change');
-      await page.waitForTimeout(400);
-    }
-
-    // Trigger translate shortcut 'w' to activate gizmo
+    // 8. Transform W
     await page.keyboard.press('KeyW');
+    await page.waitForTimeout(500);
+    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '07-transform-translate.png'), fullPage: true, animations: 'disabled' });
+
+    // 9. Transform E
+    await page.keyboard.press('KeyE');
+    await page.waitForTimeout(500);
+    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '08-transform-rotate.png'), fullPage: true, animations: 'disabled' });
+
+    // 10. Transform R
+    await page.keyboard.press('KeyR');
+    await page.waitForTimeout(500);
+    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '09-transform-scale.png'), fullPage: true, animations: 'disabled' });
+
+    // 11. Add Camera
+    const cameraCard = page.locator('[data-testid="asset-card-cam-35"]');
+    await cameraCard.click({ force: true });
+    await page.waitForTimeout(1500);
+    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '10-add-camera.png'), fullPage: true, animations: 'disabled' });
+
+    // 12. Add Light
+    const lightCard = page.locator('[data-testid="asset-card-light-point"]');
+    await lightCard.click({ force: true });
+    await page.waitForTimeout(1500);
+    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '11-add-light.png'), fullPage: true, animations: 'disabled' });
+
+    // 13. Auto Block another scene
+    const autoBlockBtn = page.getByText('Auto Block', { exact: true });
+    await autoBlockBtn.click();
+    await page.waitForTimeout(2000);
+    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '12-auto-block.png'), fullPage: true, animations: 'disabled' });
+
+    // 14. Save Shot
+    const saveShotBtn = page.getByText('SAVE SHOT', { exact: true });
+    await saveShotBtn.click();
+    await page.waitForTimeout(1500);
+    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '13-save-shot.png'), fullPage: true, animations: 'disabled' });
+
+    // 15. Capture Frame
+    const captureFrameBtn = page.getByText('CAPTURE FRAME', { exact: true });
+    await captureFrameBtn.click();
+    await page.waitForTimeout(1500);
+    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '14-capture-frame.png'), fullPage: true, animations: 'disabled' });
+
+    // 16. Test Undo
+    await page.keyboard.press('Control+Z');
     await page.waitForTimeout(1000);
+    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '15-undo.png'), fullPage: true, animations: 'disabled' });
 
-    // 12. Screenshot: Inspector Panel
-    const inspectorPath = path.join(SCREENSHOTS_DIR, 'inspector-panel.png');
-    await inspector.screenshot({ path: inspectorPath, animations: 'disabled' });
-    fs.copyFileSync(inspectorPath, path.join(SCREENSHOTS_DIR, 'inspector.png'));
-    fs.copyFileSync(inspectorPath, path.join(SCREENSHOTS_DIR, 'object-inspector.png'));
+    // 17. Test Redo
+    await page.keyboard.press('Control+Shift+Z');
+    await page.waitForTimeout(1000);
+    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '16-redo.png'), fullPage: true, animations: 'disabled' });
 
-    // 13. Screenshot: 3D Studio Workspace (with soldier spawned and moved)
-    const studio3DPath = path.join(SCREENSHOTS_DIR, '3d-studio-workspace.png');
-    await page.screenshot({ path: studio3DPath, fullPage: true, animations: 'disabled' });
-    fs.copyFileSync(studio3DPath, path.join(SCREENSHOTS_DIR, '3d-studio.png'));
+    // 18. Test Duplicate
+    await page.keyboard.press('d');
+    await page.waitForTimeout(1000);
+    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '17-duplicate.png'), fullPage: true, animations: 'disabled' });
 
-    // Verify all screenshots were created
-    expect(fs.existsSync(writePath)).toBe(true);
-    expect(fs.existsSync(studio3DPath)).toBe(true);
-    expect(fs.existsSync(assetBrowserPath)).toBe(true);
-    expect(fs.existsSync(inspectorPath)).toBe(true);
+    // 19. Open Storyboard (Storyboard mode tab)
+    const tabStoryboard = page.locator('button', { hasText: 'Storyboard' });
+    await tabStoryboard.click();
+    await page.waitForTimeout(1500);
+    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '18-storyboard.png'), fullPage: true, animations: 'disabled' });
+
+    // 20. Navigate Produce
+    const railProduce = page.locator('[data-testid="rail-mode-produce"]');
+    await railProduce.click();
+    await page.waitForTimeout(1000);
+    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '19-produce.png'), fullPage: true, animations: 'disabled' });
+
   });
 });

@@ -19,6 +19,8 @@ interface Scene3DStudioProps {
   onAddObject: (obj: Scene3DObject) => void;
   onUpdateObject: (id: string, updates: Partial<Scene3DObject>) => void;
   onDeleteObject: (id: string) => void;
+  onSaveShot?: (shot: any) => void;
+  onCaptureFrame?: (sceneNumber: number, imageUrl: string) => void;
 }
 
 const PrevisScene: React.FC<{
@@ -47,7 +49,7 @@ const PrevisScene: React.FC<{
 };
 
 export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
-  project, selectedSceneNumber, onAddObject, onUpdateObject, onDeleteObject
+  project, selectedSceneNumber, onAddObject, onUpdateObject, onDeleteObject, onSaveShot, onCaptureFrame
 }) => {
   const { 
     selectedObjectId, setSelectedObjectId,
@@ -56,13 +58,36 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
   } = usePrevisStore();
 
   const [leftTab, setLeftTab] = React.useState<'assets'|'outliner'>('assets');
-  const [shots, setShots] = React.useState<string[]>([]);
+  const shots = project.scene3DShots?.filter(s => s.sceneNumber === selectedSceneNumber) || [];
 
   const sceneObjects = (project.scene3DObjects || []).filter(o => o.sceneNumber === selectedSceneNumber);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.ctrlKey || e.metaKey) {
+        if (e.key.toLowerCase() === 'z') {
+          e.preventDefault();
+          if (e.shiftKey) {
+            window.dispatchEvent(new CustomEvent('app:redo-scene'));
+          } else {
+            window.dispatchEvent(new CustomEvent('app:undo-scene'));
+          }
+          return;
+        }
+        if (e.key.toLowerCase() === 'd') {
+          e.preventDefault();
+          if (selectedObjectId) {
+            const obj = sceneObjects.find(o => o.id === selectedObjectId);
+            if (obj) {
+              const newObj = { ...obj, id: `${obj.kind}-${Date.now()}`, position: { ...obj.position, x: obj.position.x + 0.5, z: obj.position.z + 0.5 } };
+              onAddObject(newObj);
+              setSelectedObjectId(newObj.id);
+            }
+          }
+          return;
+        }
+      }
       switch (e.key.toLowerCase()) {
         case 'w': setTransformMode('translate'); break;
         case 'e': setTransformMode('rotate'); break;
@@ -82,9 +107,35 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
 
   const handleSaveShot = () => {
     const canvas = document.querySelector('canvas') as HTMLCanvasElement;
-    if (canvas) {
-      setShots([...shots, canvas.toDataURL('image/webp')]);
+    if (canvas && onSaveShot) {
+      const newShot = {
+        id: 'shot-' + Date.now(),
+        sceneNumber: selectedSceneNumber,
+        name: 'Shot ' + (shots.length + 1),
+        cameraId: activeCameraId || '',
+        cameraTransform: { position: {x:0,y:0,z:0}, rotation: {x:0,y:0,z:0} },
+        lens: '50mm',
+        fov: 50,
+        aspect: 16/9,
+        objects: JSON.parse(JSON.stringify(sceneObjects)),
+        environment: 'studio',
+        previewImageUrl: canvas.toDataURL('image/webp'),
+        order: shots.length
+      };
+      onSaveShot(newShot);
     }
+  };
+
+  const handleCaptureFrame = () => {
+    const canvas = document.querySelector('canvas') as HTMLCanvasElement;
+    if (canvas && onCaptureFrame) {
+      onCaptureFrame(selectedSceneNumber, canvas.toDataURL('image/webp'));
+    }
+  };
+
+  const handleRestoreShot = (shot: any) => {
+    // Basic restore logic
+    window.dispatchEvent(new CustomEvent('app:restore-shot', { detail: { sceneNumber: selectedSceneNumber, objects: shot.objects } }));
   };
 
   const handleAutoBlock = () => {
@@ -211,9 +262,14 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
       <Panel defaultSize={20} minSize={10} maxSize={40} className="flex flex-col bg-[#0D1015]">
         <div className="p-2 border-b border-[#262C36] flex items-center justify-between shrink-0">
           <span className="text-xs font-semibold text-[#F0F2F5] uppercase tracking-wider">Shot Filmstrip</span>
-          <button onClick={handleSaveShot} className="px-3 py-1 bg-[#D49B54] text-black text-xs font-bold rounded-sm hover:bg-[#E3AF69]">
-            SAVE SHOT
-          </button>
+          <div>
+            <button onClick={handleSaveShot} className="px-3 py-1 bg-[#D49B54] text-black text-xs font-bold rounded-sm hover:bg-[#E3AF69]">
+              SAVE SHOT
+            </button>
+            <button onClick={handleCaptureFrame} className="px-3 py-1 bg-[#1A1F2B] text-[#D49B54] text-xs font-bold rounded-sm border border-[#D49B54] hover:bg-[#D49B54]/20 ml-2">
+              CAPTURE FRAME
+            </button>
+          </div>
         </div>
         <div className="flex-1 overflow-x-auto p-4 flex gap-4 items-center">
           {shots.length === 0 ? (
@@ -221,10 +277,10 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
               No shots captured
             </div>
           ) : (
-            shots.map((img, i) => (
+            shots.map((shot, i) => (
               <div key={i} className="w-48 h-28 bg-[#12161D] border border-[#D49B54] rounded flex-shrink-0 overflow-hidden relative group">
-                <img src={img} className="w-full h-full object-cover" />
-                <div className="absolute bottom-0 w-full bg-black/70 text-white text-[10px] p-1 font-mono">Shot {i + 1}</div>
+                <img src={shot.previewImageUrl} className="w-full h-full object-cover cursor-pointer hover:opacity-80 transition-opacity" onClick={() => handleRestoreShot(shot)} />
+                <div className="absolute bottom-0 w-full bg-black/70 text-white text-[10px] p-1 font-mono">{shot.name}</div>
               </div>
             ))
           )}

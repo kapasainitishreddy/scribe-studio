@@ -62,10 +62,13 @@ export function useProject() {
         }
       }
     } catch (e) {
-      console.warn("Could not load from localStorage:", e);
+      console.warn("Failed to parse project from local storage", e);
     }
     return createSampleProject();
   });
+
+  const [undoStack, setUndoStack] = useState<Scene3DObject[][]>([]);
+  const [redoStack, setRedoStack] = useState<Scene3DObject[][]>([]);
 
   const [activeTab, setActiveTab] = useState<
     | "editor"
@@ -433,25 +436,84 @@ export function useProject() {
   }, []);
 
   // 3D Scene Blocking Object Management
-  const addScene3DObject = useCallback((obj: Scene3DObject) => {
-    setProject((prev) => ({
-      ...prev,
-      scene3DObjects: [...(prev.scene3DObjects || []), obj]
-    }));
+  const pushUndo = useCallback((prevObjects: Scene3DObject[]) => {
+    setUndoStack(s => [...s, prevObjects]);
+    setRedoStack([]);
   }, []);
+
+  const saveScene3DShot = useCallback((shot: any) => { 
+    setProject(p => p ? ({...p, scene3DShots: [...(p.scene3DShots || []), shot]}) : p); 
+  }, []);
+  
+  const restoreScene3DObjects = useCallback((sceneNumber: number, objects: Scene3DObject[]) => { 
+    setProject(p => {
+      if (!p) return p;
+      pushUndo(p.scene3DObjects);
+      return {...p, scene3DObjects: [...p.scene3DObjects.filter(o => o.sceneNumber !== sceneNumber), ...objects]};
+    }); 
+  }, [pushUndo]);
+
+  const addScene3DObject = useCallback((obj: Scene3DObject) => {
+    setProject((prev) => {
+      pushUndo(prev.scene3DObjects || []);
+      return {
+        ...prev,
+        scene3DObjects: [...(prev.scene3DObjects || []), obj]
+      };
+    });
+  }, [pushUndo]);
 
   const updateScene3DObject = useCallback((id: string, updates: Partial<Scene3DObject>) => {
-    setProject((prev) => ({
-      ...prev,
-      scene3DObjects: (prev.scene3DObjects || []).map((o) => (o.id === id ? { ...o, ...updates } : o))
-    }));
-  }, []);
+    setProject((prev) => {
+      pushUndo(prev.scene3DObjects || []);
+      return {
+        ...prev,
+        scene3DObjects: (prev.scene3DObjects || []).map((o) => (o.id === id ? { ...o, ...updates } : o))
+      };
+    });
+  }, [pushUndo]);
 
   const deleteScene3DObject = useCallback((id: string) => {
-    setProject((prev) => ({
-      ...prev,
-      scene3DObjects: (prev.scene3DObjects || []).filter((o) => o.id !== id)
-    }));
+    setProject((prev) => {
+      pushUndo(prev.scene3DObjects || []);
+      return {
+        ...prev,
+        scene3DObjects: (prev.scene3DObjects || []).filter((o) => o.id !== id)
+      };
+    });
+  }, [pushUndo]);
+
+  useEffect(() => {
+    const handleUndo = () => {
+      setUndoStack(s => {
+        if (s.length === 0) return s;
+        const last = s[s.length - 1];
+        setProject(p => {
+          if (!p) return p;
+          setRedoStack(rs => [...rs, p.scene3DObjects]);
+          return { ...p, scene3DObjects: last };
+        });
+        return s.slice(0, s.length - 1);
+      });
+    };
+    const handleRedo = () => {
+      setRedoStack(rs => {
+        if (rs.length === 0) return rs;
+        const last = rs[rs.length - 1];
+        setProject(p => {
+          if (!p) return p;
+          setUndoStack(s => [...s, p.scene3DObjects]);
+          return { ...p, scene3DObjects: last };
+        });
+        return rs.slice(0, rs.length - 1);
+      });
+    };
+    window.addEventListener('app:undo-scene', handleUndo);
+    window.addEventListener('app:redo-scene', handleRedo);
+    return () => {
+      window.removeEventListener('app:undo-scene', handleUndo);
+      window.removeEventListener('app:redo-scene', handleRedo);
+    };
   }, []);
 
   // Production Research Findings Management (Parallel Search API)
