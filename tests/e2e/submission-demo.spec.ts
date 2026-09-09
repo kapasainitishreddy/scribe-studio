@@ -131,24 +131,24 @@ test.describe('Agentic Cinema Final Demo Recording', () => {
 
     // 17. Add camera and light
     await page.getByTestId('asset-card-cam-35').click({ force: true });
-    await pause(1000);
+    await pause(500);
     await page.getByTestId('asset-card-light-point').click({ force: true });
     await pause(1000);
 
-    // 18. Enable Rule of Thirds
-    const framingSelect = page.locator('select').filter({ hasText: 'Rule of Thirds' });
-    if (await framingSelect.isVisible()) {
-      await framingSelect.selectOption('thirds');
-    }
-    await pause(1500);
+    // Enter Camera View so the SAVE SHOT buttons appear
+    await page.getByRole('button', { name: 'OUTLINER' }).click();
+    await pause(500);
+    await page.locator('button').filter({ has: page.locator('svg.lucide-camera') }).first().click();
+    await pause(1000);
 
-    // 19. Save Shot
+    // 18. Save shot (if you want to trigger screenshot/thumbnail save)
     await page.getByText('SAVE SHOT', { exact: true }).click();
-    await pause(1500);
+    await pause(1000);
 
-    // 20. Capture Frame
+    // 19. Capture frame
     await page.getByText('CAPTURE FRAME', { exact: true }).click();
-    await pause(2000);
+    await pause(1000);
+
 
     // 21. Show captured frame in Storyboard
     await page.getByRole('button', { name: 'Scene Comic', exact: true }).click();
