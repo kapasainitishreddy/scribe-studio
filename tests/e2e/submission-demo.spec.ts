@@ -4,16 +4,16 @@ import * as fs from 'fs';
 
 const DEMO_DIR = path.resolve(process.cwd(), 'artifacts/demo');
 
+test.use({
+  video: 'on',
+  viewport: { width: 1440, height: 900 }
+});
+
 test.describe('Agentic Cinema Final Demo Recording', () => {
   test.beforeAll(async () => {
     if (!fs.existsSync(DEMO_DIR)) {
       fs.mkdirSync(DEMO_DIR, { recursive: true });
     }
-  });
-
-  test.use({
-    video: 'on',
-    viewport: { width: 1440, height: 900 }
   });
 
   test('hackathon submission walkthrough', async ({ page }, testInfo) => {
