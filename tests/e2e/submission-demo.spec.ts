@@ -74,13 +74,13 @@ test.describe('Agentic Cinema Final Demo Recording', () => {
     await pause(2000);
 
     // 6. Show affected vs protected artifacts
-    await expect(page.getByText('Affected Nodes (Invalidated)')).toBeVisible();
-    await expect(page.getByText('Protected Nodes (Zero Compute)')).toBeVisible();
+    await expect(page.locator('text=Impacted Artifacts')).toBeVisible();
+    await expect(page.locator('text=Protected Unaffected')).toBeVisible();
     await pause(2000);
 
     // 7. Show Google ADK provenance
-    await expect(page.getByText('@google/adk')).toBeVisible();
-    await expect(page.getByText('gemini-1.5-pro')).toBeVisible();
+    await expect(page.locator('text=@google/adk')).toBeVisible();
+    await expect(page.locator('text=gemini-1.5-pro')).toBeVisible();
     
     // Check for "Live Cloud API" but we know it's not set, so it will fail if it's "Grounded"
     // "If credentials are missing, clearly fail the demo preparation rather than substituting mocked evidence."
@@ -149,7 +149,7 @@ test.describe('Agentic Cinema Final Demo Recording', () => {
     await pause(2000);
 
     // 21. Show captured frame in Storyboard
-    await page.getByRole('button', { name: 'Storyboard', exact: true }).click();
+    await page.getByRole('button', { name: 'Scene Comic', exact: true }).click();
     await pause(2000);
 
     // 22. Briefly show Perform
@@ -161,7 +161,7 @@ test.describe('Agentic Cinema Final Demo Recording', () => {
     await pause(2000);
 
     // 24. Export the production ZIP
-    await page.getByTitle('Export & Department Distribution').click();
+    await page.getByTitle('Export Screenplay, Sides, or Production Sheets').click();
     await pause(1500);
     
     const downloadPromise = page.waitForEvent('download');
