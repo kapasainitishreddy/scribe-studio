@@ -44,7 +44,7 @@ test.describe('Agentic Cinema Final Demo Recording', () => {
     // 3. Edit a screenplay line that triggers Change Intelligence
     await page.getByTitle('Start 1-Click Interactive Hackathon Walkthrough').click();
     await pause(1000);
-    await page.getByRole('button', { name: 'Simulate Substantive Screenplay Edit' }).click();
+    await page.getByRole('button', { name: 'Simulate Scene 1 Revision (Live AST Diff)' }).click();
     await pause(2500);
 
     // 4. Show Counterfactual Preview
@@ -95,7 +95,7 @@ test.describe('Agentic Cinema Final Demo Recording', () => {
     // Trigger edit AGAIN to show Approve
     await page.getByTitle('Start 1-Click Interactive Hackathon Walkthrough').click();
     await pause(1000);
-    await page.getByRole('button', { name: 'Simulate Substantive Screenplay Edit' }).click();
+    await page.getByRole('button', { name: 'Simulate Scene 1 Revision (Live AST Diff)' }).click();
     await pause(2000);
     
     await page.getByRole('button', { name: 'Review Change Passport' }).click();
