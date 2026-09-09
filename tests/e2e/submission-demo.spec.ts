@@ -55,7 +55,7 @@ test.describe('Agentic Cinema Final Demo Recording', () => {
     // 8. Trigger a Reality Gate case that genuinely executes the live Parallel Search path
     await page.locator('[data-testid="rail-mode-produce"]').click();
     await pause(1000);
-    await page.getByText('Parallel Ground Truth').click();
+    await page.getByRole('button', { name: 'Parallel Ground Truth', exact: true }).click();
     await pause(1000);
     
     // 9. Show returned Parallel evidence/citations
