@@ -70,7 +70,7 @@ test.describe('Agentic Cinema Final Demo Recording', () => {
     await pause(1500);
 
     // 5. Open Production Change Passport
-    await page.getByRole('button', { name: 'Passport', exact: true }).click({ timeout: 5000 });
+    await page.getByRole('button', { name: 'Review Change Passport', exact: true }).click({ timeout: 5000 });
     await pause(2000);
 
     // 6. Show affected vs protected artifacts
@@ -98,7 +98,7 @@ test.describe('Agentic Cinema Final Demo Recording', () => {
     await page.getByRole('button', { name: 'Simulate Scene 1 Revision (Live AST Diff)' }).click();
     await pause(2000);
     
-    await page.getByRole('button', { name: 'Passport', exact: true }).click();
+    await page.getByRole('button', { name: 'Review Change Passport', exact: true }).click({ timeout: 5000 });
     await pause(1500);
 
     // 11. Demonstrate Approve / selective invalidation
