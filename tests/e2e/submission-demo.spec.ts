@@ -48,39 +48,39 @@ test.describe('Agentic Cinema Final Demo Recording', () => {
     await pause(2500);
 
     // 4. Show Counterfactual Preview
-    await expect(page.getByText('AST Modified')).toBeVisible();
-    await expect(page.getByText('Counterfactual Preview:')).toBeVisible();
+    await expect(page.getByText('AST Modified')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText('Counterfactual Preview:')).toBeVisible({ timeout: 5000 });
     await pause(3000);
 
     // 8. Trigger a Reality Gate case that genuinely executes the live Parallel Search path
-    await page.locator('[data-testid="rail-mode-produce"]').click();
+    await page.locator('[data-testid="rail-mode-produce"]').click({ timeout: 5000 });
     await pause(1000);
-    await page.getByRole('button', { name: 'Parallel Ground Truth', exact: true }).click();
+    await page.getByRole('button', { name: 'Parallel Ground Truth' }).click({ timeout: 5000 });
     await pause(1000);
     
     // 9. Show returned Parallel evidence/citations
-    await page.getByPlaceholder('Verify fact...').fill('halon fire suppression');
+    await page.getByPlaceholder('Verify fact...').fill('halon fire suppression', { timeout: 5000 });
     await pause(500);
-    await page.getByRole('button', { name: 'Verify' }).click();
+    await page.getByRole('button', { name: 'Verify' }).click({ timeout: 5000 });
     
     await pause(4000);
     
     // Go back to Write mode to see the Change Intelligence bar again
-    await page.locator('[data-testid="rail-mode-write"]').click();
+    await page.locator('[data-testid="rail-mode-write"]').click({ timeout: 5000 });
     await pause(1500);
 
     // 5. Open Production Change Passport
-    await page.getByRole('button', { name: 'Passport' }).click();
+    await page.getByRole('button', { name: 'Passport' }).click({ timeout: 5000 });
     await pause(2000);
 
     // 6. Show affected vs protected artifacts
-    await expect(page.locator('text=Impacted Artifacts')).toBeVisible();
-    await expect(page.locator('text=Protected Unaffected')).toBeVisible();
+    await expect(page.locator('text=Impacted Artifacts')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('text=Protected Unaffected')).toBeVisible({ timeout: 5000 });
     await pause(2000);
 
     // 7. Show Google ADK provenance
-    await expect(page.locator('text=@google/adk')).toBeVisible();
-    await expect(page.locator('text=gemini-1.5-pro')).toBeVisible();
+    await expect(page.locator('text=@google/adk')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('text=gemini-1.5-pro')).toBeVisible({ timeout: 5000 });
     
     // Check for "Live Cloud API" but we know it's not set, so it will fail if it's "Grounded"
     // "If credentials are missing, clearly fail the demo preparation rather than substituting mocked evidence."
