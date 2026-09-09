@@ -124,9 +124,9 @@ test.describe('Agentic Cinema Final Demo Recording', () => {
     await pause(1000);
 
     // 16. Demonstrate Translate/Rotate/Scale
-    await page.getByRole('button', { name: 'T', exact: true }).click();
+    await page.getByTitle('Translate (W)').click();
     await pause(1000);
-    await page.getByRole('button', { name: 'R', exact: true }).click();
+    await page.getByTitle('Rotate (E)').click();
     await pause(1000);
 
     // 17. Add camera and light
