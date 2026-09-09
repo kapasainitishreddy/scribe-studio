@@ -271,6 +271,7 @@ export interface StoryboardPanel {
   svgSchematic?: string; // Deterministic schematic visual
   version: number;
   status: StoryboardPanelStatus;
+  imageUrl?: string;
   outdatedReason?: string;
   invalidationReason?: string;
   sourceLineIds: string[];
@@ -475,6 +476,22 @@ export interface Vec3 {
   z: number;
 }
 
+export interface Scene3DShot {
+  id: string;
+  sceneNumber: number;
+  name: string;
+  cameraId: string;
+  cameraTransform: { position: Vec3, rotation: Vec3 };
+  lens: string;
+  fov: number;
+  aspect: number;
+  objects: Scene3DObject[];
+  environment: string;
+  notes?: string;
+  previewImageUrl?: string;
+  order: number;
+}
+
 export interface Scene3DObject {
   id: string;
   sceneNumber: number;
@@ -488,7 +505,7 @@ export interface Scene3DObject {
   assetUrl?: string; // e.g. path to glb
   animation?: string; // e.g. "Idle", "Walk"
   // Specific properties
-  lightProps?: { intensity: number; distance?: number; angle?: number; penumbra?: number };
+  lightProps?: { type?: 'point' | 'spot' | 'directional'; intensity: number; distance?: number; angle?: number; penumbra?: number };
   cameraProps?: { fov: number; aspect: number; near: number; far: number };
 }
 
@@ -638,6 +655,7 @@ export interface Project {
   scene3DObjects: Scene3DObject[];
   dependencyEdges: DependencyEdge[];
   extractions: Record<number, SceneExtraction>;
+  scene3DShots?: Scene3DShot[];
   storyboardSequences: Record<string | number, StoryboardSequence>;
   storyThreads: StoryThread[];
   latestImpactReport: ConsolidatedImpactReport | null;

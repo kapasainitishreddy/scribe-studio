@@ -9,7 +9,7 @@ export const Inspector3D: React.FC<{
   onUpdateObject: (id: string, updates: Partial<Scene3DObject>) => void;
   onDeleteObject: (id: string) => void;
 }> = ({ objects, onUpdateObject, onDeleteObject }) => {
-  const { selectedObjectId, transformMode, setTransformMode, environmentPreset, setEnvironmentPreset } = usePrevisStore();
+  const { selectedObjectId, transformMode, setTransformMode, environmentPreset, setEnvironmentPreset, framingGuides, setFramingGuides } = usePrevisStore();
   
   const selectedObject = objects.find(o => o.id === selectedObjectId);
 
@@ -76,45 +76,74 @@ export const Inspector3D: React.FC<{
         )}
 
         {selectedObject.kind === 'camera' && (
-          <div>
-            <label className="text-[10px] uppercase text-[#69717E] mb-1 block">Lens (Focal Length)</label>
-            <select 
-              value={selectedObject.cameraProps?.fov ? Math.round(36 / (2 * Math.tan((selectedObject.cameraProps.fov * Math.PI / 180) / 2))) : '50'} 
-              onChange={(e) => {
-                const focalLength = parseFloat(e.target.value);
-                const sensorWidth = 36;
-                const fov = 2 * Math.atan(sensorWidth / (2 * focalLength)) * (180 / Math.PI);
-                onUpdateObject(selectedObject.id, { cameraProps: { ...(selectedObject.cameraProps || { aspect: 16/9, near: 0.1, far: 100 }), fov } });
-              }}
-              className="w-full bg-[#12161D] border border-[#262C36] rounded-sm p-1 text-white"
-            >
-              <option value="18">18mm (Ultra Wide)</option>
-              <option value="24">24mm (Wide)</option>
-              <option value="35">35mm (Documentary)</option>
-              <option value="50">50mm (Standard)</option>
-              <option value="85">85mm (Portrait)</option>
-              <option value="135">135mm (Telephoto)</option>
-            </select>
-          </div>
+          <>
+            <div>
+              <label className="text-[10px] uppercase text-[#69717E] mb-1 block">Lens (Focal Length)</label>
+              <select 
+                value={selectedObject.cameraProps?.fov ? Math.round(24 / (2 * Math.tan((selectedObject.cameraProps.fov * Math.PI / 180) / 2))) : '50'} 
+                onChange={(e) => {
+                  const focalLength = parseFloat(e.target.value);
+                  const sensorHeight = 24; // Full frame 36x24
+                  const fov = 2 * Math.atan(sensorHeight / (2 * focalLength)) * (180 / Math.PI);
+                  onUpdateObject(selectedObject.id, { cameraProps: { ...(selectedObject.cameraProps || { aspect: 16/9, near: 0.1, far: 100 }), fov } });
+                }}
+                className="w-full bg-[#12161D] border border-[#262C36] rounded-sm p-1 text-white"
+              >
+                <option value="18">18mm (Ultra Wide)</option>
+                <option value="24">24mm (Wide)</option>
+                <option value="28">28mm (Standard Wide)</option>
+                <option value="35">35mm (Documentary)</option>
+                <option value="50">50mm (Standard)</option>
+                <option value="85">85mm (Portrait)</option>
+                <option value="135">135mm (Telephoto)</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-[10px] uppercase text-[#69717E] mb-1 block">Framing Guides</label>
+              <select 
+                value={framingGuides} 
+                onChange={(e) => setFramingGuides(e.target.value as any)}
+                className="w-full bg-[#12161D] border border-[#262C36] rounded-sm p-1 text-white"
+              >
+                <option value="none">None</option>
+                <option value="thirds">Rule of Thirds</option>
+                <option value="safe-area">Safe Area</option>
+              </select>
+            </div>
+          </>
         )}
 
         {selectedObject.kind === 'light' && (
-          <div>
-            <label className="text-[10px] uppercase text-[#69717E] mb-1 block">Light Intensity</label>
-            <input 
-              type="range" min="0" max="10" step="0.1"
-              value={selectedObject.lightProps?.intensity ?? 2} 
-              onChange={(e) => onUpdateObject(selectedObject.id, { lightProps: { ...(selectedObject.lightProps || {}), intensity: parseFloat(e.target.value) } })}
-              className="w-full mb-2"
-            />
-            <label className="text-[10px] uppercase text-[#69717E] mb-1 block">Light Color</label>
-            <input 
-              type="color" 
-              value={selectedObject.color || '#ffffff'} 
-              onChange={(e) => onUpdateObject(selectedObject.id, { color: e.target.value })}
-              className="w-full bg-[#12161D] border border-[#262C36] rounded-sm h-8"
-            />
-          </div>
+          <>
+            <div>
+              <label className="text-[10px] uppercase text-[#69717E] mb-1 block">Type</label>
+              <select 
+                value={selectedObject.lightProps?.type || 'point'} 
+                onChange={(e) => onUpdateObject(selectedObject.id, { lightProps: { ...(selectedObject.lightProps || { intensity: 2 }), type: e.target.value as any } })}
+                className="w-full bg-[#12161D] border border-[#262C36] rounded-sm p-1 text-white mb-2"
+              >
+                <option value="point">Point Light</option>
+                <option value="spot">Spot Light</option>
+                <option value="directional">Directional Light</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-[10px] uppercase text-[#69717E] mb-1 block">Light Intensity</label>
+              <input 
+                type="range" min="0" max="10" step="0.1"
+                value={selectedObject.lightProps?.intensity ?? 2} 
+                onChange={(e) => onUpdateObject(selectedObject.id, { lightProps: { ...(selectedObject.lightProps || {}), intensity: parseFloat(e.target.value) } })}
+                className="w-full mb-2"
+              />
+              <label className="text-[10px] uppercase text-[#69717E] mb-1 block">Light Color</label>
+              <input 
+                type="color" 
+                value={selectedObject.color || '#ffffff'} 
+                onChange={(e) => onUpdateObject(selectedObject.id, { color: e.target.value })}
+                className="w-full bg-[#12161D] border border-[#262C36] rounded-sm h-8"
+              />
+            </div>
+          </>
         )}
 
         <div className="border-t border-[#262C36] pt-4">

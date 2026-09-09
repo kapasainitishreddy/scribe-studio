@@ -2,7 +2,7 @@ import React, { useEffect, Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Grid, Environment, ContactShadows } from '@react-three/drei';
 import { Box, Camera, User, Lightbulb, Trash2, Sliders, Move, RefreshCw } from 'lucide-react';
-import { PanelGroup, Panel, PanelResizeHandle } from 'react-resizable-panels';
+import { Group, Panel, Separator } from 'react-resizable-panels';
 import type { Project, Scene3DObject } from '../../packages/project-model/src/types';
 import { usePrevisStore } from '../domain/previsStore';
 import { Character3D } from './previs/Character3D';
@@ -118,9 +118,9 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
   };
 
   return (
-    <PanelGroup direction="vertical" className="w-full h-full bg-[#0a0c10] text-[#A0A7B2]">
+    <Group orientation="vertical" className="w-full h-full bg-[#0a0c10] text-[#A0A7B2]">
       <Panel className="flex flex-col min-h-0">
-        <PanelGroup direction="horizontal">
+        <Group orientation="horizontal">
           {/* Left Panel: Tabs */}
           <Panel defaultSize={20} minSize={15} maxSize={30} className="flex flex-col bg-[#0D1015] border-r border-[#262C36]">
             <div className="flex border-b border-[#262C36] shrink-0">
@@ -167,7 +167,7 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
             )}
           </Panel>
 
-          <PanelResizeHandle className="w-px bg-[#262C36] hover:bg-[#D49B54] transition-colors cursor-col-resize shrink-0" />
+          <Separator className="w-px bg-[#262C36] hover:bg-[#D49B54] transition-colors cursor-col-resize shrink-0" />
 
           {/* Center Panel: Canvas */}
           <Panel className="relative flex flex-col bg-[#090B0E]">
@@ -199,15 +199,15 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
             </div>
           </Panel>
 
-          <PanelResizeHandle className="w-px bg-[#262C36] hover:bg-[#D49B54] transition-colors cursor-col-resize shrink-0" />
+          <Separator className="w-px bg-[#262C36] hover:bg-[#D49B54] transition-colors cursor-col-resize shrink-0" />
 
           {/* Right Panel: Properties */}
           <Panel defaultSize={20} minSize={15} maxSize={30} className="flex flex-col bg-[#0D1015]">
             <Inspector3D objects={sceneObjects} onUpdateObject={onUpdateObject} onDeleteObject={onDeleteObject} />
           </Panel>
-        </PanelGroup>
+        </Group>
       </Panel>
-      <PanelResizeHandle className="h-px bg-[#262C36] hover:bg-[#D49B54] transition-colors cursor-row-resize shrink-0" />
+      <Separator className="h-px bg-[#262C36] hover:bg-[#D49B54] transition-colors cursor-row-resize shrink-0" />
       <Panel defaultSize={20} minSize={10} maxSize={40} className="flex flex-col bg-[#0D1015]">
         <div className="p-2 border-b border-[#262C36] flex items-center justify-between shrink-0">
           <span className="text-xs font-semibold text-[#F0F2F5] uppercase tracking-wider">Shot Filmstrip</span>
@@ -230,6 +230,6 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
           )}
         </div>
       </Panel>
-    </PanelGroup>
+    </Group>
   );
 };
