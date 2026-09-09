@@ -9,12 +9,16 @@ export const AssetBrowser: React.FC<{
   onAddObject: (obj: Scene3DObject) => void;
   sceneNumber: number;
 }> = ({ onAddObject, sceneNumber }) => {
-  const [filter, setFilter] = useState<'all' | 'actor' | 'prop' | 'camera' | 'light'>('all');
+  const [filter, setFilter] = useState<string>('all');
   const [search, setSearch] = useState('');
   const setSelectedObjectId = usePrevisStore(s => s.setSelectedObjectId);
 
   const filtered = ASSET_LIBRARY.filter(a => {
-    if (filter !== 'all' && a.kind !== filter) return false;
+    if (filter !== 'all') {
+      const isKind = ['actor', 'prop', 'camera', 'light'].includes(filter);
+      if (isKind && a.kind !== filter) return false;
+      if (!isKind && a.category !== filter) return false;
+    }
     if (search && !a.name.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   });
@@ -45,12 +49,12 @@ export const AssetBrowser: React.FC<{
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        <div className="flex gap-1 mt-2">
-          {['all', 'actor', 'prop', 'camera', 'light'].map(f => (
+        <div className="flex gap-1 mt-2 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-[#262C36] scrollbar-track-transparent">
+          {['all', 'actor', 'prop', 'camera', 'light', 'character', 'animal', 'furniture', 'set-piece', 'environment'].map(f => (
             <button 
               key={f}
               onClick={() => setFilter(f as any)}
-              className={`px-2 py-1 text-[10px] uppercase font-mono rounded-sm transition-colors ${filter === f ? 'bg-[#D49B54] text-black font-bold' : 'bg-[#171C24] text-[#A0A7B2] hover:bg-[#202736]'}`}
+              className={`shrink-0 px-2 py-1 text-[10px] uppercase font-mono rounded-sm transition-colors ${filter === f ? 'bg-[#D49B54] text-black font-bold' : 'bg-[#171C24] text-[#A0A7B2] hover:bg-[#202736]'}`}
             >
               {f}
             </button>

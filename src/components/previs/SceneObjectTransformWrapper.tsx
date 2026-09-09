@@ -13,6 +13,7 @@ export const SceneObjectTransformWrapper: React.FC<{
   const selectedObjectId = usePrevisStore(s => s.selectedObjectId);
   const setSelectedObjectId = usePrevisStore(s => s.setSelectedObjectId);
   const transformMode = usePrevisStore(s => s.transformMode);
+  const setOrbitEnabled = usePrevisStore(s => s.setOrbitEnabled);
   
   const isSelected = selectedObjectId === object.id;
 
@@ -45,7 +46,9 @@ export const SceneObjectTransformWrapper: React.FC<{
         <TransformControls
           object={groupRef as any}
           mode={transformMode}
+          onMouseDown={() => setOrbitEnabled(false)}
           onMouseUp={(e: any) => {
+            setOrbitEnabled(true);
             if (groupRef.current && onUpdateObject) {
               const p = groupRef.current.position;
               const r = groupRef.current.rotation;

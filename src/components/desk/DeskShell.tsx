@@ -54,6 +54,8 @@ interface DeskShellProps {
   addScene3DObject: (obj: any) => void;
   updateScene3DObject: (id: string, updates: any) => void;
   deleteScene3DObject: (id: string) => void;
+  saveScene3DShot: (shot: any) => void;
+  captureStoryboardFrame: (sceneNumber: number, imageUrl: string) => void;
   runParallelResearch: (query: string) => Promise<any>;
   loadSampleProject: () => void;
   createNewProject: () => void;
@@ -91,6 +93,8 @@ export const DeskShell: React.FC<DeskShellProps> = ({
   resolveContinuityIssue,
   toggleBreakdownLock,
   addBreakdownElement,
+  saveScene3DShot,
+  captureStoryboardFrame,
   addScene3DObject,
   updateScene3DObject,
   deleteScene3DObject,
@@ -330,6 +334,8 @@ export const DeskShell: React.FC<DeskShellProps> = ({
                     onAddScene3DObject={addScene3DObject}
                     onUpdateScene3DObject={updateScene3DObject}
                     onDeleteScene3DObject={deleteScene3DObject}
+                    onSaveShot={saveScene3DShot}
+                    onCaptureFrame={captureStoryboardFrame}
                   />
                 </motion.div>
               )}

@@ -1,5 +1,6 @@
 import React, { useEffect, Suspense } from 'react';
-import { Canvas } from '@react-three/fiber';
+import * as THREE from 'three';
+import { Canvas, useThree } from '@react-three/fiber';
 import { OrbitControls, Grid, Environment, ContactShadows } from '@react-three/drei';
 import { Box, Camera, User, Lightbulb, Trash2, Sliders, Move, RefreshCw } from 'lucide-react';
 import { Group, Panel, Separator } from 'react-resizable-panels';
@@ -92,6 +93,9 @@ export const Scene3DStudio: React.FC<Scene3DStudioProps> = ({
         case 'w': setTransformMode('translate'); break;
         case 'e': setTransformMode('rotate'); break;
         case 'r': setTransformMode('scale'); break;
+        case 'f':
+          if (selectedObjectId) window.dispatchEvent(new CustomEvent('app:frame-selected', { detail: selectedObjectId }));
+          break;
         case 'delete':
         case 'backspace':
           if (selectedObjectId) {

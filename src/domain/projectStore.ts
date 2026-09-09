@@ -453,6 +453,60 @@ export function useProject() {
     }); 
   }, [pushUndo]);
 
+  
+
+  const captureStoryboardFrame = useCallback((sceneNumber: number, imageUrl: string) => {
+    setProject((prev) => {
+      const p = prev ? { ...prev } : prev;
+      if (!p) return p;
+      if (!p.storyboardSequences) p.storyboardSequences = {};
+      const seq = p.storyboardSequences[sceneNumber] || {
+        id: `seq-${sceneNumber}`,
+        sceneNumber,
+        title: `Scene ${sceneNumber}`,
+        layout: "1-panel",
+        panels: [],
+        aspectRatio: "2.39:1",
+        updatedAt: new Date().toISOString()
+      };
+      
+      const newPanelId = `p-${sceneNumber}-${Date.now()}`;
+      const newPanel: StoryboardPanel = {
+        id: newPanelId,
+        sequenceId: seq.id,
+        sceneNumber,
+        beatId: `b-${sceneNumber}-generated`,
+        panelNumber: seq.panels.length + 1,
+        shotType: "wide",
+        cameraAngle: "eye-level",
+        composition: "Captured from 3D Viewport",
+        charactersVisible: [],
+        action: "Viewport Capture",
+        location: "",
+        propsVisible: [],
+        lightingIntent: "Viewport Lighting",
+        mood: "neutral",
+        continuityReferences: [],
+        directorNotes: "",
+        generationPrompt: "",
+        version: 1,
+        status: "APPROVED",
+        sourceLineIds: [],
+        imageUrl
+      };
+      
+      p.storyboardSequences = {
+        ...p.storyboardSequences,
+        [sceneNumber]: {
+          ...seq,
+          panels: [...seq.panels, newPanel],
+          updatedAt: new Date().toISOString()
+        }
+      };
+      return p;
+    });
+  }, []);
+
   const addScene3DObject = useCallback((obj: Scene3DObject) => {
     setProject((prev) => {
       pushUndo(prev.scene3DObjects || []);
@@ -1044,7 +1098,9 @@ export function useProject() {
     loadSampleProject,
     createNewProject,
     setActiveAiProvider,
-    addScene3DObject,
+    saveScene3DShot,
+      captureStoryboardFrame,
+      addScene3DObject,
     updateScene3DObject,
     deleteScene3DObject,
     addResearchFinding,

@@ -31,6 +31,8 @@ export const App: React.FC = () => {
     addBreakdownElement,
     loadSampleProject,
     createNewProject,
+    saveScene3DShot,
+    captureStoryboardFrame,
     addScene3DObject,
     updateScene3DObject,
     deleteScene3DObject,
@@ -44,6 +46,10 @@ export const App: React.FC = () => {
     regenerateOutdatedPanels,
     generateStoryboardForScene
   } = useProject();
+
+    if (typeof window !== 'undefined') {
+    (window as any).__getProjectStore = () => project;
+  }
 
   return (
     <LazyMotion features={domAnimation}>
@@ -77,6 +83,8 @@ export const App: React.FC = () => {
         addScene3DObject={addScene3DObject}
         updateScene3DObject={updateScene3DObject}
         deleteScene3DObject={deleteScene3DObject}
+        saveScene3DShot={saveScene3DShot}
+        captureStoryboardFrame={captureStoryboardFrame}
         runParallelResearch={(query) => runParallelResearch(selectedSceneNumber, query)}
         loadSampleProject={loadSampleProject}
         createNewProject={() => createNewProject("Untitled Screenplay", "Writer")}

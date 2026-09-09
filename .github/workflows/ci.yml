@@ -40,3 +40,19 @@ jobs:
         cd server
         npm ci
         npm run build
+
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps chromium
+
+    - name: Run Playwright E2E Master Journey
+      run: npm run test:e2e
+      
+    - name: Upload Playwright Artifacts
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: playwright-report
+        path: |
+          playwright-report/
+          artifacts/screenshots/
+        retention-days: 10

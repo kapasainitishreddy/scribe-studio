@@ -7,6 +7,8 @@ interface PrevisState {
   showFramingGuides: boolean;
   framingGuides: 'none' | 'thirds' | 'safe-area';
   environmentPreset: string;
+  orbitEnabled: boolean;
+  setOrbitEnabled: (b: boolean) => void;
   setSelectedObjectId: (id: string | null) => void;
   setTransformMode: (mode: 'translate' | 'rotate' | 'scale') => void;
   setFramingGuides: (guides: 'none' | 'thirds' | 'safe-area') => void;
@@ -22,10 +24,12 @@ export const usePrevisStore = create<PrevisState>((set) => ({
   showFramingGuides: true,
   framingGuides: 'none',
   environmentPreset: 'city',
+  orbitEnabled: true,
   setSelectedObjectId: (id) => set({ selectedObjectId: id }),
   setTransformMode: (mode) => set({ transformMode: mode }),
   setFramingGuides: (guides) => set({ framingGuides: guides }),
   setActiveCameraId: (id) => set({ activeCameraId: id }),
   setShowFramingGuides: (show) => set({ showFramingGuides: show }),
   setEnvironmentPreset: (preset) => set({ environmentPreset: preset }),
+  setOrbitEnabled: (b) => set({ orbitEnabled: b }),
 }));

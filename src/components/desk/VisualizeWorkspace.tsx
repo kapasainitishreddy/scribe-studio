@@ -34,6 +34,8 @@ interface VisualizeWorkspaceProps {
   onAddScene3DObject: (obj: any) => void;
   onUpdateScene3DObject: (id: string, updates: any) => void;
   onDeleteScene3DObject: (id: string) => void;
+  onSaveShot: (shot: any) => void;
+  onCaptureFrame: (sceneNumber: number, imageUrl: string) => void;
 }
 
 type VisualTab = "storyboard" | "shotlist" | "comic" | "previs_3d";
@@ -48,7 +50,9 @@ export const VisualizeWorkspace: React.FC<VisualizeWorkspaceProps> = ({
   onAddShot,
   onAddScene3DObject,
   onUpdateScene3DObject,
-  onDeleteScene3DObject
+  onDeleteScene3DObject,
+  onSaveShot,
+  onCaptureFrame
 }) => {
   const parsed = useMemo(() => parseScreenplay(project.screenplayText), [project.screenplayText]);
   const activeScene = parsed.scenes.find((s) => s.number === selectedSceneNumber) || parsed.scenes[0];
@@ -229,6 +233,8 @@ export const VisualizeWorkspace: React.FC<VisualizeWorkspaceProps> = ({
                 onAddObject={onAddScene3DObject}
                 onUpdateObject={onUpdateScene3DObject}
                 onDeleteObject={onDeleteScene3DObject}
+                onSaveShot={onSaveShot}
+                onCaptureFrame={onCaptureFrame}
               />
             </div>
           )}
