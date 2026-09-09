@@ -55,4 +55,5 @@ jobs:
         path: |
           playwright-report/
           artifacts/screenshots/
+          artifacts/demo/
         retention-days: 10
