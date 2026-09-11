@@ -58,7 +58,7 @@ export const ParallelResearchRequestSchema = z.object({
   query: z.string().trim().min(1).max(REQUEST_LIMITS.researchQueryChars),
   objective: z.string().trim().min(1).max(REQUEST_LIMITS.researchObjectiveChars).optional(),
   maxResults: z.number().int().positive().max(REQUEST_LIMITS.researchMaxResults).optional().default(4)
-}).strict();
+});
 
 const BoundedEntitySchema = z.string().trim().min(1).max(REQUEST_LIMITS.entityChars);
 
@@ -67,13 +67,13 @@ export const SceneContextSchema = z.object({
   heading: z.string().trim().max(REQUEST_LIMITS.sceneHeadingChars),
   characters: z.array(BoundedEntitySchema).max(REQUEST_LIMITS.sceneEntities).optional().default([]),
   props: z.array(BoundedEntitySchema).max(REQUEST_LIMITS.sceneEntities).optional().default([])
-}).strict();
+});
 
 export const ExistingArtifactSchema = z.object({
   id: z.string().trim().min(1).max(REQUEST_LIMITS.artifactFieldChars),
   sceneNumber: z.number().int().positive().optional(),
   type: z.string().trim().min(1).max(REQUEST_LIMITS.artifactFieldChars)
-}).strict();
+});
 
 export const ChangeImpactRequestSchema = z.object({
   projectTitle: z.string().trim().min(1).max(REQUEST_LIMITS.projectTitleChars).default("Untitled Screenplay"),
@@ -85,7 +85,7 @@ export const ChangeImpactRequestSchema = z.object({
   screenplayText: z.string().max(REQUEST_LIMITS.screenplayTextChars).optional(),
   allScenes: z.array(SceneContextSchema).max(REQUEST_LIMITS.allScenes).optional().default([]),
   existingArtifacts: z.array(ExistingArtifactSchema).max(REQUEST_LIMITS.existingArtifacts).optional().default([])
-}).strict();
+});
 
 export type ChangeImpactRequest = z.infer<typeof ChangeImpactRequestSchema>;
 export type GeminiStructuredOutput = z.infer<typeof GeminiStructuredOutputSchema>;
