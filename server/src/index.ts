@@ -28,7 +28,10 @@ app.use(cors({
   credentials: true
 }));
 
-app.use(express.json({ limit: "10mb" }));
+// Paid agent routes accept bounded structured inputs only. Keep this below the
+// schema-level aggregate ceiling so a single request cannot consume arbitrary
+// memory or provider context before validation runs.
+app.use(express.json({ limit: "1mb" }));
 
 // GET /health
 app.get("/health", (_req, res) => {
