@@ -4,6 +4,7 @@ import test from "node:test";
 
 const schemas = await readFile(new URL("../server/src/schemas.ts", import.meta.url), "utf8");
 const server = await readFile(new URL("../server/src/index.ts", import.meta.url), "utf8");
+const packageJson = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8"));
 
 test("Parallel Search fan-out is capped before provider execution", () => {
   assert.match(schemas, /researchMaxResults:\s*8/);
@@ -40,4 +41,10 @@ test("nested scene context is bounded before entering agent state", () => {
 test("Express rejects oversized JSON before agent validation", () => {
   assert.match(server, /express\.json\(\{\s*limit:\s*"1mb"\s*\}\)/);
   assert.doesNotMatch(server, /express\.json\(\{\s*limit:\s*"10mb"\s*\}\)/);
+});
+
+test("the Node contract suite is not collected a second time by Vitest", () => {
+  const script = packageJson.scripts?.test ?? "";
+  assert.match(script, /node --test tests\/serverRequestBudget\.contract\.test\.mjs/);
+  assert.match(script, /vitest run[^&]*--exclude tests\/serverRequestBudget\.contract\.test\.mjs/);
 });
