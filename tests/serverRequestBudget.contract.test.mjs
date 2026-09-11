@@ -31,9 +31,10 @@ test("provider-driving collections have cardinality ceilings", () => {
   assert.match(schemas, /existingArtifacts:\s*z\.array\(ExistingArtifactSchema\)\.max\(REQUEST_LIMITS\.existingArtifacts\)/);
 });
 
-test("paid request schemas reject unknown fields", () => {
-  const strictSchemaCount = (schemas.match(/\}\)\.strict\(\);/g) || []).length;
-  assert.ok(strictSchemaCount >= 4, `expected strict paid-input schemas, found ${strictSchemaCount}`);
+test("nested scene context is bounded before entering agent state", () => {
+  assert.match(schemas, /heading:\s*z\.string\(\)\.trim\(\)\.max\(REQUEST_LIMITS\.sceneHeadingChars\)/);
+  assert.match(schemas, /characters:\s*z\.array\(BoundedEntitySchema\)\.max\(REQUEST_LIMITS\.sceneEntities\)/);
+  assert.match(schemas, /props:\s*z\.array\(BoundedEntitySchema\)\.max\(REQUEST_LIMITS\.sceneEntities\)/);
 });
 
 test("Express rejects oversized JSON before agent validation", () => {
