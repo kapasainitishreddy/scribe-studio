@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "typecheck": "tsc --noEmit",
-    "test": "node --test tests/serverRequestBudget.contract.test.mjs && vitest run --exclude tests/liveGoogleCloudParallel.test.ts --exclude tests/e2e/**",
+    "test": "node --test tests/serverRequestBudget.contract.test.mjs && vitest run --exclude tests/liveGoogleCloudParallel.test.ts --exclude='tests/e2e/**'",
     "test:watch": "vitest",
     "test:live": "vitest run tests/liveGoogleCloudParallel.test.ts",
     "test:request-budget": "node --test tests/serverRequestBudget.contract.test.mjs",
