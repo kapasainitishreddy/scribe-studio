@@ -1,5 +1,22 @@
 import { z } from "zod";
 
+export const REQUEST_LIMITS = {
+  researchQueryChars: 500,
+  researchObjectiveChars: 1_000,
+  researchMaxResults: 8,
+  projectTitleChars: 200,
+  revisionTextChars: 50_000,
+  contextNotesChars: 10_000,
+  screenplayTextChars: 250_000,
+  sceneHeadingChars: 500,
+  entityChars: 120,
+  changedEntities: 200,
+  sceneEntities: 100,
+  allScenes: 500,
+  existingArtifacts: 1_000,
+  artifactFieldChars: 200
+} as const;
+
 export const EvidenceStateSchema = z.enum([
   "VERIFIED",
   "SUPPORTED",
@@ -38,38 +55,39 @@ export const GeminiStructuredOutputSchema = z.object({
 });
 
 export const ParallelResearchRequestSchema = z.object({
-  query: z.string().min(1),
-  objective: z.string().optional(),
-  maxResults: z.number().int().positive().optional().default(4)
-});
+  query: z.string().trim().min(1).max(REQUEST_LIMITS.researchQueryChars),
+  objective: z.string().trim().min(1).max(REQUEST_LIMITS.researchObjectiveChars).optional(),
+  maxResults: z.number().int().positive().max(REQUEST_LIMITS.researchMaxResults).optional().default(4)
+}).strict();
+
+const BoundedEntitySchema = z.string().trim().min(1).max(REQUEST_LIMITS.entityChars);
 
 export const SceneContextSchema = z.object({
   number: z.number().int().positive(),
-  heading: z.string(),
-  characters: z.array(z.string()).optional().default([]),
-  props: z.array(z.string()).optional().default([])
-});
+  heading: z.string().trim().max(REQUEST_LIMITS.sceneHeadingChars),
+  characters: z.array(BoundedEntitySchema).max(REQUEST_LIMITS.sceneEntities).optional().default([]),
+  props: z.array(BoundedEntitySchema).max(REQUEST_LIMITS.sceneEntities).optional().default([])
+}).strict();
 
 export const ExistingArtifactSchema = z.object({
-  id: z.string(),
-  sceneNumber: z.number().optional(),
-  type: z.string()
-});
+  id: z.string().trim().min(1).max(REQUEST_LIMITS.artifactFieldChars),
+  sceneNumber: z.number().int().positive().optional(),
+  type: z.string().trim().min(1).max(REQUEST_LIMITS.artifactFieldChars)
+}).strict();
 
 export const ChangeImpactRequestSchema = z.object({
-  projectTitle: z.string().default("Untitled Screenplay"),
+  projectTitle: z.string().trim().min(1).max(REQUEST_LIMITS.projectTitleChars).default("Untitled Screenplay"),
   sceneNumber: z.number().int().positive(),
-  beforeText: z.string(),
-  afterText: z.string(),
-  changedEntities: z.array(z.string()).optional().default([]),
-  contextNotes: z.string().optional(),
-  screenplayText: z.string().optional(),
-  allScenes: z.array(SceneContextSchema).optional().default([]),
-  existingArtifacts: z.array(ExistingArtifactSchema).optional().default([])
-});
+  beforeText: z.string().max(REQUEST_LIMITS.revisionTextChars),
+  afterText: z.string().max(REQUEST_LIMITS.revisionTextChars),
+  changedEntities: z.array(BoundedEntitySchema).max(REQUEST_LIMITS.changedEntities).optional().default([]),
+  contextNotes: z.string().max(REQUEST_LIMITS.contextNotesChars).optional(),
+  screenplayText: z.string().max(REQUEST_LIMITS.screenplayTextChars).optional(),
+  allScenes: z.array(SceneContextSchema).max(REQUEST_LIMITS.allScenes).optional().default([]),
+  existingArtifacts: z.array(ExistingArtifactSchema).max(REQUEST_LIMITS.existingArtifacts).optional().default([])
+}).strict();
 
 export type ChangeImpactRequest = z.infer<typeof ChangeImpactRequestSchema>;
 export type GeminiStructuredOutput = z.infer<typeof GeminiStructuredOutputSchema>;
 export type ContinuityFinding = z.infer<typeof ContinuityFindingSchema>;
 export type ProductionImplications = z.infer<typeof ProductionImplicationsSchema>;
-
